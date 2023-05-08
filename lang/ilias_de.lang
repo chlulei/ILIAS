@@ -8703,6 +8703,7 @@ didactic#:#didactic_default_type_info#:#Es werden die Rechtevorgaben für die je
 didactic#:#didactic_delete_msg#:#Die ausgewählten didaktischen Vorlagen wurden gelöscht.
 didactic#:#didactic_do_export#:#Exportieren
 didactic#:#didactic_edit_tpl#:#Didaktische Vorlage bearbeiten
+didactic#:#didactic_expected_input_scope#:#Bitte ref_ids getrennt durch ';' eingeben. Die ref_ids von UI-Elementen werden angezeigt wenn der Mauszeiger über diesen liegt. Es werden nur die ref_ids von ilContainer-Objekten aktzeptiert.
 didactic#:#didactic_filter_with_icon#:#mit Symbol
 didactic#:#didactic_filter_without_icon#:#ohne Symbol
 didactic#:#didactic_global#:#Global
@@ -8713,6 +8714,9 @@ didactic#:#didactic_import_btn#:#Didaktische Vorlage importieren
 didactic#:#didactic_import_failed#:#Die didaktische Vorlage konnte nicht importiert werden:
 didactic#:#didactic_import_success#:#Die didaktische Vorlage wurde erfolgreich importiert
 didactic#:#didactic_import_table_title#:#Import einer didaktischen Vorlage
+didactic#:#didactic_input_scope_error_duplicate_ref_id#:#Duplikate unter den angegebenen ref_ids gefunden.
+didactic#:#didactic_input_scope_error_invalid_input#:#Die Eingabe muss dem Schema 'ref_id1;ref_id2;...' entsprechen.
+didactic#:#didactic_input_scope_error_invalid_ref_id#:#Es wurden eine, oder mehrere ungültige ref_ids angegeben.
 didactic#:#didactic_install_info#:#Allgemeine Informationen
 didactic#:#didactic_local#:#Lokal
 didactic#:#didactic_not_changed#:#Die aktive didaktische Vorlage wurde nicht geändert.

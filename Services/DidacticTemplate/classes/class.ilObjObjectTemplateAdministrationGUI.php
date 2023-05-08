@@ -33,7 +33,7 @@ class ilObjObjectTemplateAdministrationGUI extends ilObjectGUI
 
             case 'ildidactictemplatesettingsgui':
                 $this->tabs_gui->activateTab('didactic_adm_tab');
-                $did = new ilDidacticTemplateSettingsGUI($this);
+                $did = new ilDidacticTemplateSettingsGUI();
                 $this->ctrl->forwardCommand($did);
                 break;
 

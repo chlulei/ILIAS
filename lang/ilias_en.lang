@@ -8703,6 +8703,7 @@ didactic#:#didactic_default_type_info#:#Default set of permissions will be appli
 didactic#:#didactic_delete_msg#:#Deleted didactic templates.
 didactic#:#didactic_do_export#:#Export
 didactic#:#didactic_edit_tpl#:#Edit Didactic Template
+didactic#:#didactic_expected_input_scope#:#Please enter ref_ids separated by ';'. The ref_ids of UI elements are displayed when the mouse pointer hovers over them. Only the ref_ids of ilContainer objects are accepted.
 didactic#:#didactic_filter_with_icon#:#with Icon
 didactic#:#didactic_filter_without_icon#:#without Icon
 didactic#:#didactic_global#:#Global
@@ -8713,6 +8714,9 @@ didactic#:#didactic_import_btn#:#Import Didactic Template
 didactic#:#didactic_import_failed#:#Importing the didactic template failed with message:
 didactic#:#didactic_import_success#:#Successfully imported didactic template
 didactic#:#didactic_import_table_title#:#Import of a didactic template
+didactic#:#didactic_input_scope_error_duplicate_ref_id#:#Duplicates found among the specified ref_ids.
+didactic#:#didactic_input_scope_error_invalid_input#:#The input must correspond to the scheme 'ref_id1;ref_id2;...'.
+didactic#:#didactic_input_scope_error_invalid_ref_id#:#One or more invalid ref_ids were specified.
 didactic#:#didactic_install_info#:#General Information
 didactic#:#didactic_local#:#Local
 didactic#:#didactic_not_changed#:#The didactic template setting is unchanged.

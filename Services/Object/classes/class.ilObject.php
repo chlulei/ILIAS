@@ -1799,7 +1799,7 @@ class ilObject
                 $path = $dtpl_icon_factory->getIconPathForObject($obj_id);
             }
             if ($path) {
-                return $path . '?tmp=' . filemtime($path);
+                return $path;
             }
         }
 

@@ -17,49 +17,50 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
-use Psr\Http\Message\RequestInterface;
-use ILIAS\DI\Container;
 use ILIAS\HTTP\GlobalHttpState;
 use ILIAS\Refinery\Factory;
-use ILIAS\FileUpload\FileUpload;
+
+use ILIAS\UI\Factory as UIFactory;
+use ILIAS\UI\Renderer as UIRenderer;
+use ILIAS\UI\Component\Input\Container\Form\Standard as StandardForm;
+use ILIAS\UI\Component\MessageBox\MessageBox;
+use ILIAS\FileUpload\MimeType as MimeType;
 
 /**
  * Settings for a single didactic template
  * @author            Stefan Meyer <meyer@leifos.com>
  * @ingroup           ServicesDidacticTemplate
  * @ilCtrl_IsCalledBy ilDidacticTemplateSettingsGUI: ilObjRoleFolderGUI
- * @ilCtrl_Calls      ilDidacticTemplateSettingsGUI: ilMultilingualismGUI, ilPropertyFormGUI
+ * @ilCtrl_Calls      ilDidacticTemplateSettingsGUI: ilMultilingualismGUI, ilPropertyFormGUI, ilObjFileUploadHandlerGUI
  */
 class ilDidacticTemplateSettingsGUI
 {
     private ilLogger $logger;
-    private ilObjectGUI $parent_object;
-    private ?ilDidacticTemplateSetting $setting = null;
-    private Container $dic;
     private ilLanguage $lng;
     private ilRbacSystem $rbacsystem;
     private ilCtrl $ctrl;
     private ilAccessHandler $access;
     private ilToolbarGUI $toolbar;
     private ilObjectDefinition $objDefinition;
-    private RequestInterface $request;
     private GlobalHttpState $http;
     private Factory $refinery;
     private ilGlobalTemplateInterface $tpl;
     private ilTabsGUI $tabs;
-    private FileUpload $upload;
+
+    private UIRenderer $renderer;
+    private UIFactory $uiFactory;
+    private ilTree $repositoryTree;
 
     private int $ref_id;
 
-    public function __construct(ilObjectGUI $a_parent_obj)
+    public function __construct()
     {
         global $DIC;
-        $this->parent_object = $a_parent_obj;
+
         $this->lng = $DIC->language();
         $this->rbacsystem = $DIC->rbac()->system();
         $this->ctrl = $DIC->ctrl();
         $this->objDefinition = $DIC['objDefinition'];
-        $this->request = $DIC->http()->request();
         $this->access = $DIC->access();
         $this->toolbar = $DIC->toolbar();
         $this->http = $DIC->http();
@@ -67,7 +68,10 @@ class ilDidacticTemplateSettingsGUI
         $this->logger = $DIC->logger()->otpl();
         $this->tpl = $DIC->ui()->mainTemplate();
         $this->tabs = $DIC->tabs();
-        $this->upload = $DIC->upload();
+
+        $this->renderer = $DIC->ui()->renderer();
+        $this->uiFactory = $DIC->ui()->factory();
+        $this->repositoryTree = $DIC->repositoryTree();
     }
 
     protected function initReferenceFromRequest(): void
@@ -106,7 +110,7 @@ class ilDidacticTemplateSettingsGUI
                 'tplid',
                 $this->refinery->kindlyTo()->int()
             );
-            return $this->setting = new ilDidacticTemplateSetting($tpl_id);
+            return new ilDidacticTemplateSetting($tpl_id);
         }
 
         return null;
@@ -126,8 +130,8 @@ class ilDidacticTemplateSettingsGUI
                 if (!$setting instanceof ilDidacticTemplateSetting) {
                     $setting = new ilDidacticTemplateSetting();
                 }
-                $form = $this->initEditTemplate($setting);
-                $this->ctrl->forwardCommand($form);
+                $standardForm = $this->initEditTemplate($setting);
+                $this->ctrl->forwardCommand($standardForm);
                 // no break
             case 'ilmultilingualismgui':
                 $setting = $this->initTemplateFromRequest();
@@ -138,11 +142,12 @@ class ilDidacticTemplateSettingsGUI
                     $this->ctrl->redirect($this, "overview");
                 }
                 $this->setEditTabs("settings_trans");
-                $transgui = new ilMultilingualismGUI($this->setting->getId(), 'dtpl');
-                $defaultl = $this->setting->getTranslationObject()->getDefaultLanguage();
+
+                $transgui = new ilMultilingualismGUI($setting->getId(), 'dtpl');
+                $defaultl = $setting->getTranslationObject()->getDefaultLanguage();
                 $transgui->setStartValues(
-                    $this->setting->getPresentationTitle($defaultl),
-                    $this->setting->getPresentationDescription($defaultl)
+                    $setting->getPresentationTitle($defaultl),
+                    $setting->getPresentationDescription($defaultl)
                 );
                 $this->ctrl->forwardCommand($transgui);
                 break;
@@ -156,13 +161,13 @@ class ilDidacticTemplateSettingsGUI
         return '';
     }
 
-    protected function overview(): void
+    protected function overview(MessageBox $messageBox = null): void
     {
         if ($this->rbacsystem->checkAccess('write', $this->ref_id)) {
-            $this->toolbar->addButton(
+            $this->toolbar->addComponent($this->uiFactory->button()->standard(
                 $this->lng->txt('didactic_import_btn'),
                 $this->ctrl->getLinkTarget($this, 'showImportForm')
-            );
+            ));
         }
 
         $filter = new ilDidacticTemplateSettingsTableFilter($this->ctrl->getFormAction($this, 'overview'));
@@ -172,8 +177,9 @@ class ilDidacticTemplateSettingsGUI
         $table->init();
         $table->parse($filter);
 
+        $messageBoxRender = is_null($messageBox) ? '' : $this->renderer->render($messageBox);
         $this->tpl->setContent(
-            $filter->render() . $table->getHTML()
+            $messageBoxRender . $filter->render() . $table->getHTML()
         );
     }
 
@@ -195,7 +201,7 @@ class ilDidacticTemplateSettingsGUI
         $this->overview();
     }
 
-    protected function showImportForm(ilPropertyFormGUI $form = null): void
+    protected function showImportForm(): void
     {
         $setting = $this->initTemplateFromRequest();
         if ($setting instanceof ilDidacticTemplateSetting) {
@@ -207,36 +213,44 @@ class ilDidacticTemplateSettingsGUI
                 $this->ctrl->getLinkTarget($this, 'overview')
             );
         }
-
-        if (!$form instanceof ilPropertyFormGUI) {
-            $form = $this->createImportForm();
-        }
-        $this->tpl->setContent($form->getHTML());
+        $this->ctrl->clearParameterByClass(get_class($this), 'tplid');
+        $this->tpl->setContent($this->renderer->render($this->createImportForm()));
     }
 
-    protected function createImportForm(): ilPropertyFormGUI
+    protected function createImportForm(): StandardForm
     {
-        $form = new ilPropertyFormGUI();
-        $form->setShowTopButtons(false);
-        $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->setTitle($this->lng->txt('didactic_import_table_title'));
-        $form->addCommandButton('importTemplate', $this->lng->txt('import'));
-        $form->addCommandButton('overview', $this->lng->txt('cancel'));
+        $fileXML = $this->uiFactory->input()->field()->file(
+            new ilDidacticTemplateXmlFileHandlerGUI(),
+            $this->lng->txt('import_file')
+        )
+                ->withAcceptedMimeTypes([ MimeType::TEXT__XML ])
+                ->withMaxFileSize((int)ilFileUtils::getUploadSizeLimitBytes())
+                ->withRequired(true);
+        $fileIcon = $this->uiFactory->input()->field()->file(
+            new ilDidacticTemplateImageHandlerGUI(),
+            $this->lng->txt('icon'),
+            $this->lng->txt('didactic_icon_info')
+        )
+                ->withAcceptedMimeTypes([ MimeType::IMAGE__SVG_XML ])
+                ->withMaxFileSize((int)ilFileUtils::getUploadSizeLimitBytes());
 
-        $file = new ilFileInputGUI($this->lng->txt('import_file'), 'file');
-        $file->setSuffixes(['xml']);
-        $file->setRequired(true);
-        $form->addItem($file);
-
-        $icon = new ilImageFileInputGUI($this->lng->txt('icon'), 'icon');
-        $icon->setAllowDeletion(false);
-        $icon->setSuffixes(['svg']);
-        $icon->setInfo($this->lng->txt('didactic_icon_info'));
-        $form->addItem($icon);
-
-        $created = true;
-
-        return $form;
+        $importSection = $this->uiFactory->input()->field()->section(
+            [
+                    'xml_file' => $fileXML,
+                    'icon_file' => $fileIcon
+                ],
+            $this->lng->txt('didactic_import_table_title')
+        );
+        $postUrl = $this->ctrl->getLinkTargetByClass(get_class($this), 'importTemplate');
+        $outputFormatter = $this->refinery->custom()->transformation(function ($v) {
+            return is_null($v[0]) ? [] : $v[0];
+        });
+        return $this->uiFactory->input()->container()->form()->standard(
+            $postUrl,
+            [ $importSection ]
+        )
+            ->withAdditionalTransformation($outputFormatter)
+            ->withSubmitCaption($this->lng->txt('import'));
     }
 
     protected function importTemplate(): void
@@ -245,73 +259,66 @@ class ilDidacticTemplateSettingsGUI
             $this->ctrl->redirect($this, "overview");
         }
 
+        $msgBoxDisplayed = $this->uiFactory->messageBox()->success($this->lng->txt('didactic_import_success'));
+
         $setting = $this->initTemplateFromRequest();
-        if ($setting instanceof ilDidacticTemplateSetting) {
-            $form = $this->editImportForm();
-        } else {
-            $form = $this->createImportForm();
-        }
+        $settingsExist = $setting instanceof ilDidacticTemplateSetting;
 
-        if (!$form->checkInput()) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('err_check_input'));
-            $form->setValuesByPost();
+        $request = $this->http->request();
+        $standardForm = ($settingsExist ? $this->editImportForm() : $this->createImportForm())->withRequest($request);
+        $formData = $standardForm->getData();
 
-            if ($setting instanceof ilDidacticTemplateSetting) {
-                $this->showEditImportForm($form);
-            } else {
-                $this->showImportForm($form);
-            }
+        if(is_null($formData)) {
+            $this->editTemplate($standardForm, $this->uiFactory->messageBox()->failure($this->lng->txt('didactic_import_failed')));
             return;
         }
 
-        // Do import
+        $xmlFileIdentifier = $formData['xml_file'][0] ?? '';
+        $iconIdentifier = $formData['icon_file'][0] ?? '';
+
         $import = new ilDidacticTemplateImport(ilDidacticTemplateImport::IMPORT_FILE);
-
-        $file = $form->getInput('file');
-        $tmp = ilFileUtils::ilTempnam() . '.xml';
-
-        // move uploaded file
-        ilFileUtils::moveUploadedFile(
-            $file['tmp_name'],
-            $file['name'],
-            $tmp
-        );
-        $import->setInputFile($tmp);
+        $import->setInputFileIdentifier($xmlFileIdentifier);
 
         try {
-            $settings = $import->import();
+            $importSettings = $import->import();
             if ($setting instanceof ilDidacticTemplateSetting) {
-                $this->editImport($settings);
-            } elseif ($settings->hasIconSupport($this->objDefinition)) {
-                $settings->getIconHandler()->handleUpload($this->upload, $_FILES['icon']['tmp_name']);
+                $this->editImport($importSettings);
+            } elseif ($importSettings->hasIconSupport($this->objDefinition)) {
+                $importSettings->getIconHandler()->updateIconIdentifier($iconIdentifier);
+                $importSettings->update();
             }
         } catch (ilDidacticTemplateImportException $e) {
             $this->logger->error('Import failed with message: ' . $e->getMessage());
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('didactic_import_failed') . ': ' . $e->getMessage());
+            $msgBoxDisplayed = $this->uiFactory->messageBox()->failure($this->lng->txt('didactic_import_failed') . ': ' . $e->getMessage());
         }
 
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('didactic_import_success'), true);
+        // Xml file no longer needed -> deleting file.
+        $import->deleteXmlFile();
 
         if ($setting instanceof ilDidacticTemplateSetting) {
-            $this->ctrl->redirect($this, 'editTemplate');
+            $this->ctrl->setParameter($this, 'tplid', $setting->getId());
+            $this->editTemplate(null, $msgBoxDisplayed);
         } else {
-            $this->ctrl->redirect($this, 'overview');
+            $this->overview($msgBoxDisplayed);
         }
     }
 
-    protected function editTemplate(ilPropertyFormGUI $form = null): void
+    protected function editTemplate(StandardForm $standardForm = null, MessageBox $messageBox = null): void
     {
         $setting = $this->initTemplateFromRequest();
-        if (!$setting instanceof ilDidacticTemplateSetting) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'overview');
-        }
         $this->setEditTabs("edit");
         $this->ctrl->saveParameter($this, 'tplid');
-        if (!$form instanceof ilPropertyFormGUI) {
-            $form = $this->initEditTemplate($this->setting);
+        if (!$standardForm instanceof StandardForm) {
+            $standardForm = $this->initEditTemplate($setting);
         }
-        $this->tpl->setContent($form->getHTML());
+
+        $items = is_null($messageBox) ? array(
+            $standardForm
+        ) : array(
+            $messageBox,
+            $standardForm
+        );
+        $this->tpl->setContent($this->renderer->render($items));
     }
 
     protected function updateTemplate(): void
@@ -323,188 +330,205 @@ class ilDidacticTemplateSettingsGUI
             $this->ctrl->redirect($this, "overview");
         }
 
-        $form = $this->initEditTemplate($this->setting);
+        $request = $this->http->request();
+        $standardForm = $this->initEditTemplate($setting)->withRequest($request);
+        $formData = $standardForm->getData();
 
-        if ($form->checkInput()) {
-            $tmp_file = $_FILES['icon']['tmp_name'] ?? '';
-            $upload_element = $form->getItemByPostVar('icon');
-            if (
-                ($tmp_file !== '' || ($tmp_file === '' && $this->setting->getIconIdentifier())) &&
-                !$this->objDefinition->isContainer($form->getInput('type')) &&
-                !$upload_element->getDeletionFlag()
-            ) {
-                $form->getItemByPostVar('icon')->setAlert($this->lng->txt('didactic_icon_error'));
-                $this->handleUpdateFailure($form);
-                return;
-            }
-            //change default entries if translation is active
-            if (count($lang = $this->setting->getTranslationObject()->getLanguages())) {
-                $this->setting->getTranslationObject()->setDefaultTitle($form->getInput('title'));
-                $this->setting->getTranslationObject()->setDefaultDescription($form->getInput('description'));
-                $this->setting->getTranslationObject()->save();
-            }
-
-            if (!$this->setting->isAutoGenerated()) {
-                $this->setting->setTitle($form->getInput('title'));
-                $this->setting->setDescription($form->getInput('description'));
-            }
-
-            $this->setting->setInfo($form->getInput('info'));
-            $this->setting->enable((bool) $form->getInput('enable'));
-
-            if (!$this->setting->isAutoGenerated()) {
-                $this->setting->setAssignments([$form->getInput('type')]);
-            }
-
-            if ($form->getInput('local_template') && count($form->getInput('effective_from')) > 0) {
-                $this->setting->setEffectiveFrom($form->getInput('effective_from'));
-            } else {
-                $this->setting->setEffectiveFrom([]);
-            }
-
-            $this->setting->setExclusive((bool) $form->getInput('exclusive_template'));
-
-            $this->setting->update();
-
-            $upload = $form->getItemByPostVar('icon');
-            if ($upload->getDeletionFlag()) {
-                $this->setting->getIconHandler()->delete();
-            }
-            $this->setting->getIconHandler()->handleUpload($this->upload, $_FILES['icon']['tmp_name']);
-            $this->tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
-            $this->ctrl->redirect($this, 'overview');
+        if(is_null($formData)) {
+            $this->editTemplate($standardForm);
+            return;
         }
-        $this->handleUpdateFailure($form);
+
+        if (count($setting->getTranslationObject()->getLanguages())) {
+            $setting->getTranslationObject()->setDefaultTitle($formData['title']);
+            $setting->getTranslationObject()->setDefaultDescription($formData['description']);
+            $setting->getTranslationObject()->save();
+        }
+
+        if (!$setting->isAutoGenerated()) {
+            $setting->setTitle($formData['title']);
+            $setting->setDescription($formData['description']);
+        }
+
+        if (!$setting->isAutoGenerated()) {
+            $setting->setAssignments([$formData['type']]);
+        }
+
+        $categoryRefIds = [];
+        if (!is_null($formData['local_template'])) {
+            $refIds = explode(';', $formData['local_template']['application_scope_input']);
+            foreach($refIds as $refId) {
+                if($refId === '') {
+                    continue;
+                }
+                $categoryRefIds[] = $refId;
+            }
+            $setting->setEffectiveFrom(explode(';', $formData['local_template']['application_scope_input']));
+        }
+
+        $setting->setEffectiveFrom($categoryRefIds);
+        $setting->setExclusive((bool) $formData['exclusive_template']);
+        $setting->setInfo($formData['info']);
+        $setting->enable((bool) $formData['enable']);
+        $setting->getIconHandler()->updateIconIdentifier($formData['icon_file'][0] ?? '');
+        $setting->update();
+
+        $this->overview($this->uiFactory->messageBox()->success($this->lng->txt('settings_saved')));
     }
 
-    protected function handleUpdateFailure(ilPropertyFormGUI $form): void
+    protected function initEditTemplate(ilDidacticTemplateSetting $set): StandardForm
     {
-        $this->tpl->setOnScreenMessage('failure', $this->lng->txt('err_check_input'));
-        $form->setValuesByPost();
-        $this->editTemplate($form);
-    }
+        $translations = $set->getTranslations();
+        $default = count($translations) > 0 ? $translations[0] : null;
+        $languages = ilMDLanguageItem::_getLanguages();
+        $translationsInfo = count($translations) <= 1 ? '' :
+                $this->lng->txt("language")
+                . ": "
+                . $languages[$default["lang_code"]]
+                . ' <a href="'
+                . $this->ctrl->getLinkTargetByClass("ilmultilingualismgui", "listTranslations")
+                . '">&raquo; '
+                . $this->lng->txt("more_translations")
+                . '</a>';
+        $textInputFieldTitleValue = $set->isAutoGenerated() ? $set->getPresentationTitle() : $default["title"] ?? '';
+        $textInputFieldTitle = $this->uiFactory->input()->field()->text(
+            $this->lng->txt('title')
+        )
+                ->withRequired(true)
+                ->withDisabled($set->isAutoGenerated())
+                ->withValue($textInputFieldTitleValue)
+                ->withByline($translationsInfo);
 
-    protected function initEditTemplate(ilDidacticTemplateSetting $set): ilPropertyFormGUI
-    {
-        $form = new ilPropertyFormGUI();
-        $form->setShowTopButtons(false);
-        $form->setFormAction($this->ctrl->getFormAction($this, 'updateTemplate'));
-        $form->setTitle($this->lng->txt('didactic_edit_tpl'));
-        $form->addCommandButton('updateTemplate', $this->lng->txt('save'));
-        $form->addCommandButton('overview', $this->lng->txt('cancel'));
+        $textInputAreaDescriptionValue = $set->isAutoGenerated() ? $set->getPresentationDescription() : $default["description"] ?? '';
+        $textInputAreaDescription = $this->uiFactory->input()->field()->textarea(
+            $this->lng->txt('description')
+        )
+                ->withDisabled($set->isAutoGenerated())
+                ->withValue($textInputAreaDescriptionValue);
 
-        // title
-        $title = new ilTextInputGUI($this->lng->txt('title'), 'title');
-        $title->setSize(40);
-        $title->setMaxLength(64);
-        $title->setRequired(true);
-        //use presentation title if autogenerated is set
-        $title->setDisabled($set->isAutoGenerated());
+        $fileUploadIcon = $this->uiFactory->input()->field()->file(
+            new ilDidacticTemplateImageHandlerGUI($set->getIconIdentifier()),
+            $this->lng->txt('didactic_icon'),
+            $this->lng->txt('didactic_icon_info')
+        )
+                ->withAcceptedMimeTypes([ MimeType::IMAGE__SVG_XML ])
+                ->withMaxFileSize((int) ilFileUtils::getUploadSizeLimitBytes());
 
-        $def = [];
-        if (!$set->isAutoGenerated()) {
-            $trans = $set->getTranslations();
-            $def = $trans[0]; // default
+        $inputAreaGeneralInfo = $this->uiFactory->input()->field()->textarea(
+            $this->lng->txt('didactic_install_info')
+        )
+                ->withValue($set->getInfo());
 
-            if (count($trans) > 1) {
-                $languages = ilMDLanguageItem::_getLanguages();
-                $title->setInfo($this->lng->txt("language") . ": " . $languages[$def["lang_code"]] .
-                    ' <a href="' . $this->ctrl->getLinkTargetByClass("ilmultilingualismgui", "listTranslations") .
-                    '">&raquo; ' . $this->lng->txt("more_translations") . '</a>');
+        $checkboxIsActive = $this->uiFactory->input()->field()->checkbox(
+            $this->lng->txt('active')
+        )
+                ->withValue($set->isEnabled());
+
+        $options = [];
+        $subs = $this->objDefinition->getSubObjectsRecursively('root', false);
+        foreach (array_merge($subs, ['fold' => 1]) as $obj => $null) {
+            ilLoggerFactory::getLogger('root')->dump($null);
+            if ($this->objDefinition->isPlugin($obj)) {
+                $options[$obj] = ilObjectPlugin::lookupTxtById($obj, "obj_" . $obj);
+            } elseif ($this->objDefinition->isAllowedInRepository($obj)) {
+                $options[$obj] = $this->lng->txt('obj_' . $obj);
             }
         }
+        asort($options);
+        $selectObjectType = $this->uiFactory->input()->field()->select(
+            $this->lng->txt('obj_type'),
+            $options
+        )
+                ->withRequired(true)
+                ->withValue($set->getAssignments()[0] ?? '')
+                ->withByline($this->lng->txt('dtpl_obj_type_info'));
 
-        if ($set->isAutoGenerated()) {
-            $title->setValue($set->getPresentationTitle());
-        } elseif (isset($def['title'])) {
-            $title->setValue($def["title"]);
-        }
-
-        $form->addItem($title);
-
-        // desc
-        $desc = new ilTextAreaInputGUI($this->lng->txt('description'), 'description');
-        //use presentation title if autogenerated is set
-        if ($set->isAutoGenerated()) {
-            $desc->setValue($set->getPresentationDescription());
-        } elseif (isset($def['description'])) {
-            $desc->setValue($def["description"]);
-        }
-        $desc->setRows(3);
-        $desc->setDisabled($set->isAutoGenerated());
-        $form->addItem($desc);
-
-        $icon = new ilImageFileInputGUI($this->lng->txt('didactic_icon'), 'icon');
-        $icon->setImage($set->getIconHandler()->getAbsolutePath());
-        $icon->setInfo($this->lng->txt('didactic_icon_info'));
-        $icon->setAllowDeletion(true);
-        $icon->setSuffixes(['svg']);
-        $form->addItem($icon);
-
-        // info
-        $info = new ilTextAreaInputGUI($this->lng->txt('didactic_install_info'), 'info');
-        $info->setValue($set->getInfo());
-        $info->setRows(6);
-        $form->addItem($info);
-
-        //activate
-        $enable = new ilCheckboxInputGUI($this->lng->txt('active'), 'enable');
-        $enable->setChecked($set->isEnabled());
-        $form->addItem($enable);
-
-        // object type
-        if (!$set->isAutoGenerated()) {
-            $type = new ilSelectInputGUI($this->lng->txt('obj_type'), 'type');
-            $type->setRequired(true);
-            $type->setInfo($this->lng->txt('dtpl_obj_type_info'));
-            $assigned = $set->getAssignments();
-            $type->setValue($assigned[0] ?? '');
-            $subs = $this->objDefinition->getSubObjectsRecursively('root', false);
-            $options = [];
-            foreach (array_merge($subs, ['fold' => 1]) as $obj => $null) {
-                ilLoggerFactory::getLogger('root')->dump($null);
-                if ($this->objDefinition->isPlugin($obj)) {
-                    $options[$obj] = ilObjectPlugin::lookupTxtById($obj, "obj_" . $obj);
-                } elseif ($this->objDefinition->isAllowedInRepository($obj)) {
-                    $options[$obj] = $this->lng->txt('obj_' . $obj);
+        // Test if ref_ids in repo tree and of type ilContainer.
+        $validRefIds = $this->refinery->custom()->constraint(function ($v) {
+            if($v === '') {
+                return true;
+            }
+            $refIds = explode(';', $v);
+            foreach($refIds as $refId) {
+                if(!$this->repositoryTree->isInTree((int) $refId)) {
+                    return false;
+                }
+                $objectWithRefId = ilObjectFactory::getInstanceByRefId((int) $refId);
+                if(!($objectWithRefId instanceof ilContainer)) {
+                    return false;
                 }
             }
-            asort($options);
-
-            $type->setOptions($options);
-            $form->addItem($type);
-
-            $lokal_templates = new ilCheckboxInputGUI(
-                $this->lng->txt("activate_local_didactic_template"),
-                "local_template"
-            );
-            $lokal_templates->setChecked(count($set->getEffectiveFrom()) > 0);
-            $lokal_templates->setInfo($this->lng->txt("activate_local_didactic_template_info"));
-
-            //effective from (multinode)
-
-            $effrom = new ilRepositorySelector2InputGUI($this->lng->txt("effective_form"), "effective_from", true);
-            //$effrom->setMulti(true);
-            $white_list = [];
-            foreach ($this->objDefinition->getAllRepositoryTypes() as $type) {
-                if ($this->objDefinition->isContainer($type)) {
-                    $white_list[] = $type;
+            return true;
+        }, $this->lng->txt('didactic_input_scope_error_invalid_ref_id'));
+        // Test if duplicate ref_ids are in input.
+        $duplicatedRefIds = $this->refinery->custom()->constraint(function ($v) {
+            $refIds = explode(';', $v);
+            $occurrences = array_count_values($refIds);
+            foreach($occurrences as $count) {
+                if(((int) $count) > 1) {
+                    return false;
                 }
             }
-            $effrom->getExplorerGUI()->setTypeWhiteList($white_list);
-            $effrom->setValue($set->getEffectiveFrom());
+            return true;
+        }, $this->lng->txt('didactic_input_scope_error_duplicate_ref_id'));
+        // Test if input pattern is correct.
+        $validScopeInput = $this->refinery->custom()->constraint(function ($v) {
+            return preg_match("/^([0-9]+(;[0-9]+)*)*$/", $v) === 1;
+        }, $this->lng->txt('didactic_input_scope_error_invalid_input'));
+        $textScopeOfApplication = $this->uiFactory->input()->field()->text(
+            $this->lng->txt("effective_form")
+        )
+                ->withAdditionalTransformation($validScopeInput)
+                ->withAdditionalTransformation($validRefIds)
+                ->withAdditionalTransformation($duplicatedRefIds)
+                ->withValue(implode(';', $set->getEffectiveFrom()))
+                ->withByline($this->lng->txt('didactic_expected_input_scope'));
+        $optionalGroupScopeOfApplication = $this->uiFactory->input()->field()->optionalGroup(
+            [
+                    'application_scope_input' => $textScopeOfApplication
+                ],
+            $this->lng->txt("activate_local_didactic_template"),
+            $this->lng->txt("activate_local_didactic_template_info")
+        );
 
-            $lokal_templates->addSubItem($effrom);
-            $form->addItem($lokal_templates);
+        $checkboxGreyOut = $this->uiFactory->input()->field()->checkbox(
+            $this->lng->txt("activate_exclusive_template")
+        )
+                ->withValue($set->isExclusive())
+                ->withByline($this->lng->txt("activate_exclusive_template_info"));
 
-            $excl = new ilCheckboxInputGUI($this->lng->txt("activate_exclusive_template"), "exclusive_template");
-            $excl->setInfo($this->lng->txt("activate_exclusive_template_info"));
-            $excl->setChecked($set->isExclusive());
+        $editSectionInputs = $set->isAutoGenerated() ?
+                [
+                    'title' => $textInputFieldTitle,
+                    'description' => $textInputAreaDescription,
+                    'icon_file' => $fileUploadIcon,
+                    'info' => $inputAreaGeneralInfo,
+                    'enable' => $checkboxIsActive
+                ] : [
+                    'title' => $textInputFieldTitle,
+                    'description' => $textInputAreaDescription,
+                    'icon_file' => $fileUploadIcon,
+                    'info' => $inputAreaGeneralInfo,
+                    'enable' => $checkboxIsActive,
+                    'type' => $selectObjectType,
+                    'local_template' => $optionalGroupScopeOfApplication,
+                    'exclusive_template' => $checkboxGreyOut
+                ];
+        $editSection = $this->uiFactory->input()->field()->section(
+            $editSectionInputs,
+            $this->lng->txt('didactic_edit_tpl')
+        );
 
-            $form->addItem($excl);
-        }
-
-        return $form;
+        $postUrl = $this->ctrl->getLinkTargetByClass(get_class($this), 'updateTemplate');
+        $outputFormatter = $this->refinery->custom()->transformation(function ($v) {
+            return $v[0];
+        });
+        return $this->uiFactory->input()->container()->form()->standard(
+            $postUrl,
+            [ $editSection ]
+        )
+            ->withSubmitCaption($this->lng->txt('save'))
+            ->withAdditionalTransformation($outputFormatter);
     }
 
     protected function copyTemplate(): void
@@ -515,24 +539,21 @@ class ilDidacticTemplateSettingsGUI
 
         $setting = $this->initTemplateFromRequest();
         if (!$setting instanceof ilDidacticTemplateSetting) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'));
-            $this->ctrl->redirect($this, 'overview');
+            $this->overview($this->uiFactory->messageBox()->failure($this->lng->txt('select_one')));
             return;
         }
-
         $copier = new ilDidacticTemplateCopier($setting->getId());
         $copier->start();
 
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('didactic_copy_suc_message'), true);
-        $this->ctrl->redirect($this, 'overview');
+        $this->overview($this->uiFactory->messageBox()->success($this->lng->txt('didactic_copy_suc_message')));
     }
 
     protected function exportTemplate(): void
     {
         $setting = $this->initTemplateFromRequest();
         if (!$setting instanceof ilDidacticTemplateSetting) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'));
-            $this->ctrl->redirect($this, 'overview');
+            $msgBoxFailure = $this->uiFactory->messageBox()->failure($this->lng->txt('select_one'));
+            $this->overview($msgBoxFailure);
             return;
         }
         $writer = new ilDidacticTemplateXmlWriter($setting->getId());
@@ -549,8 +570,7 @@ class ilDidacticTemplateSettingsGUI
     {
         $templates = $this->initTemplatesFromRequest();
         if (0 === count($templates)) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'overview');
+            $this->overview($this->uiFactory->messageBox()->failure($this->lng->txt('select_one')));
             return;
         }
 
@@ -571,15 +591,14 @@ class ilDidacticTemplateSettingsGUI
             }
         }
 
+        $messageBoxes = [];
         if (count($forbidden) > 0 && count($templates) === 1) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('didactic_cannot_delete_auto_generated'), true);
-            $this->ctrl->redirect($this, "overview");
+            $this->overview($this->uiFactory->messageBox()->failure($this->lng->txt('didactic_cannot_delete_auto_generated')));
+            return;
         } elseif (count($forbidden) > 0 && count($templates) > 1) {
-            $this->tpl->setOnScreenMessage('info', $this->lng->txt('didactic_cannot_delete_auto_generated_confirmation'));
+            $messageBoxes[] = $this->uiFactory->messageBox()->info($this->lng->txt('didactic_cannot_delete_auto_generated_confirmation'));
         }
-
-        $this->tpl->setOnScreenMessage('question', $this->lng->txt('didactic_confirm_delete_msg'));
-        $this->tpl->setContent($confirm->getHTML());
+        $this->tpl->setContent($this->renderer->render($messageBoxes) . $confirm->getHTML());
     }
 
     protected function deleteTemplates(): void
@@ -589,8 +608,7 @@ class ilDidacticTemplateSettingsGUI
         }
         $templates = $this->initTemplatesFromRequest();
         if (0 === count($templates)) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'overview');
+            $this->overview($this->uiFactory->messageBox()->failure($this->lng->txt('select_one')));
             return;
         }
 
@@ -599,8 +617,7 @@ class ilDidacticTemplateSettingsGUI
             $tpl->delete();
         }
 
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('didactic_delete_msg'), true);
-        $this->ctrl->redirect($this, 'overview');
+        $this->overview($this->uiFactory->messageBox()->success($this->lng->txt('didactic_delete_msg')));
     }
 
     protected function activateTemplates(): void
@@ -610,8 +627,8 @@ class ilDidacticTemplateSettingsGUI
         }
         $templates = $this->initTemplatesFromRequest();
         if (0 === count($templates)) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'overview');
+            $msgBoxFailure = $this->uiFactory->messageBox()->failure($this->lng->txt('select_one'));
+            $this->overview($msgBoxFailure);
             return;
         }
 
@@ -621,8 +638,8 @@ class ilDidacticTemplateSettingsGUI
             $tpl->update();
         }
 
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('didactic_activated_msg'), true);
-        $this->ctrl->redirect($this, 'overview');
+        $msgBoxSuccess = $this->uiFactory->messageBox()->success($this->lng->txt('didactic_activated_msg'));
+        $this->overview($msgBoxSuccess);
     }
 
     protected function deactivateTemplates(): void
@@ -633,20 +650,21 @@ class ilDidacticTemplateSettingsGUI
 
         $templates = $this->initTemplatesFromRequest();
         if (0 === count($templates)) {
-            $this->tpl->setOnScreenMessage('failure', $this->lng->txt('select_one'), true);
-            $this->ctrl->redirect($this, 'overview');
+            $msgBoxFailure = $this->uiFactory->messageBox()->failure($this->lng->txt('select_one'));
+            $this->overview($msgBoxFailure);
         }
         foreach ($templates as $tplid) {
             $tpl = new ilDidacticTemplateSetting((int) $tplid);
             $tpl->enable(false);
             $tpl->update();
         }
-        $this->tpl->setOnScreenMessage('success', $this->lng->txt('didactic_deactivated_msg'), true);
-        $this->ctrl->redirect($this, 'overview');
+        $msgBoxSuccess = $this->uiFactory->messageBox()->success($this->lng->txt('didactic_deactivated_msg'));
+        $this->overview($msgBoxSuccess);
     }
 
     protected function setEditTabs(string $a_tab_active = "edit"): void
     {
+        $setting = $this->initTemplateFromRequest();
         $this->lng->loadLanguageModule('obj');
         $this->tabs->clearTargets();
         $this->tabs->setBackTarget(
@@ -655,59 +673,69 @@ class ilDidacticTemplateSettingsGUI
         );
         $this->ctrl->saveParameter($this, "tplid");
 
-        if (!$this->setting->isAutoGenerated()) {
-            $this->tabs->addTab('edit', $this->lng->txt('settings'), $this->ctrl->getLinkTarget($this, 'editTemplate'));
-            $this->tabs->addTab(
-                'import',
-                $this->lng->txt('import'),
-                $this->ctrl->getLinkTarget($this, 'showEditImportForm')
+        if(!($setting instanceof ilDidacticTemplateSetting && $setting->isAutoGenerated())) {
+            return;
+        }
+
+        $this->tabs->addTab('edit', $this->lng->txt('settings'), $this->ctrl->getLinkTarget($this, 'editTemplate'));
+        $this->tabs->addTab(
+            'import',
+            $this->lng->txt('import'),
+            $this->ctrl->getLinkTarget($this, 'showEditImportForm')
+        );
+
+        if (in_array($a_tab_active, ['edit', 'settings_trans'])) {
+            $this->tabs->addSubTab(
+                'edit',
+                $this->lng->txt('settings'),
+                $this->ctrl->getLinkTarget($this, 'editTemplate')
             );
-
-            if (in_array($a_tab_active, ['edit', 'settings_trans'])) {
-                $this->tabs->addSubTab(
-                    'edit',
-                    $this->lng->txt('settings'),
-                    $this->ctrl->getLinkTarget($this, 'editTemplate')
-                );
-                $this->tabs->addSubTab(
-                    'settings_trans',
-                    $this->lng->txt("obj_multilinguality"),
-                    $this->ctrl->getLinkTargetByClass(["ilmultilingualismgui"], 'listTranslations')
-                );
-                $this->tabs->setTabActive('edit');
-                $this->tabs->setSubTabActive($a_tab_active);
-            } else {
-                $this->tabs->setTabActive($a_tab_active);
-            }
+            $this->tabs->addSubTab(
+                'settings_trans',
+                $this->lng->txt("obj_multilinguality"),
+                $this->ctrl->getLinkTargetByClass(["ilmultilingualismgui"], 'listTranslations')
+            );
+            $this->tabs->activateTab('edit');
+            $this->tabs->activateSubTab($a_tab_active);
+        } else {
+            $this->tabs->activateTab($a_tab_active);
         }
     }
 
-    public function showEditImportForm(ilPropertyFormGUI $form = null): void
+    public function showEditImportForm(): void
     {
-        $this->initTemplateFromRequest();
         $this->setEditTabs("import");
-        if (!$form instanceof ilPropertyFormGUI) {
-            $form = $this->editImportForm();
-        }
-        $this->tpl->setContent($form->getHTML());
+        $this->tpl->setContent($this->renderer->render($this->editImportForm()));
     }
 
-    public function editImportForm(): ilPropertyFormGUI
+    public function editImportForm(): StandardForm
     {
-        $form = new ilPropertyFormGUI();
-        $form->setShowTopButtons(false);
-        $form->setFormAction($this->ctrl->getFormAction($this));
-        $form->setTitle($this->lng->txt('didactic_import_table_title'));
-        $form->addCommandButton('importTemplate', $this->lng->txt('import'));
-        $form->addCommandButton('overview', $this->lng->txt('cancel'));
+        $fileTemplate = $this->uiFactory->input()->field()->file(
+            new ilDidacticTemplateXmlFileHandlerGUI(),
+            $this->lng->txt('didactic_template_update_import'),
+            $this->lng->txt('didactic_template_update_import_info')
+        )
+                ->withAcceptedMimeTypes([ MimeType::TEXT__XML ]) // Replace as soon as possible.
+                ->withRequired(true);
 
-        $file = new ilFileInputGUI($this->lng->txt('didactic_template_update_import'), 'file');
-        $file->setRequired(true);
-        $file->setSuffixes(['xml']);
-        $file->setInfo($this->lng->txt('didactic_template_update_import_info'));
-        $form->addItem($file);
+        $importSectionElements = [ 'xml_file' => $fileTemplate ];
+        $importSection = $this->uiFactory->input()->field()->section(
+            $importSectionElements,
+            $this->lng->txt('didactic_import_table_title')
+        );
 
-        return $form;
+        $standardFormElements = [ $importSection ];
+        $postUrl = $this->ctrl->getLinkTargetByClass(get_class($this), 'importTemplate');
+        $outputFormatter = $this->refinery->custom()->transformation(function ($v) {
+            return is_null($v[0]) ? [] : $v[0];
+        });
+        $standardForm = $this->uiFactory->input()->container()->form()->standard(
+            $postUrl,
+            $standardFormElements
+        )
+                ->withAdditionalTransformation($outputFormatter)
+                ->withSubmitCaption($this->lng->txt('import'));
+        return $standardForm;
     }
 
     public function editImport(ilDidacticTemplateSetting $a_settings): void

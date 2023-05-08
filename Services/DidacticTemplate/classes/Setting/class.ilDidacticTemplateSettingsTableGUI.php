@@ -108,7 +108,7 @@ class ilDidacticTemplateSettingsTableGUI extends ilTable2GUI
         $this->tpl->setVariable('VAL_DESC', $a_set['description']);
 
         if (($a_set['icon'] ?? '') !== '') {
-            $this->tpl->setVariable('ICON_SRC', $a_set['icon']);
+            $this->tpl->setVariable('ICON_SRC', $a_set['icon']); // Replace with relative path
             foreach ((array) $a_set['assignments'] as $obj_type) {
                 $this->tpl->setVariable('ICON_ALT', $this->lng->txt('objs_' . $obj_type));
             }

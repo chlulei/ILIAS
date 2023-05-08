@@ -3,6 +3,8 @@
 declare(strict_types=1);
 /* Copyright (c) 1998-2009 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\ResourceStorage\Services as ResourceStorageService;
+
 /**
  * Description of ilDidacticTemplateImport
  * @author  Stefan Meyer <meyer@leifos.com>
@@ -13,11 +15,14 @@ class ilDidacticTemplateImport
     public const IMPORT_FILE = 1;
 
     private int $type = 0;
-    private string $xmlfile = '';
+    private string $xmlFileIdentifier;
 
     private ilLogger $logger;
     protected ilObjectDefinition $objDefinition;
     protected ilSetting $settings;
+
+    private ResourceStorageService $storage;
+    private ilDidacticTemplateStakeholder $stakeholder;
 
     public function __construct(int $a_type)
     {
@@ -27,16 +32,19 @@ class ilDidacticTemplateImport
         $this->type = $a_type;
         $this->objDefinition = $DIC['objDefinition'];
         $this->settings = $DIC->settings();
+        $this->storage = $DIC->resourceStorage();
+        $this->stakeholder = new ilDidacticTemplateStakeholder();
+        $this->xmlFileIdentifier = '';
     }
 
-    public function setInputFile(string $a_file): void
+    public function setInputFileIdentifier(string $identifier): void
     {
-        $this->xmlfile = $a_file;
+        $this->xmlFileIdentifier = $identifier;
     }
 
-    public function getInputFile(): string
+    public function getInputFileIdentifier(): string
     {
-        return $this->xmlfile;
+        return $this->xmlFileIdentifier;
     }
 
     public function getInputType(): int
@@ -53,7 +61,7 @@ class ilDidacticTemplateImport
         $use_internal_errors = libxml_use_internal_errors(true);
         switch ($this->getInputType()) {
             case self::IMPORT_FILE:
-                $root = simplexml_load_string(file_get_contents($this->getInputFile()));
+                $root = simplexml_load_string($this->getXmlFileContents());
                 break;
         }
         libxml_use_internal_errors($use_internal_errors);
@@ -65,6 +73,26 @@ class ilDidacticTemplateImport
         $settings = $this->parseSettings($root);
         $this->parseActions($settings, $root->didacticTemplate->actions);
         return $settings;
+    }
+
+    public function getXmlFileContents(): string
+    {
+        $resourceId = $this->storage->manage()->find($this->xmlFileIdentifier);
+        if(is_null($resourceId)) {
+            return '';
+        }
+        return $this->storage->consume()->stream($resourceId)->getStream()->getContents();
+    }
+
+    public function deleteXmlFile(): bool
+    {
+        $resourceId = $this->storage->manage()->find($this->xmlFileIdentifier);
+        if(is_null($resourceId)) {
+            return false;
+        }
+        $this->storage->manage()->remove($resourceId, $this->stakeholder);
+        $this->xmlFileIdentifier = '';
+        return true;
     }
 
     /**
