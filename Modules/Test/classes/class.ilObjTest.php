@@ -476,7 +476,8 @@ class ilObjTest extends ilObject implements ilMarkSchemaAware
                 'tst_tests',
                 [
                     'author' => ['text', $this->getAuthor()],
-                    'broken' => ['integer', (int) $this->isTestFinalBroken()]
+                    'broken' => ['integer', (int) $this->isTestFinalBroken()],
+                    'question_set_type' => ['text', $this->getQuestionSetType()]
                 ],
                 [
                     'test_id' => ['integer', $this->getTestId()]

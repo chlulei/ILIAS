@@ -966,8 +966,10 @@ class ilLOEditorGUI
                 $tst->createReference();
                 $tst->putInTree($this->getParentObject()->getRefId());
                 $tst->setPermissions($this->getParentObject()->getRefId());
+                $tst->saveToDb();
+                // qtype can only be saved after the test object exists in the database,
+                // therefore the test object needs to be saved a second time
                 $tst->setQuestionSetType($form->getInput('qtype'));
-
                 $tst->saveToDb();
 
                 if ($this->getTestType() == self::TEST_TYPE_IT) {
@@ -994,8 +996,13 @@ class ilLOEditorGUI
             }
             $this->updateStartObjects();
 
-            $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'));
-            $this->ctrl->redirect($this, 'testOverview');
+            $this->main_tpl->setOnScreenMessage('success', $this->lng->txt('settings_saved'), true);
+
+            $this->ctrl->setParameterByClass('ilobjtestgui', 'ref_id', $tst->getRefId());
+            $this->ctrl->setParameterByClass('ilobjtestgui', 'cmd', 'questionsTabGateway');
+            $this->ctrl->redirectToURL($this->ctrl->getLinkTargetByClass('ilobjtestgui'));
+            $this->ctrl->clearParameterByClass('ilobjtestgui', 'ref_id');
+            $this->ctrl->clearParameterByClass('ilobjtestgui', 'cmd');
         }
 
         // Error
