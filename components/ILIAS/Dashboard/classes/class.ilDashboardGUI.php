@@ -92,6 +92,10 @@ class ilDashboardGUI implements ilCtrlBaseClassInterface
         $this->requested_wsp_id = (int) ($params['wsp_id'] ?? 0);
 
         $this->ctrl->saveParameter($this, ['view']);
+
+        $test = new ilMyExportTest();
+        $test->storeIterativeFromString();
+        $test->deleteAllResources();
     }
 
     public function executeCommand(): void
