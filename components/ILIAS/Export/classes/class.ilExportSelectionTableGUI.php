@@ -1,7 +1,5 @@
 <?php
 
-declare(strict_types=1);
-
 /**
  * This file is part of ILIAS, a powerful learning management system
  * published by ILIAS open source e-Learning e.V.
@@ -18,6 +16,10 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+declare(strict_types=1);
+
+use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+
 /**
  * Object selection for export
  * @author Stefan Meyer <meyer@leifos.com>
@@ -29,9 +31,13 @@ class ilExportSelectionTableGUI extends ilTable2GUI
     protected ilAccessHandler $access;
     protected ilObjectDefinition $objDefinition;
     protected ilTree $tree;
+    protected ilExportHandlerFactoryInterface $export_handler;
 
-    public function __construct(object $a_parent_class, string $a_parent_cmd)
-    {
+    public function __construct(
+        object $a_parent_class,
+        string $a_parent_cmd,
+        ilExportHandlerFactoryInterface $export_handler
+    ) {
         global $DIC;
 
         $this->post_data = ($DIC->http()->request()->getParsedBody() ?? []);
@@ -41,6 +47,7 @@ class ilExportSelectionTableGUI extends ilTable2GUI
         $this->access = $DIC->access();
 
         parent::__construct($a_parent_class, $a_parent_cmd);
+        $this->export_handler = $export_handler;
 
         $this->lng->loadLanguageModule('export');
         $this->setTitle($this->lng->txt('export_select_resources'));
@@ -195,8 +202,9 @@ class ilExportSelectionTableGUI extends ilTable2GUI
             }
             $r = array();
 
-            if ($last = ilExportFileInfo::lookupLastExport((int) $node['obj_id'], 'xml')) {
-                $r['last_export'] = $last->getCreationDate()->get(IL_CAL_UNIX);
+            $elements = $this->export_handler->repository()->handler()->getElements((int) $node['obj_id']);
+            if ($elements->count() > 0) {
+                $r['last_export'] = $elements->newest()->getLastModified()->getTimestamp();
             } else {
                 $r['last_export'] = 0;
             }
