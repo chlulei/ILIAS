@@ -22,6 +22,7 @@ namespace ILIAS\Export\ExportHandler\PublicAccess\Repository;
 
 use ilDBConstants;
 use ilDBInterface;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessRepositoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRepositoryElementInterface;
@@ -44,7 +45,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         $this->export_handler = $export_handler;
         $this->irss = $irss;
         $this->db = $db;
-        #$this->test();
+        $this->test();
     }
 
     protected function test()
@@ -53,7 +54,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
             return;
         }
         $this->db->createTable(self::TABLE_NAME, [
-            'object_id' => [
+            'reference_id' => [
                 'type' => 'integer',
                 'length' => 8,
                 'default' => 0,
@@ -72,7 +73,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
                 'notnull' => true
             ],
         ]);
-        $this->db->addPrimaryKey(self::TABLE_NAME, ["object_id"]);
+        $this->db->addPrimaryKey(self::TABLE_NAME, ["reference_id"]);
     }
 
     public function storeElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool
@@ -81,21 +82,24 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
             return false;
         }
         $query = "INSERT INTO " . $this->db->quoteIdentifier(self::TABLE_NAME) . " VALUES"
-            . " (" . $this->db->quote($element->getObjectId(), ilDBConstants::T_INTEGER)
+            . " (" . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER)
             . ", " . $this->db->quote($element->getIdentification(), ilDBConstants::T_TEXT)
             . ", " . $this->db->quote($element->getLastModified()->getTimestamp(), ilDBConstants::T_INTEGER)
             . ") ON DUPLICATE KEY UPDATE"
-            . " object_id = " . $this->db->quote($element->getObjectId(), ilDBConstants::T_INTEGER)
+            . " reference_id = " . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER)
             . ", rid = " . $this->db->quote($element->getIdentification(), ilDBConstants::T_TEXT)
             . ", timestamp = " . $this->db->quote($element->getLastModified()->getTimestamp(), ilDBConstants::T_INTEGER);
         $this->db->manipulate($query);
+        $this->export_handler->publicAccess()->link()->handler()->withReferenceId(
+            $element->getReferenceId()
+        );
         return true;
     }
 
-    public function getElement(int $object_id): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function getElement(ReferenceId $reference_id): ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE object_id = " . $this->db->quote($object_id, ilDBConstants::T_INTEGER);
+            . " WHERE reference_id = " . $this->db->quote($reference_id->toInt(), ilDBConstants::T_INTEGER);
         $res = $this->db->query($query);
         $row = $res->fetchAssoc();
         if (is_null($row)) {
@@ -103,13 +107,13 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         }
         $rcid = $this->irss->manageContainer()->find($row['rid']);
         return $this->export_handler->publicAccess()->repository()->element()->handler()
-            ->withObjectId($object_id)
+            ->withReferenceId($reference_id)
             ->withIdentification($rcid->serialize());
     }
 
     public function hasElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool
     {
-        $found_element = $this->getElement($element->getObjectId());
+        $found_element = $this->getElement($element->getReferenceId());
         return $found_element->isStorable() and $found_element->getIdentification() === $element->getIdentification();
     }
 
@@ -120,11 +124,11 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         $res = $this->db->query($query);
         while ($row = $res->fetchAssoc()) {
             $rcid = $this->irss->manageContainer()->find($row['rid']);
-            $object_id = (int) $row['object_id'];
+            $reference_id = (int) $row['reference_id'];
             $collection = $collection->withElement(
                 $this->export_handler->publicAccess()->repository()->element()->handler()
                     ->withIdentification($rcid->serialize())
-                    ->withObjectId($object_id)
+                    ->withReferenceId(new ReferenceId($reference_id))
             );
         }
         return $collection;
@@ -136,22 +140,22 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
             return false;
         }
         $query = "DELETE FROM " . $this->db->quoteIdentifier(self::TABLE_NAME) . " WHERE "
-            . "object_id = " . $this->db->quote($element->getObjectId(), ilDBConstants::T_INTEGER);
+            . "reference_id = " . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER);
         $this->db->manipulate($query);
         return true;
     }
 
     public function deleteElements(ilExportHandlerPublicAccessRepositoryElementCollectionInterface $elements): bool
     {
-        $object_ids = [];
+        $reference_ids = [];
         foreach ($elements as $element) {
             if (!$element->isStorable()) {
                 return false;
             }
-            $object_ids[] = $element->getObjectId();
+            $reference_ids[] = $element->getReferenceId()->toInt();
         }
         $query = "DELETE FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE " . $this->db->in("object_id", $object_ids, false, ilDBConstants::T_INTEGER);
+            . " WHERE " . $this->db->in("reference_id", $reference_ids, false, ilDBConstants::T_INTEGER);
         $this->db->manipulate($query);
         return true;
     }

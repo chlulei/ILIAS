@@ -21,11 +21,12 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\Repository\Element;
 
 use DateTimeImmutable;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
 
 class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
 {
-    protected int $object_id;
+    protected ReferenceId $reference_id;
     protected string $type;
     protected DateTimeImmutable $last_modified;
 
@@ -34,10 +35,10 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryE
         $this->last_modified = new DateTimeImmutable();
     }
 
-    public function withObjectId(int $object_id): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
+    public function withReferenceId(ReferenceId $reference_id): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->object_id = $object_id;
+        $clone->reference_id = $reference_id;
         return $clone;
     }
 
@@ -48,9 +49,9 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryE
         return $clone;
     }
 
-    public function getObjectId(): int
+    public function getReferenceId(): ReferenceId
     {
-        return $this->object_id;
+        return $this->reference_id;
     }
 
     public function getAllowedType(): string
@@ -65,6 +66,6 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryE
 
     public function isStorable(): bool
     {
-        return isset($this->object_id) and isset($this->type) and isset($this->last_modified);
+        return isset($this->reference_id) and isset($this->type) and isset($this->last_modified);
     }
 }

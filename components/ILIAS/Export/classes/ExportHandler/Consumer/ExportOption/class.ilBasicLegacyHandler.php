@@ -24,31 +24,14 @@ use ilExport;
 use ilExportFileInfo;
 use ilFileDelivery;
 use ilFileUtils;
+use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConusmerFileCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 use SplFileInfo;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface;
 
-abstract class BasicLegacyExportOptionHandler implements ilExportHandlerConsumerExportOptionInterface
+abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOption
 {
-    public function onPublicAccessTypeRestrictionsChanged(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface $allowed_types
-    ): void {
-        $is_allowed_type = false;
-        foreach ($allowed_types as $allowed_type) {
-            if ($allowed_type->getAllowedType() === $this->getExportType()) {
-                $is_allowed_type = true;
-                break;
-            }
-        }
-        if(!$is_allowed_type) {
-            $context->publicAccess()->removePublicAccessFile($context->exportObject()->getId());
-        }
-    }
-
     public function onDeleteFiles(
         ilExportHandlerConsumerContextInterface $context,
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\PublicAccess;
 
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
@@ -34,18 +35,18 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         $this->export_handler = $export_handler;
     }
 
-    public function setPublicAccessFile(int $object_id, string $file_identifier)
+    public function setPublicAccessFile(ReferenceId $reference_id, string $file_identifier)
     {
         $this->export_handler->publicAccess()->repository()->handler()->storeElement(
             $this->export_handler->publicAccess()->repository()->element()->handler()
-                ->withObjectId($object_id)
+                ->withReferenceId($reference_id)
                 ->withIdentification($file_identifier)
         );
     }
 
-    public function removePublicAccessFile(int $object_id)
+    public function removePublicAccessFile(ReferenceId $reference_id)
     {
-        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
+        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($reference_id);
         $this->export_handler->publicAccess()->repository()->handler()->deleteElement($element);
     }
 

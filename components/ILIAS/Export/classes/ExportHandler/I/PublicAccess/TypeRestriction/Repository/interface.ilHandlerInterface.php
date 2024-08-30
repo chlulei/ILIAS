@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository;
 
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
 
@@ -29,7 +30,7 @@ interface ilHandlerInterface
 
     public function removeAllowedType(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 
-    public function getAllowedTypes(int $object_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
+    public function getAllowedTypes(ReferenceId $reference_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
 
     public function isTypeAllowed(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 }

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Repository\Element;
 
 use DateTimeImmutable;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
 use ILIAS\Filesystem\Stream\FileStream;
 use ILIAS\Filesystem\Util\Archive\Unzip;
@@ -28,7 +29,7 @@ use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 interface ilHandlerInterface
 {
-    public function withObjectId(int $object_id): ilHandlerInterface;
+    public function withReferenceId(ReferenceId $reference_id): ilHandlerInterface;
 
     public function withResourceId(ResourceIdentification $resource_id): ilHandlerInterface;
 
@@ -46,7 +47,7 @@ interface ilHandlerInterface
 
     public function getStream(): FileStream;
 
-    public function getObjectId(): int;
+    public function getReferenceId(): ReferenceId;
 
     public function getResourceId(): ResourceIdentification;
 

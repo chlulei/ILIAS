@@ -20,14 +20,14 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
+use ILIAS\Data\ReferenceId;
+use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConsumerFileCollectionInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
-class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
+class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
 {
     protected ilExportHandlerFactoryInterface $export_handler;
 
@@ -52,22 +52,6 @@ class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
         return $context->ilLng()->txt("exp_create_file") . " (xml)";
     }
 
-    public function onPublicAccessTypeRestrictionsChanged(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface $allowed_types
-    ): void {
-        $is_allowed_type = false;
-        foreach ($allowed_types as $allowed_type) {
-            if ($allowed_type->getAllowedType() === $this->getExportType()) {
-                $is_allowed_type = true;
-                break;
-            }
-        }
-        if(!$is_allowed_type) {
-            $context->publicAccess()->removePublicAccessFile($context->exportObject()->getId());
-        }
-    }
-
     public function onExportOptionSelected(
         ilExportHandlerConsumerContextInterface $context
     ): void {
@@ -82,13 +66,12 @@ class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
         foreach ($table_row_ids as $table_row_id) {
             $ids[] = $table_row_id->getFileIdentifier();
         }
+        $ref_id = new ReferenceId($context->exportObject()->getRefId());
         $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $context->exportObject()->getId(),
+            new ReferenceId($context->exportObject()->getRefId()),
             ...$ids
         );
-        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement(
-            $context->exportObject()->getId()
-        );
+        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement($ref_id);
         foreach ($ids as $id) {
             if (!$pa_element->isStorable()) {
                 break;
@@ -113,7 +96,7 @@ class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
             $ids[] = $table_row_id->getFileIdentifier();
         }
         $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $context->exportObject()->getId(),
+            new ReferenceId($context->exportObject()->getRefId()),
             ...$ids
         );
         $element = $elements->current();
@@ -124,9 +107,10 @@ class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
         ilExportHandlerConsumerContextInterface $context
     ): ilExportHandlerConsumerFileCollectionInterface {
         $collection = $context->fileFactory()->collection();
-        $elements = $this->export_handler->repository()->handler()->getElements($context->exportObject()->getId());
-        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement($context->exportObject()->getId());
-        $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($context->exportObject()->getId(), $this->getExportType());
+        $elements = $this->export_handler->repository()->handler()->getElements(new ReferenceId($context->exportObject()->getRefId()));
+        $ref_id = new ReferenceId($context->exportObject()->getRefId());
+        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement($ref_id);
+        $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($ref_id, $this->getExportType());
         foreach ($elements as $element) {
             $is_pa_element = (
                 $pa_element->isStorable() and
@@ -152,11 +136,12 @@ class ilXMLRepoHandler implements ilExportHandlerConsumerExportOptionInterface
         }
         $collection = $context->fileFactory()->collection();
         $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $context->exportObject()->getId(),
+            new ReferenceId($context->exportObject()->getRefId()),
             ...$ids
         );
-        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement($context->exportObject()->getId());
-        $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($context->exportObject()->getId(), $this->getExportType());
+        $ref_id = new ReferenceId($context->exportObject()->getRefId());
+        $pa_element = $this->export_handler->publicAccess()->repository()->handler()->getElement($ref_id);
+        $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($ref_id, $this->getExportType());
         foreach ($elements as $element) {
             $is_pa_element = (
                 $pa_element->isStorable() and

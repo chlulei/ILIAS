@@ -22,6 +22,7 @@ namespace ILIAS\Export\ExportHandler\Repository\Element;
 
 use DateTimeImmutable;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ZipReader;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
@@ -38,7 +39,7 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
     protected DateTimeImmutable $last_modified;
     protected ResourceIdentification $resource_id;
     protected ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder;
-    protected int $object_id;
+    protected ReferenceId $reference_id;
 
     public function __construct(
         ResourcesStorageService $irss,
@@ -54,10 +55,10 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         );
     }
 
-    public function withObjectId(int $object_id): ilExportHandlerRepositoryElementInterface
+    public function withReferenceId(ReferenceId $reference_id): ilExportHandlerRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->object_id = $object_id;
+        $clone->reference_id = $reference_id;
         return $clone;
     }
 
@@ -136,9 +137,9 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         $download->run();
     }
 
-    public function getObjectId(): int
+    public function getReferenceId(): ReferenceId
     {
-        return $this->object_id;
+        return $this->reference_id;
     }
 
     public function getResourceId(): ResourceIdentification
@@ -186,6 +187,6 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
 
     public function isStorable(): bool
     {
-        return isset($this->last_modified) && isset($this->object_id) && isset($this->resource_id);
+        return isset($this->last_modified) && isset($this->reference_id) && isset($this->resource_id);
     }
 }

@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\Repository;
 
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessRepositoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRepositoryElementInterface;
 
@@ -27,7 +28,7 @@ interface ilHandlerInterface
 {
     public function storeElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool;
 
-    public function getElement(int $object_id): ilExportHandlerPublicAccessRepositoryElementInterface;
+    public function getElement(ReferenceId $reference_id): ilExportHandlerPublicAccessRepositoryElementInterface;
 
     public function hasElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool;
 

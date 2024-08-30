@@ -23,6 +23,7 @@ namespace ILIAS\Export\ExportHandler\Table;
 use ilCalendarSettings;
 use ilExportGUI;
 use ILIAS\Data\Factory as ilDataFactory;
+use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\ilHandlerInterface as ilExportHandlerTableInterface;
@@ -30,13 +31,13 @@ use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHa
 use ILIAS\Export\ExportHandler\ilFactory as ilExportHandler;
 use ILIAS\HTTP\Services as ilHTTPServices;
 use ILIAS\Refinery\Factory as ilRefineryFactory;
+use ILIAS\UI\Component\Table\Data as ilDataTable;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken as ilURLBuilderToken;
 use ilLanguage;
 use ilObject;
 use ilObjUser;
 use JetBrains\PhpStorm\NoReturn;
-use ILIAS\UI\Component\Table\Data as ilDataTable;
 
 class ilHandler implements ilExportHandlerTableInterface
 {
@@ -209,13 +210,14 @@ class ilHandler implements ilExportHandlerTableInterface
         $pa_repository = $this->export_handler->publicAccess()->repository()->handler();
         $pa_repository_element_factory = $this->export_handler->publicAccess()->repository()->element();
         $context = $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object);
+        $ref_id = new ReferenceId($context->exportObject()->getRefId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            $type_allowed = $pat_restriction->isTypeAllowed($this->export_object->getId(), $export_option->getExportType());
+            $type_allowed = $pat_restriction->isTypeAllowed($ref_id, $export_option->getExportType());
             foreach ($export_option->getFileSelection($context, $table_row_ids) as $file_info) {
                 $element = $pa_repository_element_factory->handler()
                     ->withIdentification($file_info->getFileIdentifier())
-                    ->withObjectId($this->export_object->getId());
+                    ->withReferenceId($ref_id);
                 if ($pa_repository->hasElement($element)) {
                     $pa_repository->deleteElement($element);
                     continue;

@@ -63,7 +63,7 @@ class ilHandler implements ilExportHandlerManagerInterface
             $element = null;
             $export_info = null;
             if ($ref_id_handler->getReuseExport()) {
-                $element = $this->export_handler->repository()->handler()->getElements($ref_id->toObjectId()->toInt())->newest();
+                $element = $this->export_handler->repository()->handler()->getElements($ref_id)->newest();
                 $export_info = $this->getExportInfoOfRefId($ref_id, $element->getLastModified()->getTimestamp())->withSetNumber($set_id);
             }
             if (!$ref_id_handler->getReuseExport()) {
@@ -121,7 +121,7 @@ class ilHandler implements ilExportHandlerManagerInterface
         $stakeholder = $this->getStakeholderOfUserId($user_id);
         $export_info = $this->getExportInfoOfObject($source, $timestamp);
         $element = $this->export_handler->repository()->handler()->createElement(
-            $source->getId(),
+            new ReferenceId($source->getRefId()),
             $export_info,
             $stakeholder
         );
@@ -138,7 +138,7 @@ class ilHandler implements ilExportHandlerManagerInterface
         $stakeholder = $this->getStakeholderOfUserId($user_id);
         $export_info = $this->getExportInfoOfRefId($ref_id, $timestamp);
         $element = $this->export_handler->repository()->handler()->createElement(
-            $ref_id->toObjectId()->toInt(),
+            $ref_id,
             $export_info,
             $stakeholder
         );

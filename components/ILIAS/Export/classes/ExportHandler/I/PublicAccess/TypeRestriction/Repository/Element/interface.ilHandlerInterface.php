@@ -21,14 +21,15 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element;
 
 use DateTimeImmutable;
+use ILIAS\Data\ReferenceId;
 
 interface ilHandlerInterface
 {
-    public function withObjectId(int $object_id): ilHandlerInterface;
+    public function withReferenceId(ReferenceId $reference_id): ilHandlerInterface;
 
     public function withAllowedType(string $type): ilHandlerInterface;
 
-    public function getObjectId(): int;
+    public function getReferenceId(): ReferenceId;
 
     public function getAllowedType(): string;
 

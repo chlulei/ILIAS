@@ -21,12 +21,14 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\PublicAccess\Repository\Element;
 
 use DateTimeImmutable;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRepositoryElementInterface;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
 class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 {
-    protected int $object_id;
+    protected ReferenceId $reference_id;
     protected string $resource_Id;
     protected DateTimeImmutable $last_modified;
     protected ResourcesStorageService $irss;
@@ -42,17 +44,17 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
         $this->last_modified = new DateTimeImmutable();
     }
 
-    public function withObjectId(int $object_id): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function withReferenceId(ReferenceId $reference_id): ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->object_id = $object_id;
+        $clone->reference_id = $reference_id;
         return $clone;
     }
 
-    public function withIdentification(string $resource_id): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function withIdentification(string $identification): ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->resource_Id = $resource_id;
+        $clone->resource_Id = $identification;
         return $clone;
     }
 
@@ -61,9 +63,9 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
         return $this->resource_Id;
     }
 
-    public function getObjectId(): int
+    public function getReferenceId(): ReferenceId
     {
-        return $this->object_id;
+        return $this->reference_id;
     }
 
     public function getLastModified(): DateTimeImmutable
@@ -73,15 +75,23 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 
     public function download(string $zip_file_name = ""): void
     {
-        $download = $this->irss->consume()->download($this->irss->manage()->find($this->getIdentification()));
-        if ($zip_file_name !== "") {
-            $download = $download->overrideFileName($zip_file_name);
+        $rid = $this->irss->manage()->find($this->getIdentification());
+        if(!is_null($rid)) {
+            $this->downloadFromIRSS($rid, $zip_file_name);
         }
-        $download->run();
     }
 
     public function isStorable(): bool
     {
-        return isset($this->resource_Id) and isset($this->last_modified) and isset($this->object_id);
+        return isset($this->resource_Id) and isset($this->last_modified) and isset($this->reference_id);
+    }
+
+    protected function downloadFromIRSS(ResourceIdentification $rid, string $zip_file_name): void
+    {
+        $download = $this->irss->consume()->download($rid);
+        if ($zip_file_name !== "") {
+            $download = $download->overrideFileName($zip_file_name);
+        }
+        $download->run();
     }
 }

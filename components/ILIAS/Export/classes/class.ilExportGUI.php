@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
-use ILIAS\Export\ExportTable\ilHandler;
 use ILIAS\HTTP\Services as ilHTTPServices;
 use ILIAS\Refinery\Factory as Factory;
 use ILIAS\HTTP\Services as Services;
@@ -117,12 +116,14 @@ class ilExportGUI
     public function enablePublicAccessForType(string $type)
     {
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($this->obj->getId());
+        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
+            new ReferenceId($this->obj->getRefId())
+        );
         foreach ($this->export_options as $export_option) {
             $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
         }
         $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
-            $this->obj->getId(),
+            new ReferenceId($this->obj->getRefId()),
             $type
         );
     }
@@ -130,12 +131,14 @@ class ilExportGUI
     public function disablePublicAccessForType(string $type)
     {
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($this->obj->getId());
+        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
+            new ReferenceId($this->obj->getId())
+        );
         foreach ($this->export_options as $export_option) {
             $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
         }
         $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
-            $this->obj->getId(),
+            new ReferenceId($this->obj->getId()),
             $type
         );
     }

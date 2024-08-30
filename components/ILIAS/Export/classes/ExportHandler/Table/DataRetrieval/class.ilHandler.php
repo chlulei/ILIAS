@@ -24,13 +24,14 @@ use Generator;
 use ilExportGUI;
 use ILIAS\Data\Order as ilDataOrder;
 use ILIAS\Data\Range as ilDataRange;
+use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Table\DataRetrieval\ilHandlerInterface as ilExportHandlerTableDataRetrievalInterface;
-use ILIAS\UI\Component\Table\DataRowBuilder as ilTableDataRowBuilderInterface;
-use ILIAS\Export\ExportHandler\I\Table\ilHandlerInterface as ilExportHandlerTableInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
+use ILIAS\Export\ExportHandler\I\Table\DataRetrieval\ilHandlerInterface as ilExportHandlerTableDataRetrievalInterface;
+use ILIAS\Export\ExportHandler\I\Table\ilHandlerInterface as ilExportHandlerTableInterface;
+use ILIAS\UI\Component\Table\DataRowBuilder as ilTableDataRowBuilderInterface;
 use ilObject;
 
 class ilHandler implements ilExportHandlerTableDataRetrievalInterface
@@ -164,6 +165,8 @@ class ilHandler implements ilExportHandlerTableDataRetrievalInterface
         ?array $filter_data,
         ?array $additional_parameters
     ): ?int {
-        return  $this->export_handler->repository()->handler()->getElements($this->export_object->getId())->count();
+        return  $this->export_handler->repository()->handler()->getElements(
+            new ReferenceId($this->export_object->getRefId())
+        )->count();
     }
 }
