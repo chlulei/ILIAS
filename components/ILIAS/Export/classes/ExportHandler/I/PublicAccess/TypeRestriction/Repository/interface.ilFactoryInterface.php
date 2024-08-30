@@ -20,8 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository;
 
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilFactoryInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementFactoryInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryInterface;
 
 interface ilFactoryInterface
 {

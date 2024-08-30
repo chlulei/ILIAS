@@ -20,11 +20,10 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Manager\ReferenceId;
 
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
-use Iterator;
 use Countable;
-use ILIAS\Data\ReferenceId;
+use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilHandlerInterface as ilExportHandlerManagerReferenceIdInterface;
+use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {

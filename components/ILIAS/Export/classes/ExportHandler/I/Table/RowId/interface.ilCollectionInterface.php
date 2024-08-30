@@ -18,19 +18,19 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Consumer\File\Identification;
+namespace ILIAS\Export\ExportHandler\I\Table\RowId;
 
 use Countable;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilHandlerInterface as ilExportHandlerConsumerFileIndentificationInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
 use Iterator;
 
 interface ilCollectionInterface extends Countable, Iterator
 {
-    public function withElement(ilExportHandlerConsumerFileIndentificationInterface $element);
+    public function withRowId(ilExportHandlerTableRowIdInterface $row_id): ilCollectionInterface;
 
-    public function elementAt(int $index): ?ilExportHandlerConsumerFileIndentificationInterface;
+    public function count(): int;
 
-    public function current(): ilExportHandlerConsumerFileIndentificationInterface;
+    public function current(): ilExportHandlerTableRowIdInterface;
 
     public function key(): int;
 
@@ -39,6 +39,4 @@ interface ilCollectionInterface extends Countable, Iterator
     public function rewind(): void;
 
     public function valid(): bool;
-
-    public function count(): int;
 }

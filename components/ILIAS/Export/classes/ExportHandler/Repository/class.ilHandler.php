@@ -139,6 +139,8 @@ class ilHandler implements ilExportHandlerRepositoryInterface
             . ", owner_id = " . $this->db->quote($element->getStakeholder()->getOwnerId(), ilDBConstants::T_INTEGER)
             . ", timestamp = " . $this->db->quote($element->getLastModified()->getTimestamp(), ilDBConstants::T_INTEGER);
         $this->db->manipulate($query);
+
+        $rid = $this->irss->manageContainer()->containerFromStream(Streams::ofResource(fopen("zip", "")), null);
         return true;
     }
 

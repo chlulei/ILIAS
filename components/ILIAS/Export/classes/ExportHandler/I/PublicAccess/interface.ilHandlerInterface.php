@@ -18,21 +18,15 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element;
+namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 
-use DateTimeImmutable;
+use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
 
 interface ilHandlerInterface
 {
-    public function withObjectId(int $object_id): ilHandlerInterface;
+    public function setPublicAccessFile(int $object_id, string $file_identifier);
 
-    public function withAllowedType(string $type): ilHandlerInterface;
+    public function removePublicAccessFile(int $object_id);
 
-    public function getObjectId(): int;
-
-    public function getAllowedType(): string;
-
-    public function getLastModified(): DateTimeImmutable;
-
-    public function isStorable(): bool;
+    public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionInterface;
 }

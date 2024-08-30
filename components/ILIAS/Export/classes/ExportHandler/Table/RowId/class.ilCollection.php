@@ -18,13 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Consumer\File\Identification;
+namespace ILIAS\Export\ExportHandler\Table\RowId;
 
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilCollectionInterface as ilExportHandlerConsumerFileIdentificationCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilHandlerInterface as ilExportHandlerConsumerFileIndentificationInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
 
-class ilCollection implements ilExportHandlerConsumerFileIdentificationCollectionInterface
+class ilCollection implements ilExportHandlerTableRowIdCollectionInterface
 {
+    /** @var ilExportHandlerTableRowIdInterface[] */
     protected array $elements;
     protected int $index;
 
@@ -34,19 +35,19 @@ class ilCollection implements ilExportHandlerConsumerFileIdentificationCollectio
         $this->index = 0;
     }
 
-    public function withElement(ilExportHandlerConsumerFileIndentificationInterface $element)
+    public function withRowId(ilExportHandlerTableRowIdInterface $row_id): ilExportHandlerTableRowIdCollectionInterface
     {
         $clone = clone $this;
-        $clone->elements[] = $element;
+        $clone->elements[] = $row_id;
         return $clone;
     }
 
-    public function elementAt(int $index): ?ilExportHandlerConsumerFileIndentificationInterface
+    public function count(): int
     {
-        return $this->elements[$index] ?? null;
+        return count($this->elements);
     }
 
-    public function current(): ilExportHandlerConsumerFileIndentificationInterface
+    public function current(): ilExportHandlerTableRowIdInterface
     {
         return $this->elements[$this->index];
     }
@@ -69,10 +70,5 @@ class ilCollection implements ilExportHandlerConsumerFileIdentificationCollectio
     public function valid(): bool
     {
         return isset($this->elements[$this->index]);
-    }
-
-    public function count(): int
-    {
-        return count($this->elements);
     }
 }

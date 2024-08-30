@@ -23,6 +23,7 @@ namespace ILIAS\Export\ExportHandler;
 use ilAccessHandler;
 use ilCtrlInterface;
 use ilDBInterface;
+use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\Export\ExportHandler\Consumer\ilFactory as ilExportHandlderConsumerFactory;
 use ILIAS\Export\ExportHandler\I\Consumer\ilFactoryInterface as ilExportHandlderConsumerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
@@ -31,14 +32,18 @@ use ILIAS\Export\ExportHandler\I\Manager\ilFactoryInterface as ilExportHandlerMa
 use ILIAS\Export\ExportHandler\I\Part\ilFactoryInterface as ilExportHandlerPartFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilFactoryInterface as ilExportHandlerPublicAccessFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilFactoryInterface as ilExportHandlerRepositoryFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Table\ilFactoryInterface as ilExportHandlerTableFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilFactoryInterface as ilExportHandlerTargetFactoryInterface;
 use ILIAS\Export\ExportHandler\Info\ilFactory as ilExportHandlerInfoFactory;
 use ILIAS\Export\ExportHandler\Manager\ilFactory as ilExportHandlerManagerFactory;
 use ILIAS\Export\ExportHandler\Part\ilFactory as ilExportHandlerPartFactory;
 use ILIAS\Export\ExportHandler\PublicAccess\ilFactory as ilExportHandlerPublicAccessFactory;
 use ILIAS\Export\ExportHandler\Repository\ilFactory as ilExportHandlerRepositoryFactory;
+use ILIAS\Export\ExportHandler\Table\ilFactory as ilExportHandlerTableFactory;
 use ILIAS\Export\ExportHandler\Target\ilFactory as ilExportHandlerTargetFactory;
 use ILIAS\Filesystem\Filesystems;
+use ILIAS\HTTP\Services as ilHTTPServices;
+use ILIAS\Refinery\Factory as ilRefineryFactory;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ILIAS\StaticURL\Services as StaticUrl;
 use ilLanguage;
@@ -54,6 +59,9 @@ class ilFactory implements ilExportHandlerFactoryInterface
     protected StaticURL $static_url;
     protected ilObjUser $user;
     protected ilAccessHandler $il_access;
+    protected ilHTTPServices $http_services;
+    protected ilRefineryFactory $refinery;
+    protected ilUIServices $ui_services;
 
     public function __construct()
     {
@@ -66,6 +74,9 @@ class ilFactory implements ilExportHandlerFactoryInterface
         $this->ctrl = $DIC->ctrl();
         $this->user = $DIC->user();
         $this->il_access = $DIC->access();
+        $this->http_services = $DIC->http();
+        $this->refinery = $DIC->refinery();
+        $this->ui_services = $DIC->ui();
     }
 
     public function part(): ilExportHandlerPartFactoryInterface
@@ -108,6 +119,18 @@ class ilFactory implements ilExportHandlerFactoryInterface
             $this->user,
             $this->irss,
             $this->il_access
+        );
+    }
+
+    public function table(): ilExportHandlerTableFactoryInterface
+    {
+        return new ilExportHandlerTableFactory(
+            $this,
+            $this->ui_services,
+            $this->http_services,
+            $this->refinery,
+            $this->user,
+            $this->lng
         );
     }
 }

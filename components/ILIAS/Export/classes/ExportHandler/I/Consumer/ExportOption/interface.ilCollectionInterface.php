@@ -21,40 +21,16 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
 use Countable;
-use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilHandlerInterface as ilExportHandlerConsumerFileIdentificationInterface;
-use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
 use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {
-    public function addExportOption(
-        ilExportHandlerConsumerExportOptionInterface $export_option,
-        string $id
-    ): ilCollectionInterface;
+    public function withExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): ilCollectionInterface;
 
     public function getById(string $id): ?ilExportHandlerConsumerExportOptionInterface;
 
     public function getByIndex(int $index): ?ilExportHandlerConsumerExportOptionInterface;
-
-    public function getIdByIndex(int $index): ?string;
-
-    /**
-     * @return array<string, ilExportHandlerFileInfoInterface>
-     */
-    public function getIdFileInfoPairs(
-        int $index,
-        ilExportHandlerConsumerContextInterface $context
-    ): array;
-
-    public function getMatchingExportOption(
-        ilExportHandlerConsumerFileIdentificationInterface $file_identification
-    ): ?ilExportHandlerConsumerExportOptionInterface;
-
-    public function getMatchingIdentifier(
-        ilExportHandlerConsumerFileIdentificationInterface $file_identification
-    ): ?string;
 
     public function current(): ilExportHandlerConsumerExportOptionInterface;
 

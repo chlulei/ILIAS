@@ -5,10 +5,10 @@ namespace ILIAS\Export\ExportHandler\Part;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Component\ilFactoryInterface as ilExportHanlderPartComponentFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Container\ilFactoryInterface as ilExportHanlderPartContainerFactoryInterface;
-use ILIAS\Export\ExportHandler\Part\Container\ilFactory as ilExportHanlderPartContainerFactory;
 use ILIAS\Export\ExportHandler\I\Part\ilFactoryInterface as ilExportHandlerPartFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Manifest\ilFactoryInterface as ilExportHanlderPartManifestFactoryInterface;
 use ILIAS\Export\ExportHandler\Part\Component\ilFactory as ilExportHanlderPartComponentFactory;
+use ILIAS\Export\ExportHandler\Part\Container\ilFactory as ilExportHanlderPartContainerFactory;
 use ILIAS\Export\ExportHandler\Part\Manifest\ilFactory as ilExportHanlderPartManifestFactory;
 
 class ilFactory implements ilExportHandlerPartFactoryInterface

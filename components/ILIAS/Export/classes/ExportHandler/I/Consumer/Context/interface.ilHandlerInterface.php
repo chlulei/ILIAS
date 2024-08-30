@@ -25,6 +25,7 @@ use ilCtrlInterface;
 use ilDBInterface;
 use ilExportGUI;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilFactoryInterface as ilExportHandlerConsumerFileFactoryInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ilLanguage;
 use ilObject;
@@ -47,6 +48,8 @@ interface ilHandlerInterface
     public function exportObject(): ilObject;
 
     public function fileFactory(): ilExportHandlerConsumerFileFactoryInterface;
+
+    public function publicAccess(): ilExportHandlerPublicAccessInterface;
 
     public function ilAccess(): ilAccessHandler;
 }

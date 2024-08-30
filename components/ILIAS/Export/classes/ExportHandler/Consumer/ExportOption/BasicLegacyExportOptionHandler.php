@@ -26,18 +26,35 @@ use ilFileDelivery;
 use ilFileUtils;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilCollectionInterface as ilExportHandlerConsumerFileIdentificationCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConusmerFileCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 use SplFileInfo;
+use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface;
 
 abstract class BasicLegacyExportOptionHandler implements ilExportHandlerConsumerExportOptionInterface
 {
+    public function onPublicAccessTypeRestrictionsChanged(
+        ilExportHandlerConsumerContextInterface $context,
+        ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface $allowed_types
+    ): void {
+        $is_allowed_type = false;
+        foreach ($allowed_types as $allowed_type) {
+            if ($allowed_type->getAllowedType() === $this->getExportType()) {
+                $is_allowed_type = true;
+                break;
+            }
+        }
+        if(!$is_allowed_type) {
+            $context->publicAccess()->removePublicAccessFile($context->exportObject()->getId());
+        }
+    }
+
     public function onDeleteFiles(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
-        foreach ($file_identifications as $file) {
-            $file = explode(":", $file->compositId());
+        foreach ($table_row_ids as $table_row_id) {
+            $file = explode(":", $table_row_id->getCompositId());
 
             $file[1] = basename($file[1]);
 
@@ -65,10 +82,10 @@ abstract class BasicLegacyExportOptionHandler implements ilExportHandlerConsumer
 
     public function onDownloadFiles(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
-        foreach ($file_identifications as $file) {
-            $file = explode(":", trim($file->compositId()));
+        foreach ($table_row_ids as $table_row_id) {
+            $file = explode(":", trim($table_row_id->getCompositId()));
             $export_dir = ilExport::_getExportDirectory(
                 $context->exportObject()->getId(),
                 str_replace("..", "", $file[0]),
@@ -84,12 +101,12 @@ abstract class BasicLegacyExportOptionHandler implements ilExportHandlerConsumer
 
     public function getFileSelection(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): ilExportHandlerConusmerFileCollectionInterface {
         $collection = $context->fileFactory()->collection();
         foreach ($this->getFiles($context) as $file) {
-            foreach ($file_identifications as $file_identification) {
-                if ($file_identification->getFileId() === $file->getFileIdentifier()) {
+            foreach ($table_row_ids as $table_row_id) {
+                if ($table_row_id->getFileIdentifier() === $file->getFileIdentifier()) {
                     $collection = $collection->addFileInfo($file);
                     break;
                 }

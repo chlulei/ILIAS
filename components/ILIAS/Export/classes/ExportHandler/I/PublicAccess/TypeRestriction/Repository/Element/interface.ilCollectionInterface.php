@@ -20,9 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element;
 
-use Iterator;
 use Countable;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
+use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {

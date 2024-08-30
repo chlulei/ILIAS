@@ -21,8 +21,8 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Part;
 
 use ILIAS\Export\ExportHandler\I\Part\Component\ilFactoryInterface as ilExportHanlderPartComponentFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Part\Manifest\ilFactoryInterface as ilExportHanlderPartManifestFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Container\ilFactoryInterface as ilExportHanlderPartContainerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Part\Manifest\ilFactoryInterface as ilExportHanlderPartManifestFactoryInterface;
 
 interface ilFactoryInterface
 {

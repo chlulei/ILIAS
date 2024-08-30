@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Info\File;
 
 use DateTimeImmutable;
+use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use SplFileInfo;
 
@@ -32,9 +33,11 @@ interface ilHandlerInterface
 
     public function withResourceId(ResourceIdentification $resource_id, string $type): ilHandlerInterface;
 
-    public function withContainerResourceId(ResourceIdentification $resource_id, string $type): ilHandlerInterface;
-
     public function withSplFileInfo(SplFileInfo $splFileInfo, string $type): ilHandlerInterface;
+
+    public function withExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): ilHandlerInterface;
+
+    public function getExportOption(): ilExportHandlerConsumerExportOptionInterface;
 
     public function getPublicAccessPossible(): bool;
 

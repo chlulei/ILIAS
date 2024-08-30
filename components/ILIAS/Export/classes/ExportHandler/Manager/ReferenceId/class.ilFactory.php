@@ -22,9 +22,9 @@ namespace ILIAS\Export\ExportHandler\Manager\ReferenceId;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
-use ILIAS\Export\ExportHandler\Manager\ReferenceId\ilCollection as ilExportHandlerManagerReferenceIdCollection;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilFactoryInterface as ilExportHandlerManagerReferenceIdFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilHandlerInterface as ilExportHandlerManagerReferenceIdInterface;
+use ILIAS\Export\ExportHandler\Manager\ReferenceId\ilCollection as ilExportHandlerManagerReferenceIdCollection;
 use ILIAS\Export\ExportHandler\Manager\ReferenceId\ilHandler as ilExportHandlerManagerReferenceId;
 
 class ilFactory implements ilExportHandlerManagerReferenceIdFactoryInterface

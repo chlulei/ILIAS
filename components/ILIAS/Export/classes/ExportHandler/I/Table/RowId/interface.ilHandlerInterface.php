@@ -18,14 +18,19 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Consumer\File\Identification;
+namespace ILIAS\Export\ExportHandler\I\Table\RowId;
 
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilCollectionInterface as ilExportHandlerConsumerFileIdentificationCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilHandlerInterface as ilExportHandlerConsumerFileIdentificationInterface;
-
-interface ilFactoryInterface
+interface ilHandlerInterface
 {
-    public function handler(): ilExportHandlerConsumerFileIdentificationInterface;
+    public function withExportOptionId(string $export_option_id): ilHandlerInterface;
 
-    public function collection(): ilExportHandlerConsumerFileIdentificationCollectionInterface;
+    public function withFileIdentifier(string $file_info_id): ilHandlerInterface;
+
+    public function withCompositId(string $composit_id): ilHandlerInterface;
+
+    public function getCompositId(): string;
+
+    public function getFileIdentifier(): string;
+
+    public function getExportOptionId(): string;
 }

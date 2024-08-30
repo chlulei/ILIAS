@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\Info\File;
 
 use DateTimeImmutable;
+use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Resource\StorableResource;
@@ -32,6 +33,7 @@ class ilHandler implements ilExportHandlerFileInfoInterface
     protected ResourcesStorageService $irss;
     protected StorableResource $resource;
     protected SplFileInfo $splFileInfo;
+    protected ilExportHandlerConsumerExportOptionInterface $export_option;
     protected bool $public_access_enabled;
     protected bool $public_access_possible;
     protected string $type;
@@ -64,20 +66,25 @@ class ilHandler implements ilExportHandlerFileInfoInterface
         return $clone;
     }
 
-    public function withContainerResourceId(ResourceIdentification $resource_id, string $type): ilExportHandlerFileInfoInterface
-    {
-        $clone = clone $this;
-        $clone->resource = $this->irss->manageContainer()->getResource($resource_id);
-        $clone->type = $type;
-        return $clone;
-    }
-
     public function withSplFileInfo(SplFileInfo $splFileInfo, string $type): ilExportHandlerFileInfoInterface
     {
         $clone = clone $this;
         $clone->splFileInfo = $splFileInfo;
         $clone->type = $type;
         return $clone;
+    }
+
+    public function withExportOption(
+        ilExportHandlerConsumerExportOptionInterface $export_option
+    ): ilExportHandlerFileInfoInterface {
+        $clone = clone $this;
+        $clone->export_option = $export_option;
+        return $clone;
+    }
+
+    public function getExportOption(): ilExportHandlerConsumerExportOptionInterface
+    {
+        return $this->export_option;
     }
 
     public function getPublicAccessPossible(): bool

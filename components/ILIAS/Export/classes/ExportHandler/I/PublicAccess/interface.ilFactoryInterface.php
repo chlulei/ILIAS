@@ -20,12 +20,15 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 
+use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Link\ilFactoryInterface as ilExportHandlerPublicAccessLinkFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\ilFactoryInterface as ilExportHandlerPublicAccessRepositoryFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilFactoryInterface as ilExportHandlerPublicAccessTypeRestrictionFactoryInterface;
 
 interface ilFactoryInterface
 {
+    public function handler(): ilExportHandlerPublicAccessInterface;
+
     public function link(): ilExportHandlerPublicAccessLinkFactoryInterface;
 
     public function repository(): ilExportHandlerPublicAccessRepositoryFactoryInterface;

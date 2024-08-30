@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Manager\ReferenceId;
 
-use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilHandlerInterface as ilExportHandlerManagerReferenceIdInterface;
 

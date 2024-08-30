@@ -21,16 +21,24 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\Identification\ilCollectionInterface as ilExportHandlerConsumerFileIdentificationCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConsumerFileCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface;
 
 interface ilHandlerInterface
 {
     public function getExportType(): string;
 
+    public function getExportOptionId(): string;
+
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context
     ): string;
+
+    public function onPublicAccessTypeRestrictionsChanged(
+        ilExportHandlerConsumerContextInterface $context,
+        ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface $allowed_types
+    ): void;
 
     public function onExportOptionSelected(
         ilExportHandlerConsumerContextInterface $context
@@ -38,12 +46,12 @@ interface ilHandlerInterface
 
     public function onDeleteFiles(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void;
 
     public function onDownloadFiles(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void;
 
     public function getFiles(
@@ -52,6 +60,6 @@ interface ilHandlerInterface
 
     public function getFileSelection(
         ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerConsumerFileIdentificationCollectionInterface $file_identifications
+        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): ilExportHandlerConsumerFileCollectionInterface;
 }

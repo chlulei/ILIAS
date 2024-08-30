@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
-use ILIAS\Export\ExportTable\ilTable;
+use ILIAS\Export\ExportTable\ilHandler;
 use ILIAS\HTTP\Services as ilHTTPServices;
 use ILIAS\Refinery\Factory as Factory;
 use ILIAS\HTTP\Services as Services;
@@ -104,17 +104,37 @@ class ilExportGUI
         return $options;
     }
 
+    protected function builtExportOptionCommand(ilExportHandlerConsumerExportOptionInterface $export_option): string
+    {
+        return self::CMD_EXPORT_OPTION_PREFIX . $export_option->getExportOptionId();
+    }
+
     public function addExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): void
     {
-        $this->export_options = $this->export_options->addExportOption(
-            $export_option,
-            self::CMD_EXPORT_OPTION_PREFIX . $this->export_options->count()
-        );
+        $this->export_options = $this->export_options->withExportOption($export_option);
     }
 
     public function enablePublicAccessForType(string $type)
     {
+        $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
+        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($this->obj->getId());
+        foreach ($this->export_options as $export_option) {
+            $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
+        }
         $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
+            $this->obj->getId(),
+            $type
+        );
+    }
+
+    public function disablePublicAccessForType(string $type)
+    {
+        $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
+        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($this->obj->getId());
+        foreach ($this->export_options as $export_option) {
+            $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
+        }
+        $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
             $this->obj->getId(),
             $type
         );
@@ -160,9 +180,12 @@ class ilExportGUI
 
         $cmd = $this->ctrl->getCmd(self::CMD_LIST_EXPORT_FILES);
         if (str_starts_with($cmd, self::CMD_EXPORT_OPTION_PREFIX)) {
-            $this->export_options->getById($cmd)->onExportOptionSelected(
-                $this->export_handler->consumer()->context()->handler($this, $this->obj)
-            );
+            $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
+            foreach ($this->export_options as $export_option) {
+                if ($cmd === $this->builtExportOptionCommand($export_option)) {
+                    $export_option->onExportOptionSelected($context);
+                }
+            }
         }
         switch ($cmd) {
             case self::CMD_LIST_EXPORT_FILES:
@@ -179,24 +202,16 @@ class ilExportGUI
 
     public function listExportFiles(): void
     {
-        $table = new ilTable(
-            $this->ui_services,
-            $this->http_services,
-            $this->refinery,
-            $this->il_user,
-            $this->lng,
-            $this->export_handler,
-            $this,
-            $this->obj,
-            $this->export_options
-        );
+        $table = $this->export_handler->table()->handler()
+            ->withExportOptions($this->export_options)
+            ->withExportGUI($this)
+            ->withExportObject($this->obj);
         $table->handleCommands();
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-        for ($i = 0; $i < $this->export_options->count(); $i++) {
-            $export_option = $this->export_options->getByIndex($i);
+        foreach ($this->export_options as $export_option) {
             $this->toolbar->addComponent($this->ui_services->factory()->button()->standard(
                 $export_option->getLabel($context),
-                $this->ctrl->getLinkTarget($this, $this->export_options->getIdByIndex($i) ?? self::CMD_LIST_EXPORT_FILES)
+                $this->ctrl->getLinkTarget($this, $this->builtExportOptionCommand($export_option))
             ));
         }
         $this->tpl->setContent($table->getHTML());
@@ -209,14 +224,6 @@ class ilExportGUI
             return;
         }
         $this->createXMLExport();
-        /*        $ts = time();
-                $export_info = $this->export_handler->manager()->handler()->getExportInfoOfObject($this->obj, $ts);
-                $element = $this->export_handler->manager()->handler()->createExportElement(
-                    $this->obj,
-                    $this->il_user->getId(),
-                    $ts,
-                    ""
-                );*/
         $this->tpl->setOnScreenMessage(
             ilGlobalTemplateInterface::MESSAGE_TYPE_SUCCESS,
             $this->lng->txt("exp_file_created"),

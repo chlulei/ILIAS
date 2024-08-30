@@ -23,12 +23,14 @@ namespace ILIAS\Export\ExportHandler\PublicAccess;
 use ilDBInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilFactoryInterface as ilExportHandlerPublicAccessFactoryInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Link\ilFactoryInterface as ilExportHandlerPublicAccessLinkFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\ilFactoryInterface as ilExportHandlerPublicAccessRepositoryFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilFactoryInterface as ilExportHandlerPublicAccessTypeRestrictionFactoryInterface;
-use ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\ilFactory as ilExportHandlerPublicAccessTypeRestrictionFactory;
+use ILIAS\Export\ExportHandler\PublicAccess\ilHandler as ilExportHandlerPublicAccess;
 use ILIAS\Export\ExportHandler\PublicAccess\Link\ilFactory as ilExportHandlerPublicAccessLinkFactory;
 use ILIAS\Export\ExportHandler\PublicAccess\Repository\ilFactory as ilExportHandlerPublicAccessRepositoryFactory;
+use ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\ilFactory as ilExportHandlerPublicAccessTypeRestrictionFactory;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ILIAS\StaticURL\Services as StaticUrl;
 
@@ -49,6 +51,11 @@ class ilFactory implements ilExportHandlerPublicAccessFactoryInterface
         $this->irss = $irss;
         $this->db = $db;
         $this->static_url = $static_url;
+    }
+
+    public function handler(): ilExportHandlerPublicAccessInterface
+    {
+        return new ilExportHandlerPublicAccess($this->export_handler);
     }
 
     public function link(): ilExportHandlerPublicAccessLinkFactoryInterface

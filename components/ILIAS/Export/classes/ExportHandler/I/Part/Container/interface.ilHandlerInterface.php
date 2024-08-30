@@ -20,10 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Part\Container;
 
-use ILIAS\Export\ExportHandler\I\Part\ilHandlerInterface as ilExportHandlerPartInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\Part\ilHandlerInterface as ilExportHandlerPartInterface;
 
 interface ilHandlerInterface extends ilExportHandlerPartInterface
 {
