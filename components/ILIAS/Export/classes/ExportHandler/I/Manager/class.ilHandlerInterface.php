@@ -20,9 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Manager;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
 use ilObject;
@@ -32,62 +32,28 @@ interface ilHandlerInterface
     public function createContainerExport(
         int $user_id,
         int $timestamp,
-        ReferenceId $main_entity_ref_id,
-        ilExportHandlerManagerReferenceIdCollectionInterface $ref_id_collection
+        ObjectId $main_entity_object_id,
+        ilExportHandlerManagerObjectIdCollectionInterface $obj_id_collection
     ): ilExportHandlerRepositoryElementInterface;
 
-    public function createExportElement(
-        ilObject $source,
+    public function createExport(
+        ObjectId $object_id,
         int $user_id,
         int $timestamp,
         string $path_in_container
     ): ilExportHandlerRepositoryElementInterface;
 
-    public function createExportElementByRefId(
-        ReferenceId $ref_id,
-        int $user_id,
-        int $timestamp,
-        string $path_in_container
-    ): ilExportHandlerRepositoryElementInterface;
-
-    public function appendObjectExport(
-        ilObject $source,
-        int $timestamp,
-        string $path_in_container,
-        ilExportHandlerRepositoryElementInterface $element
-    ): void;
-
-    public function appendObjectExportByRefId(
-        ReferenceId $ref_id,
-        int $timestamp,
-        string $path_in_container,
-        ilExportHandlerRepositoryElementInterface $element
-    ): void;
-
-    public function getTargetOfObject(
-        ilObject $source
-    ): ilExportHandlerTargetInterface;
-
-    public function getTargetOfRefId(
-        ReferenceId $ref_id
-    ): ilExportHandlerTargetInterface;
-
-    public function getExportInfoOfObject(
-        ilObject $source,
-        int $time_stamp
-    ): ilExportHandlerExportInfoInterface;
-
-    public function getExportInfoOfRefId(
-        ReferenceId $ref_id,
+    public function getExportInfo(
+        ObjectId $object_id,
         int $time_stamp
     ): ilExportHandlerExportInfoInterface;
 
     /**
-     * @param int[] $ref_ids_export
-     * @param int[] $ref_ids_reuse
+     * @param int[] $object_ids_to_export
+     * @param int[] $object_ids_all
      */
-    public function createRefIdCollection(
-        array $ref_ids_export,
-        array $ref_ids_all
-    ): ilExportHandlerManagerReferenceIdCollectionInterface;
+    public function createObjectIdCollection(
+        array $object_ids_to_export,
+        array $object_ids_all
+    ): ilExportHandlerManagerObjectIdCollectionInterface;
 }

@@ -43,17 +43,16 @@ class ilCollection implements ilExportHandlerRepositoryElementCollectionInterfac
 
     public function newest(): ?ilExportHandlerRepositoryElementInterface
     {
-        $newest = null;
-        foreach ($this->elements as $element) {
-            if (is_null($newest)) {
-                $newest = $element;
-                continue;
+        uasort($this->elements, function (
+            ilExportHandlerRepositoryElementInterface $a,
+            ilExportHandlerRepositoryElementInterface $b
+        ) {
+            if ($a->getLastModified()->getTimestamp() === $b->getLastModified()->getTimestamp()) {
+                return 0;
             }
-            if ($newest > $element) {
-                $newest = $element;
-            }
-        }
-        return $newest;
+            return $a->getLastModified()->getTimestamp() < $b->getLastModified()->getTimestamp() ? 1 : -1;
+        });
+        return $this->elements[0] ?? null;
     }
 
     public function current(): ilExportHandlerRepositoryElementInterface

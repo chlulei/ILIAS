@@ -22,7 +22,7 @@ namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\Repository;
 
 use ilDBConstants;
 use ilDBInterface;
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
@@ -30,8 +30,6 @@ use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\ilHandl
 
 class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryInterface
 {
-    protected const TABLE_NAME = "export_pub_acc_types";
-
     protected ilExportHandlerFactoryInterface $export_handler;
     protected ilDBInterface $db;
 
@@ -41,35 +39,6 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryI
     ) {
         $this->export_handler = $export_handler;
         $this->db = $db;
-        $this->test();
-    }
-
-    protected function test(): void
-    {
-        if ($this->db->tableExists(self::TABLE_NAME)) {
-            return;
-        }
-        $this->db->createTable(self::TABLE_NAME, [
-            'reference_id' => [
-                'type' => 'integer',
-                'length' => 8,
-                'default' => 0,
-                'notnull' => true
-            ],
-            'type' => [
-                'type' => 'text',
-                'length' => 64,
-                'default' => '',
-                'notnull' => true
-            ],
-            'timestamp' => [
-                'type' => 'integer',
-                'length' => 8,
-                'default' => 0,
-                'notnull' => true
-            ],
-        ]);
-        $this->db->addPrimaryKey(self::TABLE_NAME, ["reference_id", "type"]);
     }
 
     public function addAllowedType(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool
@@ -78,13 +47,13 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryI
             return false;
         }
         $query = "INSERT INTO " . $this->db->quoteIdentifier(self::TABLE_NAME) . " VALUES"
-            . " (" . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER)
+            . " (" . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
             . ", " . $this->db->quote($element->getAllowedType(), ilDBConstants::T_TEXT)
-            . ", " . $this->db->quote($element->getLastModified()->getTimestamp(), ilDBConstants::T_INTEGER)
+            . ", " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP)
             . ") ON DUPLICATE KEY UPDATE"
-            . " reference_id = " . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER)
+            . " object_id = " . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
             . ", type = " . $this->db->quote($element->getAllowedType(), ilDBConstants::T_TEXT)
-            . ", timestamp = " . $this->db->quote($element->getLastModified()->getTimestamp(), ilDBConstants::T_INTEGER);
+            . ", timestamp = " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP);
         $this->db->manipulate($query);
         return true;
     }
@@ -95,22 +64,22 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryI
             return false;
         }
         $query = "DELETE FROM " . $this->db->quoteIdentifier(self::TABLE_NAME) . " WHERE "
-            . "(reference_id, type) = (" . $this->db->quote($element->getReferenceId()->toInt(), ilDBConstants::T_INTEGER)
+            . "(object_id, type) = (" . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
             . ", " . $this->db->quote($element->getAllowedType(), ilDBConstants::T_TEXT) . ")";
         $this->db->manipulate($query);
         return true;
     }
 
-    public function getAllowedTypes(ReferenceId $reference_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface
+    public function getAllowedTypes(ObjectId $object_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface
     {
         $collection = $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->collection();
         $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE reference_id = " . $this->db->quote($reference_id->toInt(), ilDBConstants::T_INTEGER);
+            . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER);
         $res = $this->db->query($query);
         while ($row = $res->fetchAssoc()) {
             $collection = $collection->withElement(
                 $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
-                    ->withReferenceId(new ReferenceId((int) $row['reference_id']))
+                    ->withObjectId(new ObjectId((int) $row['object_id']))
                     ->withAllowedType($row['type'])
             );
         }
@@ -122,7 +91,7 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryI
         if (!$element->isStorable()) {
             return false;
         }
-        foreach ($this->getAllowedTypes($element->getReferenceId()) as $type) {
+        foreach ($this->getAllowedTypes($element->getObjectId()) as $type) {
             if ($type->getAllowedType() === $element->getAllowedType()) {
                 return true;
             }

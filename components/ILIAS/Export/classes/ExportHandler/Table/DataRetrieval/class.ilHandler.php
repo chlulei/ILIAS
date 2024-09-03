@@ -22,9 +22,9 @@ namespace ILIAS\Export\ExportHandler\Table\DataRetrieval;
 
 use Generator;
 use ilExportGUI;
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\Order as ilDataOrder;
 use ILIAS\Data\Range as ilDataRange;
-use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
@@ -149,6 +149,7 @@ class ilHandler implements ilExportHandlerTableDataRetrievalInterface
             $rows = array_reverse($rows, true);
         }
         $rows = array_slice($rows, $range->getStart(), $range->getLength(), true);
+        /** @var ilExportHandlerFileInfoInterface $file_info */
         foreach ($rows as $composit_id => $file_info) {
             yield $row_builder->buildDataRow($composit_id, [
                 ilExportHandlerTableInterface::TABLE_COL_TYPE => $file_info->getFileType(),
@@ -157,7 +158,7 @@ class ilHandler implements ilExportHandlerTableDataRetrievalInterface
                 ilExportHandlerTableInterface::TABLE_COL_TIMESTAMP => $file_info->getLastChanged(),
                 ilExportHandlerTableInterface::TABLE_COL_PUBLIC_ACCESS => $file_info->getPublicAccessEnabled() ? $icons[0] : $icons[1],
                 ilExportHandlerTableInterface::TABLE_COL_PUBLIC_ACCESS_POSSIBLE => $file_info->getPublicAccessPossible() ? $icons[0] : $icons[1]
-            ]);
+            ])->withDisabledAction("enable_pa", !$file_info->getPublicAccessPossible());
         }
     }
 
@@ -166,7 +167,7 @@ class ilHandler implements ilExportHandlerTableDataRetrievalInterface
         ?array $additional_parameters
     ): ?int {
         return  $this->export_handler->repository()->handler()->getElements(
-            new ReferenceId($this->export_object->getRefId())
+            new ObjectId($this->export_object->getId())
         )->count();
     }
 }

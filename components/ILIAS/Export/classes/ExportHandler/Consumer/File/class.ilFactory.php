@@ -48,7 +48,8 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
         bool $public_access_possible
     ): ilExportHandlerFileInfoInterface {
         return $this->export_handler->info()->file()->handler()
-            ->withSplFileInfo($spl_file_info, $type)
+            ->withSplFileInfo($spl_file_info)
+            ->withType($type)
             ->withPublicAccessPossible($public_access_possible);
     }
 
@@ -58,7 +59,8 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
         bool $public_access_possible
     ): ilExportHandlerFileInfoInterface {
         return $this->export_handler->info()->file()->handler()
-            ->withResourceId($resource_id, $type)
+            ->withResourceId($resource_id)
+            ->withType($type)
             ->withPublicAccessPossible($public_access_possible);
     }
 }

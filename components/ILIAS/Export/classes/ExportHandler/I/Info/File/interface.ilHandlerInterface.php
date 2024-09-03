@@ -31,9 +31,11 @@ interface ilHandlerInterface
 
     public function withPublicAccessEnabled(bool $enabled): ilHandlerInterface;
 
-    public function withResourceId(ResourceIdentification $resource_id, string $type): ilHandlerInterface;
+    public function withResourceId(ResourceIdentification $resource_id): ilHandlerInterface;
 
-    public function withSplFileInfo(SplFileInfo $splFileInfo, string $type): ilHandlerInterface;
+    public function withType(string $type): ilHandlerInterface;
+
+    public function withSplFileInfo(SplFileInfo $splFileInfo): ilHandlerInterface;
 
     public function withExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): ilHandlerInterface;
 

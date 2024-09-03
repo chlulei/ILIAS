@@ -18,17 +18,17 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Manager\ReferenceId;
+namespace ILIAS\Export\ExportHandler\I\Manager\ObjectId;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 
 interface ilHandlerInterface
 {
-    public function withReferenceId(ReferenceId $reference_id): ilHandlerInterface;
+    public function withObjectId(ObjectId $object_id): ilHandlerInterface;
 
     public function withReuseExport(bool $reuse_export): ilHandlerInterface;
 
-    public function getReferenceId(): ReferenceId;
+    public function getObjectId(): ObjectId;
 
     public function getReuseExport(): bool;
 }

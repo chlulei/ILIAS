@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\HTTP\Services as ilHTTPServices;
@@ -83,7 +84,7 @@ class ilExportGUI
         $this->export_handler = new ilExportHandler();
         $this->export_options = $this->export_handler->consumer()->exportOption()->collection();
         $this->enableStandardXMLExport();
-        $this->enablePublicAccessForType("xml");
+        $this->disablePublicAccessForType("xml");
     }
 
     protected function initExportOptionsFromPost(): array
@@ -117,13 +118,13 @@ class ilExportGUI
     {
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
         $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
-            new ReferenceId($this->obj->getRefId())
+            new ObjectId($this->obj->getId())
         );
         foreach ($this->export_options as $export_option) {
             $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
         }
         $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
-            new ReferenceId($this->obj->getRefId()),
+            new ObjectId($this->obj->getId()),
             $type
         );
     }
@@ -131,16 +132,16 @@ class ilExportGUI
     public function disablePublicAccessForType(string $type)
     {
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
+        $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
+            new ObjectId($this->obj->getId()),
+            $type
+        );
         $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
-            new ReferenceId($this->obj->getId())
+            new ObjectId($this->obj->getId())
         );
         foreach ($this->export_options as $export_option) {
             $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
         }
-        $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
-            new ReferenceId($this->obj->getId()),
-            $type
-        );
     }
 
     public function enableStandardXMLExport(): void
@@ -148,13 +149,28 @@ class ilExportGUI
         $this->addExportOption($this->export_handler->consumer()->exportOption()->basicXml());
     }
 
-    public function addFormat(
-        string $a_key,
-        string $a_txt = "",
-        object $a_call_obj = null,
-        string $a_call_func = ""
-    ): void {
-        # does nothing
+    /**
+     * @depricated
+     */
+    public function addFormat(): void
+    {
+
+    }
+
+    /**
+     * @depricated
+     */
+    public function addCustomColumn(): void
+    {
+
+    }
+
+    /**
+     * @depricated
+     */
+    public function addCustomMultiCommand(): void
+    {
+
     }
 
     public function getFormats(): array
@@ -211,11 +227,25 @@ class ilExportGUI
             ->withExportObject($this->obj);
         $table->handleCommands();
         $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
+        $infos = [];
         foreach ($this->export_options as $export_option) {
+            $infos[$export_option->getLabel($context)] = $this->ctrl->getLinkTarget($this, $this->builtExportOptionCommand($export_option));
+        }
+        if (count($infos) === 1) {
             $this->toolbar->addComponent($this->ui_services->factory()->button()->standard(
-                $export_option->getLabel($context),
-                $this->ctrl->getLinkTarget($this, $this->builtExportOptionCommand($export_option))
+                array_keys($infos)[0],
+                array_values($infos)[0]
             ));
+        }
+        if (count($infos) > 1) {
+            $links = [];
+            foreach ($infos as $label => $link) {
+                $links[] = $this->ui_services->factory()->link()->standard($label, $link);
+            }
+            $this->toolbar->addComponent(
+                $this->ui_services->factory()->dropdown()->standard($links)
+                ->withLabel($this->lng->txt("exp_export_dropdown"))
+            );
         }
         $this->tpl->setContent($table->getHTML());
     }
@@ -316,9 +346,10 @@ class ilExportGUI
             }
         }
         $ts = time();
+        $consumer = $this->export_handler->consumer()->handler();
         if (!$items_selected) {
-            $element = $this->export_handler->manager()->handler()->createExportElement(
-                $this->obj,
+            $element = $consumer->exportManager()->createExport(
+                new ObjectId($this->obj->getId()),
                 $this->il_user->getId(),
                 $ts,
                 ""
@@ -326,27 +357,19 @@ class ilExportGUI
         }
         if ($items_selected) {
             $eo->read();
-            $ref_ids = $this->export_handler->manager()->handler()->createRefIdCollection(
-                $eo->getSubitemsForCreation($this->obj->getRefId()),
-                $eo->getSubitemsForExport()
+            $ref_ids_export = $eo->getSubitemsForCreation($this->obj->getRefId());
+            $ref_ids_all = $eo->getSubitemsForExport();
+            $object_ids = $consumer->exportManager()->createObjectIdCollection(
+                array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_export),
+                array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_all)
             );
-            global $DIC;
-            for ($i = 0; $i < 20; $i++) {
-                $DIC->logger()->root()->debug("----------------------------------");
-            }
-            foreach ($ref_ids as $ref_id) {
-                $DIC->logger()->root()->debug("Ref_id: " . $ref_id->getReferenceId()->toInt() . ", Reuse: " . ($ref_id->getReuseExport() ? "yes" : "no"));
-            }
-
-            $element = $this->export_handler->manager()->handler()->createContainerExport(
+            $element = $consumer->exportManager()->createContainerExport(
                 $this->il_user->getId(),
                 $ts,
-                $ref_ids->head()->getReferenceId(),
-                $ref_ids->withoutHead()
+                $object_ids->head()->getObjectId(),
+                $object_ids->withoutHead()
             );
-
         }
-        // Delete export options
         $eo->delete();
     }
 }

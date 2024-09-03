@@ -20,14 +20,21 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
 
 interface ilHandlerInterface
 {
-    public function setPublicAccessFile(ReferenceId $reference_id, string $file_identifier);
+    public function setPublicAccessFile(ObjectId $object_id, string $type, string $file_identifier);
 
-    public function removePublicAccessFile(ReferenceId $reference_id);
+    public function removePublicAccessFile(ObjectId $object_id): void;
+
+    public function getPublicAccessFileIdentifier(ObjectId $object_id): string;
+
+    public function getPublicAccessFileType(ObjectId $object_id): string;
+
+    public function downloadLinkOfPublicAccessFile(ReferenceId $reference_id): string;
 
     public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionInterface;
 }

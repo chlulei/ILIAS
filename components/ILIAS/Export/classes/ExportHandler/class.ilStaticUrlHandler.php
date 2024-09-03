@@ -48,20 +48,27 @@ class ilStaticUrlHandler
 
     public function handle(Request $request, Context $context, Factory $response_factory): Response
     {
-        $operation = $request->getAdditionalParameters()[0] ?? null;
-        $object_id = $request->getReferenceId()->toObjectId()->toInt() ?? -1;
         $ref_id = $request->getReferenceId();
+        if (is_null($request->getReferenceId())) {
+            return $response_factory->can($context->ctrl()->getLinkTargetByClass(ilDashboardGUI::class));
+        }
+        $operation = $request->getAdditionalParameters()[0] ?? "";
+        $object_id = $ref_id->toObjectId();
         $access_granted = false;
+        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
+        $type_allowed = $this->export_handler->publicAccess()->typeRestriction()->handler()->isTypeAllowed(
+            $object_id,
+            $element->isStorable() ? $element->getType() : ""
+        );
         if ($context->isUserLoggedIn() and $context->checkPermission("read", $ref_id->toInt())) {
             $access_granted = true;
         }
         if ($context->getUserId() === ANONYMOUS_USER_ID and $context->isPublicSectionActive()) {
             $access_granted = true;
         }
-        if (!$access_granted or $operation !== self::DOWNLOAD or $object_id === -1) {
+        if (!$type_allowed or !$access_granted or $operation !== self::DOWNLOAD) {
             return $response_factory->can($context->ctrl()->getLinkTargetByClass(ilDashboardGUI::class));
         }
-        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($ref_id);
         $element->download();
         return $response_factory->cannot();
     }

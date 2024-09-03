@@ -27,9 +27,9 @@ class ilResourceStakeholder extends AbstractResourceStakeholder implements ilExp
 {
     protected int $owner_id;
 
-    public function __construct(int $usr_id = null)
+    public function __construct(int $usr_id = 6)
     {
-        $this->owner_id = $usr_id ?? 6;
+        $this->owner_id = $usr_id;
     }
 
     public function getId(): string

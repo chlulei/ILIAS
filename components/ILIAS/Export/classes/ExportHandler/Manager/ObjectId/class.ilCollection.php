@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Manager\ReferenceId;
+namespace ILIAS\Export\ExportHandler\Manager\ObjectId;
 
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilHandlerInterface as ilExportHandlerManagerReferenceIdInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
 
-class ilCollection implements ilExportHandlerManagerReferenceIdCollectionInterface
+class ilCollection implements ilExportHandlerManagerObjectIdCollectionInterface
 {
     protected array $elements;
     protected int $index;
@@ -34,26 +34,26 @@ class ilCollection implements ilExportHandlerManagerReferenceIdCollectionInterfa
         $this->index = 0;
     }
 
-    public function withReferenceId(ilExportHandlerManagerReferenceIdInterface $reference_id): ilExportHandlerManagerReferenceIdCollectionInterface
+    public function withObjectId(ilExportHandlerManagerObjectIdInterface $object_id): ilExportHandlerManagerObjectIdCollectionInterface
     {
         $clone = clone $this;
-        $clone->elements[] = $reference_id;
+        $clone->elements[] = $object_id;
         return $clone;
     }
 
-    public function head(): ilExportHandlerManagerReferenceIdInterface
+    public function head(): ilExportHandlerManagerObjectIdInterface
     {
         return $this->elements[0];
     }
 
-    public function withoutHead(): ilExportHandlerManagerReferenceIdCollectionInterface
+    public function withoutHead(): ilExportHandlerManagerObjectIdCollectionInterface
     {
         $clone = clone $this;
         array_shift($clone->elements);
         return $clone;
     }
 
-    public function current(): ilExportHandlerManagerReferenceIdInterface
+    public function current(): ilExportHandlerManagerObjectIdInterface
     {
         return $this->elements[$this->index];
     }

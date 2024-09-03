@@ -30,6 +30,8 @@ use ILIAS\Export\ExportHandler\I\Consumer\Context\ilFactoryInterface as ilExport
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilFactoryInterface as ilExportHandlerConsumerExportOptionFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilFactoryInterface as ilExportHandlerConsumerFileFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ilFactoryInterface as ilExportHandlerConsumerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Consumer\ilHandlerInterface as ilExportHandlerConsumerInterface;
+use ILIAS\Export\ExportHandler\Consumer\ilHandler as ilExportHandlerConsumer;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ilLanguage;
@@ -62,6 +64,12 @@ class ilFactory implements ilExportHandlerConsumerFactoryInterface
         $this->user = $user;
         $this->il_access = $il_access;
     }
+
+    public function handler(): ilExportHandlerConsumerInterface
+    {
+        return new ilExportHandlerConsumer($this->export_handler);
+    }
+
     public function exportOption(): ilExportHandlerConsumerExportOptionFactoryInterface
     {
         return new ilExportHandlerConsumerExportOptionFactory($this->export_handler);

@@ -18,6 +18,7 @@
 
 declare(strict_types=1);
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 
@@ -203,9 +204,8 @@ class ilExportSelectionTableGUI extends ilTable2GUI
             }
             $r = array();
 
-            $elements = $this->export_handler->repository()->handler()->getElements(
-                new ReferenceId((int) $node['ref_id'])
-            );
+            $reference_id = new ReferenceId((int) $node['ref_id']);
+            $elements = $this->export_handler->repository()->handler()->getElements($reference_id->toObjectId());
             if ($elements->count() > 0) {
                 $r['last_export'] = $elements->newest()->getLastModified()->getTimestamp();
             } else {

@@ -20,13 +20,13 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 
 interface ilHandlerInterface
 {
-    public function addAllowedType(ReferenceId $reference_id, string $type): bool;
+    public function addAllowedType(ObjectId $object_id, string $type): bool;
 
-    public function removeAllowedType(ReferenceId $reference_id, string $type): bool;
+    public function removeAllowedType(ObjectId $object_id, string $type): bool;
 
-    public function isTypeAllowed(ReferenceId $reference_id, string $type): bool;
+    public function isTypeAllowed(ObjectId $object_id, string $type): bool;
 }

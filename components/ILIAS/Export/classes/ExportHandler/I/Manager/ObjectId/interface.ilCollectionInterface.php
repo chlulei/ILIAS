@@ -18,22 +18,22 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Manager\ReferenceId;
+namespace ILIAS\Export\ExportHandler\I\Manager\ObjectId;
 
 use Countable;
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilCollectionInterface as ilExportHandlerManagerReferenceIdCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ReferenceId\ilHandlerInterface as ilExportHandlerManagerReferenceIdInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
 use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {
-    public function withReferenceId(ilExportHandlerManagerReferenceIdInterface $reference_id): ilCollectionInterface;
+    public function withObjectId(ilExportHandlerManagerObjectIdInterface $object_id): ilCollectionInterface;
 
-    public function head(): ilExportHandlerManagerReferenceIdInterface;
+    public function head(): ilExportHandlerManagerObjectIdInterface;
 
-    public function withoutHead(): ilExportHandlerManagerReferenceIdCollectionInterface;
+    public function withoutHead(): ilExportHandlerManagerObjectIdCollectionInterface;
 
-    public function current(): ilExportHandlerManagerReferenceIdInterface;
+    public function current(): ilExportHandlerManagerObjectIdInterface;
 
     public function key(): int;
 

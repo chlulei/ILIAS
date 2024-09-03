@@ -58,19 +58,24 @@ class ilHandler implements ilExportHandlerFileInfoInterface
         return $clone;
     }
 
-    public function withResourceId(ResourceIdentification $resource_id, string $type): ilExportHandlerFileInfoInterface
+    public function withType(string $type): ilExportHandlerFileInfoInterface
     {
         $clone = clone $this;
-        $clone->resource = $this->irss->manage()->getResource($resource_id);
         $clone->type = $type;
         return $clone;
     }
 
-    public function withSplFileInfo(SplFileInfo $splFileInfo, string $type): ilExportHandlerFileInfoInterface
+    public function withResourceId(ResourceIdentification $resource_id): ilExportHandlerFileInfoInterface
+    {
+        $clone = clone $this;
+        $clone->resource = $this->irss->manage()->getResource($resource_id);
+        return $clone;
+    }
+
+    public function withSplFileInfo(SplFileInfo $splFileInfo): ilExportHandlerFileInfoInterface
     {
         $clone = clone $this;
         $clone->splFileInfo = $splFileInfo;
-        $clone->type = $type;
         return $clone;
     }
 

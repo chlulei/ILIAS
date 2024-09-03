@@ -18,16 +18,16 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Manager;
+namespace ILIAS\Export\ExportHandler\Manager\ObjectId;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ilFactoryInterface as ilExportHandlerManagerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilFactoryInterface as ilExportHandlerManagerObjectIdFactoryInterface;
-use ILIAS\Export\ExportHandler\Manager\ilHandler as ilExportHandlerManager;
-use ILIAS\Export\ExportHandler\Manager\ObjectId\ilFactory as ilExportHandlerManagerObjectIdFactory;
+use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
+use ILIAS\Export\ExportHandler\Manager\ObjectId\ilCollection as ilExportHandlerManagerObjectIdCollection;
+use ILIAS\Export\ExportHandler\Manager\ObjectId\ilHandler as ilExportHandlerManagerObjectId;
 
-class ilFactory implements ilExportHandlerManagerFactoryInterface
+class ilFactory implements ilExportHandlerManagerObjectIdFactoryInterface
 {
     protected ilExportHandlerFactoryInterface $export_handler;
 
@@ -36,13 +36,13 @@ class ilFactory implements ilExportHandlerManagerFactoryInterface
         $this->export_handler = $export_handler;
     }
 
-    public function handler(): ilExportHandlerManagerInterface
+    public function handler(): ilExportHandlerManagerObjectIdInterface
     {
-        return new ilExportHandlerManager($this->export_handler);
+        return new ilExportHandlerManagerObjectId();
     }
 
-    public function objectId(): ilExportHandlerManagerObjectIdFactoryInterface
+    public function collection(): ilExportHandlerManagerObjectIdCollectionInterface
     {
-        return new ilExportHandlerManagerObjectIdFactory($this->export_handler);
+        return new ilExportHandlerManagerObjectIdCollection();
     }
 }

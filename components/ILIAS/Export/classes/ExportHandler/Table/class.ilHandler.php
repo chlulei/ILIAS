@@ -23,7 +23,7 @@ namespace ILIAS\Export\ExportHandler\Table;
 use ilCalendarSettings;
 use ilExportGUI;
 use ILIAS\Data\Factory as ilDataFactory;
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\DI\UIServices as ilUIServices;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\ilHandlerInterface as ilExportHandlerTableInterface;
@@ -82,7 +82,7 @@ class ilHandler implements ilExportHandlerTableInterface
         $this->ui_services = $ui_services;
         $this->refinery = $refinery;
         $this->lng = $lng;
-        $this->lng->loadLanguageModule("exp");
+        $this->lng->loadLanguageModule("export");
         $this->user = $user;
         $this->export_handler = $export_handler;
         $this->data_factory = new ilDataFactory();
@@ -131,7 +131,7 @@ class ilHandler implements ilExportHandlerTableInterface
             );
         return [
             self::ACTION_PUBLIC_ACCESS => $this->ui_services->factory()->table()->action()->single(
-                $this->lng->txt('toggle_public_access'),
+                $this->lng->txt('exp_toggle_public_access'),
                 $this->url_builder->withParameter($this->action_parameter_token, self::ACTION_PUBLIC_ACCESS),
                 $this->row_id_token
             ),
@@ -210,14 +210,15 @@ class ilHandler implements ilExportHandlerTableInterface
         $pa_repository = $this->export_handler->publicAccess()->repository()->handler();
         $pa_repository_element_factory = $this->export_handler->publicAccess()->repository()->element();
         $context = $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object);
-        $ref_id = new ReferenceId($context->exportObject()->getRefId());
+        $obj_id = new ObjectId($context->exportObject()->getId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            $type_allowed = $pat_restriction->isTypeAllowed($ref_id, $export_option->getExportType());
+            $type_allowed = $pat_restriction->isTypeAllowed($obj_id, $export_option->getExportType());
             foreach ($export_option->getFileSelection($context, $table_row_ids) as $file_info) {
                 $element = $pa_repository_element_factory->handler()
                     ->withIdentification($file_info->getFileIdentifier())
-                    ->withReferenceId($ref_id);
+                    ->withType($file_info->getFileType())
+                    ->withObjectId($obj_id);
                 if ($pa_repository->hasElement($element)) {
                     $pa_repository->deleteElement($element);
                     continue;
@@ -251,7 +252,7 @@ class ilHandler implements ilExportHandlerTableInterface
             return;
         }
         $this->table = $this->ui_services->factory()->table()->data(
-            $this->lng->txt("export_table_name"),
+            $this->lng->txt("exp_export_files"),
             $this->getColumns(),
             $this->export_handler->table()->dataRetrieval()
                 ->withExportOptions($this->export_options)

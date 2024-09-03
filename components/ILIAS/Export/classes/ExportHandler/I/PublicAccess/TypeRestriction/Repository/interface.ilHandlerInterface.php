@@ -20,17 +20,19 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
 
 interface ilHandlerInterface
 {
+    public const TABLE_NAME = "export_pub_acc_types";
+
     public function addAllowedType(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 
     public function removeAllowedType(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 
-    public function getAllowedTypes(ReferenceId $reference_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
+    public function getAllowedTypes(ObjectId $object_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
 
     public function isTypeAllowed(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 }

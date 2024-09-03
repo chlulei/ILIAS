@@ -21,15 +21,16 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\PublicAccess\Repository\Element;
 
 use DateTimeImmutable;
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRepositoryElementInterface;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
 class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 {
-    protected ReferenceId $reference_id;
+    protected ObjectId $object_id;
     protected string $resource_Id;
+    protected string $type;
     protected DateTimeImmutable $last_modified;
     protected ResourcesStorageService $irss;
 
@@ -44,10 +45,10 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
         $this->last_modified = new DateTimeImmutable();
     }
 
-    public function withReferenceId(ReferenceId $reference_id): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function withObjectId(ObjectId $object_id): ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->reference_id = $reference_id;
+        $clone->object_id = $object_id;
         return $clone;
     }
 
@@ -58,14 +59,26 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
         return $clone;
     }
 
-    public function getIdentification(): string
+    public function withType(string $type): ilExportHandlerPublicAccessRepositoryElementInterface
     {
-        return $this->resource_Id;
+        $clone = clone $this;
+        $clone->type = $type;
+        return $clone;
     }
 
-    public function getReferenceId(): ReferenceId
+    public function getType(): string
     {
-        return $this->reference_id;
+        return $this->type;
+    }
+
+    public function getIdentification(): string
+    {
+        return $this->resource_Id ?? "";
+    }
+
+    public function getObjectId(): ObjectId
+    {
+        return $this->object_id;
     }
 
     public function getLastModified(): DateTimeImmutable
@@ -83,7 +96,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 
     public function isStorable(): bool
     {
-        return isset($this->resource_Id) and isset($this->last_modified) and isset($this->reference_id);
+        return isset($this->object_id) and isset($this->last_modified) and isset($this->resource_Id) and isset($this->type);
     }
 
     protected function downloadFromIRSS(ResourceIdentification $rid, string $zip_file_name): void

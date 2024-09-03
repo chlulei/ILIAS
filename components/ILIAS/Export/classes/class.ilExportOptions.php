@@ -143,12 +143,12 @@ class ilExportOptions
 
         $query = 'INSERT INTO export_options (export_id,keyword,ref_id,obj_id,value,pos) ' .
             'VALUES( ' .
-            $this->db->quote($this->getExportId(), 'integer') . ', ' .
-            $this->db->quote($a_keyword, 'integer') . ', ' .
-            $this->db->quote($a_ref_id, 'integer') . ', ' .
-            $this->db->quote($a_obj_id, 'integer') . ', ' .
-            $this->db->quote($a_value, 'integer') . ', ' .
-            $this->db->quote($pos, 'integer') . ' ' .
+            $this->db->quote($this->getExportId(), ilDBConstants::T_INTEGER) . ', ' .
+            $this->db->quote($a_keyword, ilDBConstants::T_INTEGER) . ', ' .
+            $this->db->quote($a_ref_id, ilDBConstants::T_INTEGER) . ', ' .
+            $this->db->quote($a_obj_id, ilDBConstants::T_INTEGER) . ', ' .
+            $this->db->quote($a_value, ilDBConstants::T_INTEGER) . ', ' .
+            $this->db->quote($pos, ilDBConstants::T_INTEGER) . ' ' .
             ')';
         $this->db->manipulate($query);
     }
@@ -187,7 +187,7 @@ class ilExportOptions
     public function delete(): void
     {
         $query = "DELETE FROM export_options " .
-            "WHERE export_id = " . $this->db->quote($this->getExportId(), 'integer');
+            "WHERE export_id = " . $this->db->quote($this->getExportId(), ilDBConstants::T_INTEGER);
         $this->db->manipulate($query);
     }
 
@@ -198,7 +198,7 @@ class ilExportOptions
         $this->ref_options = array();
 
         $query = "SELECT * FROM export_options " .
-            "WHERE export_id = " . $this->db->quote($this->getExportId(), 'integer') . ' ' .
+            "WHERE export_id = " . $this->db->quote($this->getExportId(), ilDBConstants::T_INTEGER) . ' ' .
             "ORDER BY pos";
         $res = $this->db->query($query);
         while ($row = $res->fetchRow(ilDBConstants::FETCHMODE_OBJECT)) {

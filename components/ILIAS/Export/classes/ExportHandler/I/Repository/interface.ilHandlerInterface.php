@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Repository;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
@@ -33,7 +33,7 @@ interface ilHandlerInterface
     public const TMP_FILE_CONTENT = "tmp_file_content";
 
     public function createElement(
-        ReferenceId $reference_id,
+        ObjectId $object_id,
         ilExportHandlerExportInfoInterface $info,
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
     ): ilExportHandlerRepositoryElementInterface;
@@ -50,9 +50,9 @@ interface ilHandlerInterface
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
     ): bool;
 
-    public function getElement(ReferenceId $reference_id, string $resource_id_serialized): ?ilExportHandlerRepositoryElementInterface;
+    public function getElement(ObjectId $object_id, string $resource_id_serialized): ?ilExportHandlerRepositoryElementInterface;
 
-    public function getElements(ReferenceId $reference_id): ilExportHandlerRepositoryElementCollectionInterface;
+    public function getElements(ObjectId $object_id): ilExportHandlerRepositoryElementCollectionInterface;
 
-    public function getElementsByResourceIds(ReferenceId $reference_id, string ...$resource_ids_serialized): ilExportHandlerRepositoryElementCollectionInterface;
+    public function getElementsByResourceIds(ObjectId $object_id, string ...$resource_ids_serialized): ilExportHandlerRepositoryElementCollectionInterface;
 }

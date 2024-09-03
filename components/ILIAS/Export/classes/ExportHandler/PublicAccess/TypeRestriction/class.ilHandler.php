@@ -20,7 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction;
 
-use ILIAS\Data\ReferenceId;
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
 
@@ -34,29 +34,29 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionInterface
         $this->export_handler = $export_handler;
     }
 
-    public function addAllowedType(ReferenceId $reference_id, string $type): bool
+    public function addAllowedType(ObjectId $object_id, string $type): bool
     {
         return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->addAllowedType(
             $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
-                ->withReferenceId($reference_id)
+                ->withObjectId($object_id)
                 ->withAllowedType($type)
         );
     }
 
-    public function removeAllowedType(ReferenceId $reference_id, string $type): bool
+    public function removeAllowedType(ObjectId $object_id, string $type): bool
     {
         return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->removeAllowedType(
             $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
-                ->withReferenceId($reference_id)
+                ->withObjectId($object_id)
                 ->withAllowedType($type)
         );
     }
 
-    public function isTypeAllowed(ReferenceId $reference_id, string $type): bool
+    public function isTypeAllowed(ObjectId $object_id, string $type): bool
     {
         return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->isTypeAllowed(
             $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
-                ->withReferenceId($reference_id)
+                ->withObjectId($object_id)
                 ->withAllowedType($type)
         );
     }

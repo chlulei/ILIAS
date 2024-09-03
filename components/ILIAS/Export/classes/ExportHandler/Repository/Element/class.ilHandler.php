@@ -22,6 +22,7 @@ namespace ILIAS\Export\ExportHandler\Repository\Element;
 
 use DateTimeImmutable;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ZipReader;
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
@@ -39,7 +40,7 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
     protected DateTimeImmutable $last_modified;
     protected ResourceIdentification $resource_id;
     protected ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder;
-    protected ReferenceId $reference_id;
+    protected ObjectId $object_id;
 
     public function __construct(
         ResourcesStorageService $irss,
@@ -55,10 +56,10 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         );
     }
 
-    public function withReferenceId(ReferenceId $reference_id): ilExportHandlerRepositoryElementInterface
+    public function withObjectId(ObjectId $object_id): ilExportHandlerRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->reference_id = $reference_id;
+        $clone->object_id = $object_id;
         return $clone;
     }
 
@@ -137,9 +138,9 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         $download->run();
     }
 
-    public function getReferenceId(): ReferenceId
+    public function getObjectId(): ObjectId
     {
-        return $this->reference_id;
+        return $this->object_id;
     }
 
     public function getResourceId(): ResourceIdentification
@@ -187,6 +188,6 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
 
     public function isStorable(): bool
     {
-        return isset($this->last_modified) && isset($this->reference_id) && isset($this->resource_id);
+        return isset($this->last_modified) && isset($this->object_id) && isset($this->resource_id);
     }
 }

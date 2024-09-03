@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Manager;
+namespace ILIAS\Export\ExportHandler\I\Consumer;
 
+use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilFactoryInterface as ilExportHandlerManagerObjectIdFactoryInterface;
 
-interface ilFactoryInterface
+interface ilHandlerInterface
 {
-    public function handler(): ilExportHandlerManagerInterface;
+    public function publicAccess(): ilExportHandlerPublicAccessInterface;
 
-    public function objectId(): ilExportHandlerManagerObjectIdFactoryInterface;
+    public function exportManager(): ilExportHandlerManagerInterface;
 }

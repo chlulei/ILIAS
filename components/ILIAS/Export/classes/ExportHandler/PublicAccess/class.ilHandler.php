@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\PublicAccess;
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
@@ -35,18 +36,34 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         $this->export_handler = $export_handler;
     }
 
-    public function setPublicAccessFile(ReferenceId $reference_id, string $file_identifier)
+    public function setPublicAccessFile(ObjectId $object_id, string $type, string $file_identifier)
     {
         $this->export_handler->publicAccess()->repository()->handler()->storeElement(
             $this->export_handler->publicAccess()->repository()->element()->handler()
-                ->withReferenceId($reference_id)
+                ->withObjectId($object_id)
+                ->withType($type)
                 ->withIdentification($file_identifier)
         );
     }
 
-    public function removePublicAccessFile(ReferenceId $reference_id)
+    public function getPublicAccessFileIdentifier(ObjectId $object_id): string
     {
-        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($reference_id);
+        return $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id)->getIdentification();
+    }
+
+    public function getPublicAccessFileType(ObjectId $object_id): string
+    {
+        return $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id)->getType();
+    }
+
+    public function downloadLinkOfPublicAccessFile(ReferenceId $reference_id): string
+    {
+        return (string) $this->export_handler->publicAccess()->link()->handler()->withReferenceId($reference_id)->getLink();
+    }
+
+    public function removePublicAccessFile(ObjectId $object_id): void
+    {
+        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
         $this->export_handler->publicAccess()->repository()->handler()->deleteElement($element);
     }
 

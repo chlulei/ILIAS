@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
@@ -39,8 +40,7 @@ abstract class ilBasicHandler implements ilExportHandlerConsumerExportOptionInte
             }
         }
         if(!$is_allowed_type) {
-            $ref_id = new ReferenceId($context->exportObject()->getRefId());
-            $context->publicAccess()->removePublicAccessFile($ref_id);
+            $context->publicAccess()->removePublicAccessFile(new ObjectId($context->exportObject()->getId()));
         }
     }
 }
