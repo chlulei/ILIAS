@@ -48,11 +48,6 @@ class ilCollection implements ilExportHandlerConsumerExportOptionCollectionInter
         return $clone;
     }
 
-    public function getByIndex(int $index): ?ilExportHandlerConsumerExportOptionInterface
-    {
-        return $this->elements[$index] ?? null;
-    }
-
     public function getById(string $id): ?ilExportHandlerConsumerExportOptionInterface
     {
         foreach ($this->elements as $element) {

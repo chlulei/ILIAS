@@ -30,6 +30,8 @@ interface ilCollectionInterface extends Countable, Iterator
 
     public function elementAt(int $index): ?ilExportHandlerFileInfoInterface;
 
+    public function mergeWith(ilCollectionInterface $other): ilCollectionInterface;
+
     public function current(): ilExportHandlerFileInfoInterface;
 
     public function key(): int;

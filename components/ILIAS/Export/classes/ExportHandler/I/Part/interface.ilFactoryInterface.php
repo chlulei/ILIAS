@@ -21,7 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Part;
 
 use ILIAS\Export\ExportHandler\I\Part\Component\ilFactoryInterface as ilExportHanlderPartComponentFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Part\Container\ilFactoryInterface as ilExportHanlderPartContainerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilFactoryInterface as ilExportHanlderPartContainerManifestFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Manifest\ilFactoryInterface as ilExportHanlderPartManifestFactoryInterface;
 
 interface ilFactoryInterface
@@ -30,5 +30,5 @@ interface ilFactoryInterface
 
     public function component(): ilExportHanlderPartComponentFactoryInterface;
 
-    public function container(): ilExportHanlderPartContainerFactoryInterface;
+    public function container(): ilExportHanlderPartContainerManifestFactoryInterface;
 }

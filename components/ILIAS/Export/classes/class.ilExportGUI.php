@@ -180,14 +180,11 @@ class ilExportGUI
 
     public function executeCommand(): void
     {
-        # TODO: checkaccess
-
         // this should work (at least) for repository objects
         if (method_exists($this->obj, 'getRefId') and $this->obj->getRefId()) {
             if (!$this->access->checkAccess('write', '', $this->obj->getRefId())) {
                 $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->WARNING);
             }
-
             // check export activation of container
             $exp_limit = new ilExportLimitation();
             if ($this->objDefinition->isContainer(ilObject::_lookupType($this->obj->getRefId(), true)) &&
@@ -196,7 +193,6 @@ class ilExportGUI
                 return;
             }
         }
-
         $cmd = $this->ctrl->getCmd(self::CMD_LIST_EXPORT_FILES);
         if (str_starts_with($cmd, self::CMD_EXPORT_OPTION_PREFIX)) {
             $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);

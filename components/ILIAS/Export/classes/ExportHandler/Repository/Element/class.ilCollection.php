@@ -43,14 +43,14 @@ class ilCollection implements ilExportHandlerRepositoryElementCollectionInterfac
 
     public function newest(): ?ilExportHandlerRepositoryElementInterface
     {
-        uasort($this->elements, function (
+        usort($this->elements, function (
             ilExportHandlerRepositoryElementInterface $a,
             ilExportHandlerRepositoryElementInterface $b
         ) {
-            if ($a->getLastModified()->getTimestamp() === $b->getLastModified()->getTimestamp()) {
+            if ($a->getLastModified() === $b->getLastModified()) {
                 return 0;
             }
-            return $a->getLastModified()->getTimestamp() < $b->getLastModified()->getTimestamp() ? 1 : -1;
+            return $a->getLastModified() < $b->getLastModified() ? 1 : -1;
         });
         return $this->elements[0] ?? null;
     }

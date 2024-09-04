@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Part\Container;
+namespace ILIAS\Export\ExportHandler\Part\ContainerManifest;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Part\Container\ilFactoryInterface as ilExportHandlerPartContainerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Part\Container\ilHandlerInterface as ilExportHandlerPartContainerInterface;
-use ILIAS\Export\ExportHandler\Part\Container\ilHandler as ilExportHandlerPartContainer;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilFactoryInterface as ilExportHandlerPartContainerManifestFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilHandlerInterface as ilExportHandlerPartContainerManifestInterface;
+use ILIAS\Export\ExportHandler\Part\ContainerManifest\ilHandler as ilExportHandlerPartContainerManifest;
 
-class ilFactory implements ilExportHandlerPartContainerFactoryInterface
+class ilFactory implements ilExportHandlerPartContainerManifestFactoryInterface
 {
     protected ilExportHandlerFactoryInterface $export_handler;
 
@@ -34,8 +34,8 @@ class ilFactory implements ilExportHandlerPartContainerFactoryInterface
         $this->export_handler = $export_handler;
     }
 
-    public function handler(): ilExportHandlerPartContainerInterface
+    public function handler(): ilExportHandlerPartContainerManifestInterface
     {
-        return new ilExportHandlerPartContainer();
+        return new ilExportHandlerPartContainerManifest();
     }
 }

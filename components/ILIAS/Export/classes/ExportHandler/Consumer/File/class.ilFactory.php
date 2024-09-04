@@ -20,10 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\File;
 
-use ILIAS\Export\ExportHandler\Consumer\File\ilCollection as ilExportHandlerConsumerFileCollection;
-use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConsumerFileCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilFactoryInterface as ilExportHandlerConsumerFileFactoryInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use SplFileInfo;
@@ -37,9 +36,9 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
         $this->export_handler = $export_handler;
     }
 
-    public function collection(): ilExportHandlerConsumerFileCollectionInterface
+    public function collection(): ilExportHandlerFileInfoCollectionInterface
     {
-        return new ilExportHandlerConsumerFileCollection();
+        return $this->export_handler->info()->file()->collection();
     }
 
     public function fileInfoFromSplFileInfo(

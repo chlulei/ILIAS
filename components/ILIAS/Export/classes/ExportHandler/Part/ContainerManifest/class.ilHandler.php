@@ -18,20 +18,20 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Part\Container;
+namespace ILIAS\Export\ExportHandler\Part\ContainerManifest;
 
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Part\Container\ilHandlerInterface as ilExportHandlerComponentContainerInterface;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilHandlerInterface as ilExportHandlerComponentContainerManifestInterface;
 use ilObject;
 use ilXmlWriter;
 
-class ilHandler implements ilExportHandlerComponentContainerInterface
+class ilHandler implements ilExportHandlerComponentContainerManifestInterface
 {
     protected ilExportHandlerExportInfoInterface $main_entity_export_info;
     protected ilExportHandlerExportInfoCollectionInterface $export_infos;
 
-    public function getContainerManifestXML(bool $formatted = true): string
+    public function getXML(bool $formatted = true): string
     {
         $container_writer = new ilXmlWriter();
         $container_writer->xmlHeader();
@@ -59,7 +59,7 @@ class ilHandler implements ilExportHandlerComponentContainerInterface
 
     public function withMainEntityExportInfo(
         ilExportHandlerExportInfoInterface $export_info
-    ): ilExportHandlerComponentContainerInterface {
+    ): ilExportHandlerComponentContainerManifestInterface {
         $clone = clone $this;
         $clone->main_entity_export_info = $export_info;
         return $clone;
@@ -67,7 +67,7 @@ class ilHandler implements ilExportHandlerComponentContainerInterface
 
     public function withExportInfos(
         ilExportHandlerExportInfoCollectionInterface $export_infos
-    ): ilExportHandlerComponentContainerInterface {
+    ): ilExportHandlerComponentContainerManifestInterface {
         $clone = clone $this;
         $clone->export_infos = $export_infos;
         return $clone;

@@ -30,8 +30,6 @@ interface ilCollectionInterface extends Iterator, Countable
 
     public function getById(string $id): ?ilExportHandlerConsumerExportOptionInterface;
 
-    public function getByIndex(int $index): ?ilExportHandlerConsumerExportOptionInterface;
-
     public function current(): ilExportHandlerConsumerExportOptionInterface;
 
     public function key(): int;

@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Part\Container;
+namespace ILIAS\Export\ExportHandler\I\Part\ContainerManifest;
 
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
@@ -26,7 +26,7 @@ use ILIAS\Export\ExportHandler\I\Part\ilHandlerInterface as ilExportHandlerPartI
 
 interface ilHandlerInterface extends ilExportHandlerPartInterface
 {
-    public function getContainerManifestXML(bool $formatted = true): string;
+    public function getXML(bool $formatted = true): string;
 
     public function withMainEntityExportInfo(ilExportHandlerExportInfoInterface $export_info): ilHandlerInterface;
 

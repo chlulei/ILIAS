@@ -23,7 +23,6 @@ namespace ILIAS\Export\ExportHandler\Repository\Element;
 use DateTimeImmutable;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ZipReader;
 use ILIAS\Data\ObjectId;
-use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;

@@ -41,6 +41,13 @@ class ilCollection implements ilExportHandlerFileInfoCollectionInterface
         return $clone;
     }
 
+    public function mergeWith(ilExportHandlerFileInfoCollectionInterface $other): ilExportHandlerFileInfoCollectionInterface
+    {
+        $clone = clone $this;
+        $clone->elements = array_merge($this->elements, $other->elements);
+        return $clone;
+    }
+
     public function elementAt(int $index): ?ilExportHandlerFileInfoInterface
     {
         return $this->elements[$index] ?? null;

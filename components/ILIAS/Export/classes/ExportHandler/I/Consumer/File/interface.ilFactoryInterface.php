@@ -20,14 +20,14 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Consumer\File;
 
-use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConsumerFileCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use SplFileInfo;
 
 interface ilFactoryInterface
 {
-    public function collection(): ilExportHandlerConsumerFileCollectionInterface;
+    public function collection(): ilExportHandlerFileInfoCollectionInterface;
 
     public function fileInfoFromSplFileInfo(
         SplFileInfo $spl_file_info,

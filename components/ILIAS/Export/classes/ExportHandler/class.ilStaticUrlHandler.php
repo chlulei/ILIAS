@@ -23,8 +23,6 @@ namespace ILIAS\Export\ExportHandler;
 use ilDashboardGUI;
 use ILIAS\Export\ExportHandler\ilFactory as ilExportHandler;
 use ILIAS\StaticURL\Context;
-use ILIAS\StaticURL\Handler\BaseHandler;
-use ILIAS\StaticURL\Handler\Handler as StaticURLHandler;
 use ILIAS\StaticURL\Request\Request;
 use ILIAS\StaticURL\Response\Factory;
 use ILIAS\StaticURL\Response\Response;

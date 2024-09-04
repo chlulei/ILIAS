@@ -21,8 +21,10 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\Info\File;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilFactoryInterface as ilExportHandlerFileInfoFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
+use ILIAS\Export\ExportHandler\Info\File\ilCollection as ilExportHandlerFileInfoCollection;
 use ILIAS\Export\ExportHandler\Info\File\ilHandler as ilExportHandlerFileInfo;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
@@ -37,6 +39,11 @@ class ilFactory implements ilExportHandlerFileInfoFactoryInterface
     ) {
         $this->export_handler = $export_handler;
         $this->irss = $irss;
+    }
+
+    public function collection(): ilExportHandlerFileInfoCollectionInterface
+    {
+        return new ilExportHandlerFileInfoCollection();
     }
 
     public function handler(): ilExportHandlerFileInfoInterface

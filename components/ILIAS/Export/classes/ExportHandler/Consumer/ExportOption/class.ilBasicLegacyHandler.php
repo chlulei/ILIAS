@@ -26,7 +26,7 @@ use ilFileDelivery;
 use ilFileUtils;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConusmerFileCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 use SplFileInfo;
 
@@ -85,7 +85,7 @@ abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOp
     public function getFileSelection(
         ilExportHandlerConsumerContextInterface $context,
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
-    ): ilExportHandlerConusmerFileCollectionInterface {
+    ): ilExportHandlerFileInfoCollectionInterface {
         $collection = $context->fileFactory()->collection();
         foreach ($this->getFiles($context) as $file) {
             foreach ($table_row_ids as $table_row_id) {
@@ -100,7 +100,7 @@ abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOp
 
     public function getFiles(
         ilExportHandlerConsumerContextInterface $context
-    ): ilExportHandlerConusmerFileCollectionInterface {
+    ): ilExportHandlerFileInfoCollectionInterface {
         $collection = $context->fileFactory()->collection();
         $dir = ilExport::_getExportDirectory(
             $context->exportObject()->getId(),

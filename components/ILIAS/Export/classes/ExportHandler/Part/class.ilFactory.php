@@ -1,14 +1,32 @@
 <?php
 
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
+
 namespace ILIAS\Export\ExportHandler\Part;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Component\ilFactoryInterface as ilExportHanlderPartComponentFactoryInterface;
-use ILIAS\Export\ExportHandler\I\Part\Container\ilFactoryInterface as ilExportHanlderPartContainerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilFactoryInterface as ilExportHanlderPartContainerManifestFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\ilFactoryInterface as ilExportHandlerPartFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Part\Manifest\ilFactoryInterface as ilExportHanlderPartManifestFactoryInterface;
 use ILIAS\Export\ExportHandler\Part\Component\ilFactory as ilExportHanlderPartComponentFactory;
-use ILIAS\Export\ExportHandler\Part\Container\ilFactory as ilExportHanlderPartContainerFactory;
+use ILIAS\Export\ExportHandler\Part\ContainerManifest\ilFactory as ilExportHanlderPartContainerManifestFactory;
 use ILIAS\Export\ExportHandler\Part\Manifest\ilFactory as ilExportHanlderPartManifestFactory;
 
 class ilFactory implements ilExportHandlerPartFactoryInterface
@@ -30,8 +48,8 @@ class ilFactory implements ilExportHandlerPartFactoryInterface
         return new ilExportHanlderPartComponentFactory($this->export_handler);
     }
 
-    public function container(): ilExportHanlderPartContainerFactoryInterface
+    public function container(): ilExportHanlderPartContainerManifestFactoryInterface
     {
-        return new ilExportHanlderPartContainerFactory($this->export_handler);
+        return new ilExportHanlderPartContainerManifestFactory($this->export_handler);
     }
 }

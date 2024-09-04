@@ -24,8 +24,8 @@ use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\Consumer\File\ilCollectionInterface as ilExportHandlerConsumerFileCollectionInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
 class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
@@ -102,7 +102,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
 
     public function getFiles(
         ilExportHandlerConsumerContextInterface $context
-    ): ilExportHandlerConsumerFileCollectionInterface {
+    ): ilExportHandlerFileInfoCollectionInterface {
         $object_id = new ObjectId($context->exportObject()->getId());
         $collection = $context->fileFactory()->collection();
         $elements = $this->export_handler->repository()->handler()->getElements($object_id);
@@ -110,7 +110,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($object_id, $this->getExportType());
         foreach ($elements as $element) {
             $is_pa_element = $element->getResourceId()->serialize() === $pa_element_identifier;
-            $collection = $collection->addFileInfo(
+            $collection = $collection->withFileInfo(
                 $this->export_handler->info()->file()->handler()
                 ->withResourceId($element->getResourceId())
                 ->withType($element->getFileType())
@@ -124,7 +124,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
     public function getFileSelection(
         ilExportHandlerConsumerContextInterface $context,
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
-    ): ilExportHandlerConsumerFileCollectionInterface {
+    ): ilExportHandlerFileInfoCollectionInterface {
         $ids = [];
         $object_id = new ObjectId($context->exportObject()->getId());
         foreach ($table_row_ids as $table_row_id) {
@@ -136,7 +136,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         $pa_possible = $context->publicAccess()->typeRestriction()->isTypeAllowed($object_id, $this->getExportType());
         foreach ($elements as $element) {
             $is_pa_element = $element->getResourceId()->serialize() === $pa_element_identifier;
-            $collection = $collection->addFileInfo(
+            $collection = $collection->withFileInfo(
                 $context->fileFactory()->fileInfoFromResourceId(
                     $element->getResourceId(),
                     $element->getFileType(),

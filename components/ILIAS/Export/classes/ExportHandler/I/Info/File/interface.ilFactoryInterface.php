@@ -20,9 +20,12 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Info\File;
 
+use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilHandlerInterface as ilExportHandlerFileInfoInterface;
 
 interface ilFactoryInterface
 {
+    public function collection(): ilExportHandlerFileInfoCollectionInterface;
+
     public function handler(): ilExportHandlerFileInfoInterface;
 }

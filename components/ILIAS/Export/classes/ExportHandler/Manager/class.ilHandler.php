@@ -27,13 +27,11 @@ use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandl
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
-use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerResourceStakeholderInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
 use ILIAS\Export\ExportHandler\Info\Export\ilHandler as ilExportHandlerExportInfo;
 use ILIAS\Filesystem\Stream\Streams;
 use ilImportExportFactory;
 use ilObject;
-use ilObjUser;
 
 class ilHandler implements ilExportHandlerManagerInterface
 {
@@ -121,7 +119,7 @@ class ilHandler implements ilExportHandlerManagerInterface
         $container = $this->export_handler->part()->container()->handler()
             ->withExportInfos($export_infos)
             ->withMainEntityExportInfo($main_entity_export_info);
-        $main_element->write(Streams::ofString($container->getContainerManifestXML()), "manifest.xml");
+        $main_element->write(Streams::ofString($container->getXML()), "manifest.xml");
         return $main_element;
     }
 

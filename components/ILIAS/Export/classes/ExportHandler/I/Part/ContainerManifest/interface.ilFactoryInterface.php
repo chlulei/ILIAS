@@ -18,11 +18,11 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Part\Container;
+namespace ILIAS\Export\ExportHandler\I\Part\ContainerManifest;
 
-use ILIAS\Export\ExportHandler\I\Part\Container\ilHandlerInterface as ilExportHandlerPartContainerInterface;
+use ILIAS\Export\ExportHandler\I\Part\ContainerManifest\ilHandlerInterface as ilExportHandlerPartContainerManifestInterface;
 
 interface ilFactoryInterface
 {
-    public function handler(): ilExportHandlerPartContainerInterface;
+    public function handler(): ilExportHandlerPartContainerManifestInterface;
 }
