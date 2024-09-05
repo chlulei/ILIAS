@@ -61,7 +61,6 @@ class ilExportGUI
     protected array $formats = [];
     protected object $parent_gui;
 
-
     public function __construct(object $a_parent_gui, ?ilObject $a_main_obj = null)
     {
         global $DIC;
@@ -298,74 +297,55 @@ class ilExportGUI
     {
         $eo = ilExportOptions::newInstance(ilExportOptions::allocateExportId());
         $eo->addOption(ilExportOptions::KEY_ROOT, 0, 0, $this->obj->getId());
+        $items_selected = $eo->addOptions(
+            $this->parent_gui->getObject()->getRefId(),
+            $this->objDefinition,
+            $this->access,
+            $this->tree->getSubTree($this->tree->getNodeData($this->parent_gui->getObject()->getRefId())),
+            $this->initExportOptionsFromPost()
+        );
 
-        $cp_options = $this->initExportOptionsFromPost();
-
-        $items_selected = false;
-        foreach ($this->tree->getSubTree($root = $this->tree->getNodeData($this->parent_gui->getObject()->getRefId())) as $node) {
-            if ($node['type'] === 'rolf') {
+        $ref_ids_export = [$this->parent_gui->getObject()->getRefId()];
+        $ref_ids_all = [$this->parent_gui->getObject()->getRefId()];
+        foreach ($this->initExportOptionsFromPost() as $ref_id => $info) {
+            $export_option_id = (int) $info["type"];
+            if (
+                $export_option_id === ilExportOptions::EXPORT_OMIT ||
+                !$this->objDefinition->allowExport(ilObject::_lookupType($ref_id, true)) ||
+                !$this->access->checkAccess('write', '', $ref_id)
+            ) {
                 continue;
             }
-            if ($node['ref_id'] == $this->parent_gui->getObject()->getRefId()) {
-                $eo->addOption(
-                    ilExportOptions::KEY_ITEM_MODE,
-                    (int) $node['ref_id'],
-                    (int) $node['obj_id'],
-                    ilExportOptions::EXPORT_BUILD
-                );
-                continue;
+            if ($export_option_id === ilExportOptions::EXPORT_BUILD) {
+                $ref_ids_export[] = $ref_id;
             }
-            // no export available or no access
-            if (!$this->objDefinition->allowExport($node['type']) || !$this->access->checkAccess(
-                'write',
-                '',
-                (int) $node['ref_id']
-            )) {
-                $eo->addOption(
-                    ilExportOptions::KEY_ITEM_MODE,
-                    (int) $node['ref_id'],
-                    (int) $node['obj_id'],
-                    ilExportOptions::EXPORT_OMIT
-                );
-                continue;
-            }
-
-            $mode = $cp_options[$node['ref_id']]['type'] ?? ilExportOptions::EXPORT_OMIT;
-            $eo->addOption(
-                ilExportOptions::KEY_ITEM_MODE,
-                (int) $node['ref_id'],
-                (int) $node['obj_id'],
-                $mode
-            );
-            if ($mode != ilExportOptions::EXPORT_OMIT) {
-                $items_selected = true;
+            if (
+                $export_option_id === ilExportOptions::EXPORT_BUILD ||
+                $export_option_id === ilExportOptions::EXPORT_EXISTING
+            ) {
+                $ref_ids_all[] = $ref_id;
             }
         }
-        $ts = time();
-        $consumer = $this->export_handler->consumer()->handler();
-        if (!$items_selected) {
-            $element = $consumer->exportManager()->createExport(
-                new ObjectId($this->obj->getId()),
+        if (count($ref_ids_all) === 1) {
+            $manager = $this->export_handler->manager()->handler();
+            $element = $manager->createExport(
                 $this->il_user->getId(),
-                $ts,
+                $manager->getExportInfo(new ObjectId($this->obj->getId()), time()),
                 ""
             );
         }
-        if ($items_selected) {
-            $eo->read();
-            $ref_ids_export = $eo->getSubitemsForCreation($this->obj->getRefId());
-            $ref_ids_all = $eo->getSubitemsForExport();
-            $object_ids = $consumer->exportManager()->createObjectIdCollection(
-                array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_export),
-                array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_all)
+        if (count($ref_ids_all) > 1) {
+            $manager = $this->export_handler->manager()->handler();
+            $obj_ids_export = array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_export);
+            $obj_ids_all = array_map(function (int $ref_id) { return ilObject::_lookupObjId($ref_id); }, $ref_ids_all);
+            $container_export_info = $manager->getContainerExportInfo(
+                new ObjectId($obj_ids_all[0]),
+                $obj_ids_export,
+                $obj_ids_all
             );
-            $element = $consumer->exportManager()->createContainerExport(
-                $this->il_user->getId(),
-                $ts,
-                $object_ids->head()->getObjectId(),
-                $object_ids->withoutHead()
-            );
+            $element = $manager->createContainerExport($this->il_user->getId(), $container_export_info);
         }
+
         $eo->delete();
     }
 }

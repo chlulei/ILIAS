@@ -148,24 +148,24 @@ class ilHandler implements ilExportHandlerRepositoryInterface
         return true;
     }
 
-    public function getElement(ObjectId $object_id, string $resource_id_serialized): ?ilExportHandlerRepositoryElementInterface
-    {
+    public function hasElement(
+        ObjectId $object_id,
+        string $resource_id_serialized
+    ): bool {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
             . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER)
             . " AND rid = " . $this->db->quote($resource_id_serialized, ilDBConstants::T_TEXT);
         $res = $this->db->query($query);
         $row = $res->fetchAssoc();
         if (is_null($row)) {
-            return null;
+            return false;
         }
-        return $this->export_handler->repository()->element()->handler()
-            ->withResourceId($this->irss->manageContainer()->find($row["rid"]))
-            ->withStakeholder($this->export_handler->repository()->stakeholder()->withOwnerId((int) $row["owner_id"]))
-            ->withObjectId(new ObjectId((int) $row["object_id"]));
+        return true;
     }
 
-    public function getElements(ObjectId $object_id): ilExportHandlerRepositoryElementCollectionInterface
-    {
+    public function getElements(
+        ObjectId $object_id
+    ): ilExportHandlerRepositoryElementCollectionInterface {
         $collection = $this->export_handler->repository()->element()->collection();
         $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
             . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER);
@@ -183,8 +183,10 @@ class ilHandler implements ilExportHandlerRepositoryInterface
         return $collection;
     }
 
-    public function getElementsByResourceIds(ObjectId $object_id, string ...$resource_ids_serialized): ilExportHandlerRepositoryElementCollectionInterface
-    {
+    public function getElementsByResourceIds(
+        ObjectId $object_id,
+        string ...$resource_ids_serialized
+    ): ilExportHandlerRepositoryElementCollectionInterface {
         $collection = $this->export_handler->repository()->element()->collection();
         $tuples = [];
         foreach ($resource_ids_serialized as $resource_id_serialized) {

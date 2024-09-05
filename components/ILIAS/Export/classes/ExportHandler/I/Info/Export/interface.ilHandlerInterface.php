@@ -20,9 +20,12 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Info\Export;
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilCollectionInterface as ilExportHandlerExportComponentInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilHandlerInterface as ilExportHandlerExportComponentInfoInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 
 interface ilHandlerInterface
 {
@@ -35,9 +38,23 @@ interface ilHandlerInterface
         int $set_number
     ): ilHandlerInterface;
 
+    public function withReuseExport(
+        bool $reuse_export
+    ): ilExportHandlerExportInfoInterface;
+
+    public function getResueExport(): bool;
+
     public function getTarget(): ilExportHandlerTargetInterface;
 
-    public function getComponentCount(ilExportHandlerExportComponentInfoInterface $component_info);
+    public function getTargetObjectId(): ObjectId;
+
+    public function withContainerExportInfo(
+        ilExportHandlerContainerExportInfoInterface $container_export_info
+    ): ilHandlerInterface;
+
+    public function getComponentCount(
+        ilExportHandlerExportComponentInfoInterface $component_info
+    );
 
     public function getComponentInfos(): ilExportHandlerExportComponentInfoCollectionInterface;
 

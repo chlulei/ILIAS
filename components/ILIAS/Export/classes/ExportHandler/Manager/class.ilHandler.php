@@ -23,6 +23,7 @@ namespace ILIAS\Export\ExportHandler\Manager;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ZipReader;
 use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
@@ -76,34 +77,16 @@ class ilHandler implements ilExportHandlerManagerInterface
 
     public function createContainerExport(
         int $user_id,
-        int $timestamp,
-        ObjectId $main_entity_object_id,
-        ilExportHandlerManagerObjectIdCollectionInterface $obj_id_collection
+        #int $timestamp,
+        ilExportHandlerContainerExportInfoInterface $container_export_info
     ): ilExportHandlerRepositoryElementInterface {
-        $set_id = 1;
-        $main_entity_export_info = $this->getExportInfo(
-            $main_entity_object_id,
-            $timestamp
-        )->withSetNumber($set_id);
-        $main_element = $this->createExport(
-            $main_entity_object_id,
-            $user_id,
-            $timestamp,
-            "set_" . $set_id++
-        );
-        $export_infos = $this->export_handler->info()->export()->collection()->withExportInfo($main_entity_export_info);
-        foreach ($obj_id_collection as $obj_id_handler) {
-            $obj_id = $obj_id_handler->getObjectId();
-            $element = null;
-            $export_info = null;
-            if ($obj_id_handler->getReuseExport()) {
-                $element = $this->export_handler->repository()->handler()->getElements($obj_id)->newest();
-                $export_info = $this->getExportInfo($obj_id, $element->getLastModified()->getTimestamp())->withSetNumber($set_id);
-            }
-            if (!$obj_id_handler->getReuseExport()) {
-                $element = $this->createExport($obj_id, $user_id, $timestamp, "");
-                $export_info = $this->getExportInfo($obj_id, $timestamp)->withSetNumber($set_id);
-            }
+        $main_export_info = $container_export_info->getMainEntityExportInfo();
+        $main_element = $this->createExport($user_id, $main_export_info, "set_" . $main_export_info->getSetNumber());
+        $export_infos = $container_export_info->getExportInfos();
+        foreach ($export_infos as $export_info) {
+            $element = $export_info->getResueExport()
+                ? $this->export_handler->repository()->handler()->getElements($export_info->getTargetObjectId())->newest()
+                : $this->createExport($user_id, $export_info, "");
             $zip_reader = new ZipReader($element->getStream());
             $zip_structure = $zip_reader->getStructure();
             foreach ($zip_structure as $path_inside_zip => $item) {
@@ -111,26 +94,24 @@ class ilHandler implements ilExportHandlerManagerInterface
                     continue;
                 }
                 $stream = $zip_reader->getItem($path_inside_zip, $zip_structure)[0];
-                $main_element->write($stream, "set_" . $set_id . DIRECTORY_SEPARATOR . $path_inside_zip);
+                $main_element->write($stream, "set_" . $export_info->getSetNumber() . DIRECTORY_SEPARATOR . $path_inside_zip);
             }
             $export_infos = $export_infos->withExportInfo($export_info);
-            $set_id++;
         }
         $container = $this->export_handler->part()->container()->handler()
-            ->withExportInfos($export_infos)
-            ->withMainEntityExportInfo($main_entity_export_info);
+            ->withExportInfos($export_infos->withExportInfo($main_export_info))
+            ->withMainEntityExportInfo($main_export_info);
         $main_element->write(Streams::ofString($container->getXML()), "manifest.xml");
         return $main_element;
     }
 
     public function createExport(
-        ObjectId $object_id,
         int $user_id,
-        int $timestamp,
+        ilExportHandlerExportInfoInterface $export_info,
         string $path_in_container
     ): ilExportHandlerRepositoryElementInterface {
         $stakeholder = $this->export_handler->repository()->stakeholder()->withOwnerId($user_id);
-        $export_info = $this->getExportInfo($object_id, $timestamp);
+        $object_id = new ObjectId($export_info->getTarget()->getObjectIds()[0]);
         $element = $this->export_handler->repository()->handler()->createElement(
             $object_id,
             $export_info,
@@ -148,10 +129,11 @@ class ilHandler implements ilExportHandlerManagerInterface
             ->withTarget($this->getExportTarget($object_id), $time_stamp);
     }
 
-    public function createObjectIdCollection(
+    public function getContainerExportInfo(
+        ObjectId $main_entity_object_id,
         array $object_ids_to_export,
         array $object_ids_all
-    ): ilExportHandlerManagerObjectIdCollectionInterface {
+    ): ilExportHandlerContainerExportInfoInterface {
         $object_ids = $this->export_handler->manager()->objectId()->collection();
         foreach ($object_ids_all as $object_id) {
             $object_ids = $object_ids->withObjectId(
@@ -160,6 +142,9 @@ class ilHandler implements ilExportHandlerManagerInterface
                     ->withReuseExport(!in_array($object_id, $object_ids_to_export))
             );
         }
-        return $object_ids;
+        return $this->export_handler->info()->export()->container()->handler()
+            ->withMainExportEntity($main_entity_object_id)
+            ->withObjectIds($object_ids)
+            ->withTimestamp(time());
     }
 }

@@ -20,25 +20,29 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Info\Export;
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilCollectionInterface as ilExportHandlerExportComponentInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilHandlerInterface as ilExportHandlerExportComponentInfoInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 
 class ilHandler implements ilExportHandlerExportInfoInterface
 {
     protected ilExportHandlerFactoryInterface $export_handler;
     protected ilExportHandlerTargetInterface $export_target;
-    protected ilExportHandlerExportComponentInfoCollectionInterface $component_infos;
+    protected ilExportHandlerExportComponentInfoCollectionInterface $component_export_infos;
+    protected ilExportHandlerContainerExportInfoInterface $container_export_info;
     protected array $component_counts;
+    protected bool $reuse_export;
     protected int $time_stamp;
     protected int $set_number;
 
     public function __construct(ilExportHandlerFactoryInterface $export_handler)
     {
         $this->export_handler = $export_handler;
-        $this->component_infos = $this->export_handler->info()->export()->component()->collection();
+        $this->component_export_infos = $this->export_handler->info()->export()->component()->collection();
         $this->component_counts = [];
     }
 
@@ -50,7 +54,7 @@ class ilHandler implements ilExportHandlerExportInfoInterface
     protected function initComponentInfos(): void
     {
         $component_info = $this->export_handler->info()->export()->component()->handler()->withExportTarget($this->getTarget());
-        $this->component_infos = $this->export_handler->info()->export()->component()->collection();
+        $this->component_export_infos = $this->export_handler->info()->export()->component()->collection();
         foreach ($this->recComponentInfos($component_info) as $component_info) {
             if (!isset($this->component_counts[$component_info->getTarget()->getComponent()])) {
                 $this->component_counts[$component_info->getTarget()->getComponent()] = -1;
@@ -61,7 +65,7 @@ class ilHandler implements ilExportHandlerExportInfoInterface
                 $component_info->getTarget()->getComponent(),
                 $this->component_counts[$component_info->getTarget()->getComponent()]
             );
-            $this->component_infos = $this->component_infos->withComponent($component_info->withPathInContainer($path_in_container));
+            $this->component_export_infos = $this->component_export_infos->withComponent($component_info->withPathInContainer($path_in_container));
         }
     }
 
@@ -97,16 +101,35 @@ class ilHandler implements ilExportHandlerExportInfoInterface
         return $clone;
     }
 
-    public function withTimeStamp(int $time_stamp): ilExportHandlerExportInfoInterface
-    {
+    public function withContainerExportInfo(
+        ilExportHandlerContainerExportInfoInterface $container_export_info
+    ): ilExportHandlerExportInfoInterface {
         $clone = clone $this;
-        $clone->time_stamp = $time_stamp;
+        $clone->container_export_info = $container_export_info;
         return $clone;
+    }
+
+    public function withReuseExport(
+        bool $reuse_export
+    ): ilExportHandlerExportInfoInterface {
+        $clone = clone $this;
+        $clone->reuse_export = $reuse_export;
+        return $clone;
+    }
+
+    public function getResueExport(): bool
+    {
+        return $this->reuse_export;
     }
 
     public function getTarget(): ilExportHandlerTargetInterface
     {
         return $this->export_target;
+    }
+
+    public function getTargetObjectId(): ObjectId
+    {
+        return new ObjectId($this->export_target->getObjectIds()[0]);
     }
 
     public function getComponentCount(ilExportHandlerExportComponentInfoInterface $component_info)
@@ -116,7 +139,7 @@ class ilHandler implements ilExportHandlerExportInfoInterface
 
     public function getComponentInfos(): ilExportHandlerExportComponentInfoCollectionInterface
     {
-        return $this->component_infos;
+        return $this->component_export_infos;
     }
 
     public function getExportFolderName(): string

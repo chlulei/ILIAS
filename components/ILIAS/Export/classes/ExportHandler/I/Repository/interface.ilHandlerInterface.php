@@ -38,7 +38,9 @@ interface ilHandlerInterface
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
     ): ilExportHandlerRepositoryElementInterface;
 
-    public function storeElement(ilExportHandlerRepositoryElementInterface $element): bool;
+    public function storeElement(
+        ilExportHandlerRepositoryElementInterface $element
+    ): bool;
 
     public function deleteElement(
         ilExportHandlerRepositoryElementInterface $element,
@@ -50,9 +52,17 @@ interface ilHandlerInterface
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
     ): bool;
 
-    public function getElement(ObjectId $object_id, string $resource_id_serialized): ?ilExportHandlerRepositoryElementInterface;
+    public function hasElement(
+        ObjectId $object_id,
+        string $resource_id_serialized
+    ): bool;
 
-    public function getElements(ObjectId $object_id): ilExportHandlerRepositoryElementCollectionInterface;
+    public function getElements(
+        ObjectId $object_id
+    ): ilExportHandlerRepositoryElementCollectionInterface;
 
-    public function getElementsByResourceIds(ObjectId $object_id, string ...$resource_ids_serialized): ilExportHandlerRepositoryElementCollectionInterface;
+    public function getElementsByResourceIds(
+        ObjectId $object_id,
+        string ...$resource_ids_serialized
+    ): ilExportHandlerRepositoryElementCollectionInterface;
 }

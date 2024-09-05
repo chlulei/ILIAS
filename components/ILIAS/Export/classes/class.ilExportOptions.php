@@ -153,6 +153,57 @@ class ilExportOptions
         $this->db->manipulate($query);
     }
 
+    public function addOptions(
+        int $parent_ref_id,
+        ilObjectDefinition $object_definition,
+        ilAccessHandler $il_access,
+        array $child_nodes,
+        array $cp_options
+    ): bool {
+        global $DIC;
+        $items_selected = false;
+        foreach ($child_nodes as $node) {
+            if ($node['type'] === 'rolf') {
+                continue;
+            }
+            if ((int) $node['ref_id'] === $parent_ref_id) {
+                $this->addOption(
+                    ilExportOptions::KEY_ITEM_MODE,
+                    (int) $node['ref_id'],
+                    (int) $node['obj_id'],
+                    ilExportOptions::EXPORT_BUILD
+                );
+                continue;
+            }
+            // no export available or no access
+            if (!$object_definition->allowExport($node['type']) || !$il_access->checkAccess(
+                'write',
+                '',
+                (int) $node['ref_id']
+            )) {
+                $this->addOption(
+                    ilExportOptions::KEY_ITEM_MODE,
+                    (int) $node['ref_id'],
+                    (int) $node['obj_id'],
+                    ilExportOptions::EXPORT_OMIT
+                );
+                continue;
+            }
+
+            $mode = $cp_options[$node['ref_id']]['type'] ?? ilExportOptions::EXPORT_OMIT;
+            $this->addOption(
+                ilExportOptions::KEY_ITEM_MODE,
+                (int) $node['ref_id'],
+                (int) $node['obj_id'],
+                $mode
+            );
+            if ($mode != ilExportOptions::EXPORT_OMIT) {
+                $items_selected = true;
+            }
+        }
+        return $items_selected;
+    }
+
     /**
      * @param $a_keyword
      * @return mixed|null

@@ -23,6 +23,7 @@ namespace ILIAS\Export\ExportHandler\I\Info\Export;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilFactoryInterface as ilExportHandlerExportComponentInfoFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilFactoryInterface as ilExportHandlerContainerExportInfoFactoryInterface;
 
 interface ilFactoryInterface
 {
@@ -31,4 +32,6 @@ interface ilFactoryInterface
     public function collection(): ilExportHandlerExportInfoCollectionInterface;
 
     public function component(): ilExportHandlerExportComponentInfoFactoryInterface;
+
+    public function container(): ilExportHandlerContainerExportInfoFactoryInterface;
 }

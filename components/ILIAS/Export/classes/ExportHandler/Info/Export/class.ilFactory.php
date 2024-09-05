@@ -22,6 +22,8 @@ namespace ILIAS\Export\ExportHandler\Info\Export;
 
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilFactoryInterface as ilExportHandlerExportComponentInfoFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilFactoryInterface as ilExportHandlerContainerExportInfoFactoryInterface;
+use ILIAS\Export\ExportHandler\Info\Export\Container\ilFactory as ilExportHandlerContainerExportInfoFactory;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilFactoryInterface as ilExportHandlerExportInfoFactory;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
@@ -52,5 +54,10 @@ class ilFactory implements ilExportHandlerExportInfoFactory
     public function component(): ilExportHandlerExportComponentInfoFactoryInterface
     {
         return new ilExportHandlerExportComponentInfoFactory($this->export_handler);
+    }
+
+    public function container(): ilExportHandlerContainerExportInfoFactoryInterface
+    {
+        return new ilExportHandlerContainerExportInfoFactory($this->export_handler);
     }
 }

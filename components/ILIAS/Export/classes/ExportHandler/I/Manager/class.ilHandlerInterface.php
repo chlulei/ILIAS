@@ -24,20 +24,19 @@ use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 
 interface ilHandlerInterface
 {
     public function createContainerExport(
         int $user_id,
-        int $timestamp,
-        ObjectId $main_entity_object_id,
-        ilExportHandlerManagerObjectIdCollectionInterface $obj_id_collection
+        #int $timestamp,
+        ilExportHandlerContainerExportInfoInterface $container_export_info
     ): ilExportHandlerRepositoryElementInterface;
 
     public function createExport(
-        ObjectId $object_id,
         int $user_id,
-        int $timestamp,
+        ilExportHandlerExportInfoInterface $export_info,
         string $path_in_container
     ): ilExportHandlerRepositoryElementInterface;
 
@@ -46,12 +45,9 @@ interface ilHandlerInterface
         int $time_stamp
     ): ilExportHandlerExportInfoInterface;
 
-    /**
-     * @param int[] $object_ids_to_export
-     * @param int[] $object_ids_all
-     */
-    public function createObjectIdCollection(
+    public function getContainerExportInfo(
+        ObjectId $main_entity_object_id,
         array $object_ids_to_export,
         array $object_ids_all
-    ): ilExportHandlerManagerObjectIdCollectionInterface;
+    ): ilExportHandlerContainerExportInfoInterface;
 }
