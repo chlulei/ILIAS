@@ -21,8 +21,11 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Info\Export\Container;
 
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilFactoryInterface as ilExportHandlerContainerExportInfoObjectIdInterface;
 
 interface ilFactoryInterface
 {
     public function handler(): ilExportHandlerContainerExportInfoInterface;
+
+    public function objectId(): ilExportHandlerContainerExportInfoObjectIdInterface;
 }

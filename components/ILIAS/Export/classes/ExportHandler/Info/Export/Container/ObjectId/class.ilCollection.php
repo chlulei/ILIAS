@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Manager\ObjectId;
+namespace ILIAS\Export\ExportHandler\Info\Export\Container\ObjectId;
 
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilCollectionInterface as ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilHandlerInterface as ilExportHandlerContainerExportInfoObjectIdInterface;
 
-class ilCollection implements ilExportHandlerManagerObjectIdCollectionInterface
+class ilCollection implements ilExportHandlerContainerExportInfoObjectIdCollectionInterface
 {
     protected array $elements;
     protected int $index;
@@ -34,26 +34,26 @@ class ilCollection implements ilExportHandlerManagerObjectIdCollectionInterface
         $this->index = 0;
     }
 
-    public function withObjectId(ilExportHandlerManagerObjectIdInterface $object_id): ilExportHandlerManagerObjectIdCollectionInterface
+    public function withObjectId(ilExportHandlerContainerExportInfoObjectIdInterface $object_id): ilExportHandlerContainerExportInfoObjectIdCollectionInterface
     {
         $clone = clone $this;
         $clone->elements[] = $object_id;
         return $clone;
     }
 
-    public function head(): ilExportHandlerManagerObjectIdInterface
+    public function head(): ilExportHandlerContainerExportInfoObjectIdInterface
     {
         return $this->elements[0];
     }
 
-    public function withoutHead(): ilExportHandlerManagerObjectIdCollectionInterface
+    public function withoutHead(): ilExportHandlerContainerExportInfoObjectIdCollectionInterface
     {
         $clone = clone $this;
         array_shift($clone->elements);
         return $clone;
     }
 
-    public function current(): ilExportHandlerManagerObjectIdInterface
+    public function current(): ilExportHandlerContainerExportInfoObjectIdInterface
     {
         return $this->elements[$this->index];
     }

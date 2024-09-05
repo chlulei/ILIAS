@@ -26,7 +26,6 @@ use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInt
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
 use ILIAS\Export\ExportHandler\Info\Export\ilHandler as ilExportHandlerExportInfo;
@@ -82,8 +81,8 @@ class ilHandler implements ilExportHandlerManagerInterface
     ): ilExportHandlerRepositoryElementInterface {
         $main_export_info = $container_export_info->getMainEntityExportInfo();
         $main_element = $this->createExport($user_id, $main_export_info, "set_" . $main_export_info->getSetNumber());
-        $export_infos = $container_export_info->getExportInfos();
-        foreach ($export_infos as $export_info) {
+
+        foreach ($container_export_info->getExportInfos() as $export_info) {
             $element = $export_info->getResueExport()
                 ? $this->export_handler->repository()->handler()->getElements($export_info->getTargetObjectId())->newest()
                 : $this->createExport($user_id, $export_info, "");
@@ -96,10 +95,9 @@ class ilHandler implements ilExportHandlerManagerInterface
                 $stream = $zip_reader->getItem($path_inside_zip, $zip_structure)[0];
                 $main_element->write($stream, "set_" . $export_info->getSetNumber() . DIRECTORY_SEPARATOR . $path_inside_zip);
             }
-            $export_infos = $export_infos->withExportInfo($export_info);
         }
         $container = $this->export_handler->part()->container()->handler()
-            ->withExportInfos($export_infos->withExportInfo($main_export_info))
+            ->withExportInfos($container_export_info->getExportInfos()->withElementAtHead($main_export_info))
             ->withMainEntityExportInfo($main_export_info);
         $main_element->write(Streams::ofString($container->getXML()), "manifest.xml");
         return $main_element;
@@ -134,10 +132,10 @@ class ilHandler implements ilExportHandlerManagerInterface
         array $object_ids_to_export,
         array $object_ids_all
     ): ilExportHandlerContainerExportInfoInterface {
-        $object_ids = $this->export_handler->manager()->objectId()->collection();
+        $object_ids = $this->export_handler->info()->export()->container()->objectId()->collection();
         foreach ($object_ids_all as $object_id) {
             $object_ids = $object_ids->withObjectId(
-                $this->export_handler->manager()->objectId()->handler()
+                $this->export_handler->info()->export()->container()->objectId()->handler()
                     ->withObjectId(new ObjectId($object_id))
                     ->withReuseExport(!in_array($object_id, $object_ids_to_export))
             );

@@ -34,10 +34,17 @@ class ilCollection implements ilExportHandlerExportInfoCollectionInterface
         $this->index = 0;
     }
 
-    public function withExportInfo(ilExportHandlerExportInfoInterface $info): ilExportHandlerExportInfoCollectionInterface
+    public function withElement(ilExportHandlerExportInfoInterface $element): ilExportHandlerExportInfoCollectionInterface
     {
         $collection = clone $this;
-        $collection->elements[] = $info;
+        $collection->elements[] = $element;
+        return $collection;
+    }
+
+    public function withElementAtHead(ilExportHandlerExportInfoInterface $element): ilExportHandlerExportInfoCollectionInterface
+    {
+        $collection = clone $this;
+        $collection->elements = array_merge([$element], $collection->elements);
         return $collection;
     }
 

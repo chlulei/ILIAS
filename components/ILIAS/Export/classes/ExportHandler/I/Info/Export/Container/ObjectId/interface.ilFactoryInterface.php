@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Manager\ObjectId;
+namespace ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId;
 
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilCollectionInterface as ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilHandlerInterface as ilExportHandlerContainerExportInfoObjectIdInterface;
 
 interface ilFactoryInterface
 {
-    public function handler(): ilExportHandlerManagerObjectIdInterface;
+    public function handler(): ilExportHandlerContainerExportInfoObjectIdInterface;
 
-    public function collection(): ilExportHandlerManagerObjectIdCollectionInterface;
+    public function collection(): ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
 }

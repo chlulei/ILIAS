@@ -24,19 +24,25 @@ use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollection;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilCollectionInterface as ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
 
 interface ilHandlerInterface
 {
-    public function withObjectIds(ilExportHandlerManagerObjectIdCollection $object_ids): ilHandlerInterface;
+    public function withObjectIds(
+        ilExportHandlerContainerExportInfoObjectIdCollectionInterface $object_ids
+    ): ilHandlerInterface;
 
-    public function withMainExportEntity(ObjectId $object_id): ilHandlerInterface;
+    public function withMainExportEntity(
+        ObjectId $object_id
+    ): ilHandlerInterface;
 
-    public function withTimestamp(int $timestamp): ilExportHandlerContainerExportInfoInterface;
+    public function withTimestamp(
+        int $timestamp
+    ): ilExportHandlerContainerExportInfoInterface;
 
     public function getTimestamp(): int;
 
-    public function getObjectIds(): ilExportHandlerManagerObjectIdCollection;
+    public function getObjectIds(): ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
 
     public function getMainEntityExportInfo(): ilExportHandlerExportInfoInterface;
 

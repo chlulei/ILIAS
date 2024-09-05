@@ -23,11 +23,11 @@ namespace ILIAS\Export\ExportHandler\Info\Export;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Component\ilFactoryInterface as ilExportHandlerExportComponentInfoFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilFactoryInterface as ilExportHandlerContainerExportInfoFactoryInterface;
-use ILIAS\Export\ExportHandler\Info\Export\Container\ilFactory as ilExportHandlerContainerExportInfoFactory;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilFactoryInterface as ilExportHandlerExportInfoFactory;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\Info\Export\Component\ilFactory as ilExportHandlerExportComponentInfoFactory;
+use ILIAS\Export\ExportHandler\Info\Export\Container\ilFactory as ilExportHandlerContainerExportInfoFactory;
 use ILIAS\Export\ExportHandler\Info\Export\ilCollection as ilExportHandlerExportInfoCollection;
 use ILIAS\Export\ExportHandler\Info\Export\ilHandler as ilExportHandlerExportInfo;
 

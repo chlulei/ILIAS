@@ -21,10 +21,9 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Manager;
 
 use ILIAS\Data\ObjectId;
-use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 
 interface ilHandlerInterface
 {
@@ -45,6 +44,10 @@ interface ilHandlerInterface
         int $time_stamp
     ): ilExportHandlerExportInfoInterface;
 
+    /**
+     * @param ObjectId[] $object_ids_to_export
+     * @param ObjectId[] $object_ids_all
+     */
     public function getContainerExportInfo(
         ObjectId $main_entity_object_id,
         array $object_ids_to_export,

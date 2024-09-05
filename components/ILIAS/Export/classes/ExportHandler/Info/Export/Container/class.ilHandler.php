@@ -23,16 +23,16 @@ namespace ILIAS\Export\ExportHandler\Info\Export\Container;
 use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilCollectionInterface as ilExportHandlerManagerObjectIdCollection;
-use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilCollectionInterface as ilExportHandlerExportInfoCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilCollectionInterface as ilExportHandlerContainerExportInfoObjectIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Target\ilHandlerInterface as ilExportHandlerTargetInterface;
 use ilImportExportFactory;
 use ilObject;
 
 class ilHandler implements ilExportHandlerContainerExportInfoInterface
 {
-    protected ilExportHandlerManagerObjectIdCollection $object_ids;
+    protected ilExportHandlerContainerExportInfoObjectIdCollectionInterface $object_ids;
     protected ObjectId $main_export_entity_object_id;
     protected ilExportHandlerFactoryInterface $export_handler;
     protected ilExportHandlerExportInfoInterface $main_entity_export_info;
@@ -88,7 +88,7 @@ class ilHandler implements ilExportHandlerContainerExportInfoInterface
             $timestamp = $object_id_handler->getReuseExport()
                 ? $repository->getElements($object_id)->newest()->getLastModified()->getTimestamp()
                 : $this->getTimestamp();
-            $this->export_infos = $this->export_infos->withExportInfo(
+            $this->export_infos = $this->export_infos->withElement(
                 $this->getExportInfo($object_id, $timestamp)
                 ->withSetNumber($set_id++)
                 ->withContainerExportInfo($this)
@@ -97,7 +97,7 @@ class ilHandler implements ilExportHandlerContainerExportInfoInterface
         }
     }
 
-    public function withObjectIds(ilExportHandlerManagerObjectIdCollection $object_ids): ilExportHandlerContainerExportInfoInterface
+    public function withObjectIds(ilExportHandlerContainerExportInfoObjectIdCollectionInterface $object_ids): ilExportHandlerContainerExportInfoInterface
     {
         $clone = clone $this;
         $clone->object_ids = $object_ids;
@@ -123,7 +123,7 @@ class ilHandler implements ilExportHandlerContainerExportInfoInterface
         return $this->timestamp;
     }
 
-    public function getObjectIds(): ilExportHandlerManagerObjectIdCollection
+    public function getObjectIds(): ilExportHandlerContainerExportInfoObjectIdCollectionInterface
     {
         return $this->object_ids;
     }

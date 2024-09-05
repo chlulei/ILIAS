@@ -18,24 +18,24 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Manager\ObjectId;
+namespace ILIAS\Export\ExportHandler\Info\Export\Container\ObjectId;
 
 use ILIAS\Data\ObjectId;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilHandlerInterface as ilExportHandlerManagerObjectIdInterface;
+use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilHandlerInterface as ilExportHandlerContainerExportInfoObjectIdInterface;
 
-class ilHandler implements ilExportHandlerManagerObjectIdInterface
+class ilHandler implements ilExportHandlerContainerExportInfoObjectIdInterface
 {
     protected ObjectId $object_id;
     protected bool $reuse_export;
 
-    public function withObjectId(ObjectId $object_id): ilExportHandlerManagerObjectIdInterface
+    public function withObjectId(ObjectId $object_id): ilExportHandlerContainerExportInfoObjectIdInterface
     {
         $clone = clone $this;
         $clone->object_id = $object_id;
         return $clone;
     }
 
-    public function withReuseExport(bool $reuse_export): ilExportHandlerManagerObjectIdInterface
+    public function withReuseExport(bool $reuse_export): ilExportHandlerContainerExportInfoObjectIdInterface
     {
         $clone = clone $this;
         $clone->reuse_export = $reuse_export;

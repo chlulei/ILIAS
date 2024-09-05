@@ -21,11 +21,8 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Manager;
 
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilFactoryInterface as ilExportHandlerManagerObjectIdFactoryInterface;
 
 interface ilFactoryInterface
 {
     public function handler(): ilExportHandlerManagerInterface;
-
-    public function objectId(): ilExportHandlerManagerObjectIdFactoryInterface;
 }

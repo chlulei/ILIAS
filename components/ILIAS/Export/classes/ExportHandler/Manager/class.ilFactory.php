@@ -23,9 +23,7 @@ namespace ILIAS\Export\ExportHandler\Manager;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ilFactoryInterface as ilExportHandlerManagerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Manager\ilHandlerInterface as ilExportHandlerManagerInterface;
-use ILIAS\Export\ExportHandler\I\Manager\ObjectId\ilFactoryInterface as ilExportHandlerManagerObjectIdFactoryInterface;
 use ILIAS\Export\ExportHandler\Manager\ilHandler as ilExportHandlerManager;
-use ILIAS\Export\ExportHandler\Manager\ObjectId\ilFactory as ilExportHandlerManagerObjectIdFactory;
 
 class ilFactory implements ilExportHandlerManagerFactoryInterface
 {
@@ -39,10 +37,5 @@ class ilFactory implements ilExportHandlerManagerFactoryInterface
     public function handler(): ilExportHandlerManagerInterface
     {
         return new ilExportHandlerManager($this->export_handler);
-    }
-
-    public function objectId(): ilExportHandlerManagerObjectIdFactoryInterface
-    {
-        return new ilExportHandlerManagerObjectIdFactory($this->export_handler);
     }
 }

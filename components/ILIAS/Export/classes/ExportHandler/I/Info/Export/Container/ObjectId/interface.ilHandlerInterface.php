@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Manager\ObjectId;
+namespace ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId;
 
 use ILIAS\Data\ObjectId;
 
