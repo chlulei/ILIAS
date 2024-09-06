@@ -193,11 +193,11 @@ class ilHandler implements ilExportHandlerTableInterface
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
             if (
-                $this->context->publicAccess()->hasPublicAccessFile($object_id) and
-                $this->context->publicAccess()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
-                in_array($this->context->publicAccess()->getPublicAccessFileIdentifier($object_id), $table_row_ids->fileIdentifiers())
+                $this->export_handler->publicAccess()->handler()->hasPublicAccessFile($object_id) and
+                $this->export_handler->publicAccess()->handler()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
+                in_array($this->export_handler->publicAccess()->handler()->getPublicAccessFileIdentifier($object_id), $table_row_ids->fileIdentifiers())
             ) {
-                $this->context->publicAccess()->removePublicAccessFile($object_id);
+                $this->export_handler->publicAccess()->handler()->removePublicAccessFile($object_id);
             }
             $export_option->onDeleteFiles(
                 $this->context,

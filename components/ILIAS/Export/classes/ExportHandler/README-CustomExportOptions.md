@@ -184,12 +184,6 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
-        if (
-            $context->publicAccess()->hasPublicAccessFile($object_id) and
-            $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType()
-        ) {
-            $context->publicAccess()->removePublicAccessFile($object_id);
-        }
         $this->export_handler->repository()->handler()->deleteElements(
             $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$table_row_ids->fileIdentifiers()),
             $this->export_handler->repository()->stakeholder()->withOwnerId($context->user()->getId())

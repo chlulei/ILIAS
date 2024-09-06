@@ -49,7 +49,5 @@ interface ilHandlerInterface
 
     public function fileFactory(): ilExportHandlerConsumerFileFactoryInterface;
 
-    public function publicAccess(): ilExportHandlerPublicAccessInterface;
-
     public function ilAccess(): ilAccessHandler;
 }

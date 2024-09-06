@@ -38,7 +38,6 @@ class ilHandler implements ilExportHandlerConsumerContextInterface
     protected ilLanguage $lng;
     protected ilDBInterface $db;
     protected ResourcesStorageService $irss;
-    protected ilExportHandlerPublicAccessInterface $public_access;
     protected ilExportGUI $export_gui;
     protected ilObject $export_object;
     protected ilObjUser $user;
@@ -54,7 +53,6 @@ class ilHandler implements ilExportHandlerConsumerContextInterface
         ilExportGUI $export_gui,
         ilObject $export_object,
         ilExportHandlerConsumerFileFactoryInterface $file_factory,
-        ilExportHandlerPublicAccessInterface $public_access,
         ilAccessHandler $il_access
     ) {
         $this->ctrl = $ctrl;
@@ -66,7 +64,6 @@ class ilHandler implements ilExportHandlerConsumerContextInterface
         $this->export_object = $export_object;
         $this->file_factory = $file_factory;
         $this->il_access = $il_access;
-        $this->public_access = $public_access;
     }
 
     public function ilCtrl(): ilCtrlInterface
@@ -107,11 +104,6 @@ class ilHandler implements ilExportHandlerConsumerContextInterface
     public function fileFactory(): ilExportHandlerConsumerFileFactoryInterface
     {
         return $this->file_factory;
-    }
-
-    public function publicAccess(): ilExportHandlerPublicAccessInterface
-    {
-        return $this->public_access;
     }
 
     public function ilAccess(): ilAccessHandler

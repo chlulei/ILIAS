@@ -74,7 +74,6 @@ class ilFactory implements ilExportHandlerConsumerContextFactoryInterface
             $export_gui,
             $export_object,
             $this->export_handler->consumer()->file(),
-            $this->export_handler->publicAccess()->handler(),
             $this->il_access
         );
     }
