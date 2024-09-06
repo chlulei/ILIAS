@@ -52,5 +52,5 @@ interface ilHandlerInterface
         ReferenceId $reference_id
     ): string;
 
-    public function typeRestriction(): ilExportHandlerPublicAccessRestrictionInterface;
+    public function restriction(): ilExportHandlerPublicAccessRestrictionInterface;
 }

@@ -119,7 +119,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         }
     }
 
-    public function typeRestriction(): ilExportHandlerPublicAccessRestrictionInterface
+    public function restriction(): ilExportHandlerPublicAccessRestrictionInterface
     {
         return $this->export_handler->publicAccess()->restriction()->handler();
     }
