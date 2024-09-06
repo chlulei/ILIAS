@@ -28,6 +28,11 @@ interface ilCollectionInterface extends Iterator, Countable
 {
     public function withElement(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): ilCollectionInterface;
 
+    /**
+     * @return string[]
+     */
+    public function types(): array;
+
     public function valid(): bool;
 
     public function rewind(): void;

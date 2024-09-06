@@ -83,7 +83,7 @@ class ilExportGUI
         $this->export_handler = new ilExportHandler();
         $this->export_options = $this->export_handler->consumer()->exportOption()->collection();
         $this->enableStandardXMLExport();
-        $this->disablePublicAccessForType("xml");
+        $this->enablePublicAccessForType("xml");
     }
 
     protected function initExportOptionsFromPost(): array

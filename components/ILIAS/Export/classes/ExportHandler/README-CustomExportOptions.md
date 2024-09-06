@@ -1,25 +1,102 @@
-<?php
+### Custom Export Options
+The export allows for custom export options.
+Custom Export Options extend the class _ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler_:
+```php
+use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilBasicExportOption;
+```
+The inheriting classes need to define methods as described.
 
-/**
- * This file is part of ILIAS, a powerful learning management system
- * published by ILIAS open source e-Learning e.V.
- *
- * ILIAS is licensed with the GPL-3.0,
- * see https://www.gnu.org/licenses/gpl-3.0.en.html
- * You should have received a copy of said license along with the
- * source code, too.
- *
- * If this is not the case or you just want to try ILIAS, you'll find
- * us at:
- * https://www.ilias.de
- * https://github.com/ILIAS-eLearning
- *
- *********************************************************************/
+#### Method getExportType:
+```php
+public function getExportType(): string;
+```
+This method returns the type of the export. For example _xml_. 
 
-declare(strict_types=1);
+#### Method getExportOptionId:
+```php
+public function getExportOptionId(): string;
+```
+This method returns a unique identifier.
+The export option is addressed by using this identifier.
+For example _expxml_.
+If multiple export options share an identifier, than they cannot be displayed together in the export tab.
 
-namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
+#### Method getLabel:
+```php
+public function getLabel(
+    ilExportHandlerConsumerContextInterface $context
+): string;
+```
+This method provides the label used by ui elements to display the export option in the export tab. For example a button.
+_context_ allows access to **ilLanguage** if needed.
 
+#### Method onExportOptionSelected:
+```php
+public function onExportOptionSelected(
+    ilExportHandlerConsumerContextInterface $context
+): void;
+```
+This method implements the behavior that occurs on the selection of the export option.
+For example, the standard xml export forwards to the export selection table gui.
+_context_ can be used to access **ilCtrlInterface** and other usefull dependencies.
+
+#### Method onDeleteFiles:
+```php
+public function onDeleteFiles(
+    ilExportHandlerConsumerContextInterface $context,
+    ilExportHandlerTableRowIdCollectionInterface $table_row_ids
+): void;
+```
+This method implements deletion of files that match the file identifiers provieded _table_row_ids_.
+_table_row_ids_ is a collection and can be iterated over.
+To access all file identifers as a _string[]_, _table_row_ids->fileIdentifiers_ can be used.
+Alternative a file identifier can be optained via:
+```php
+/** @var ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface $table_row_id */
+/** @var ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface $table_row_ids */
+foreach ($table_row_ids as $table_row_id) {
+    $file_identifier = $table_row_id->getFileIdentifier();
+    $export_option_id = $table_row_id->getExportOptionId();
+}
+```
+_export_option_id_ is the return value of _getExportOptionId_.
+_file_identifier_ is either the file name or a resource id.
+Which one depends on the implementation of _getFiles_ explained further below.
+
+#### Method onDownloadFiles:
+```php
+public function onDownloadFiles(
+    ilExportHandlerConsumerContextInterface $context,
+    ilExportHandlerTableRowIdCollectionInterface $table_row_ids
+): void;
+```
+This method implements the download of files that match the file identifiers provieded _table_row_ids_. 
+
+#### Method getFiles:
+```php
+public function getFiles(
+    ilExportHandlerConsumerContextInterface $context
+): ilExportHandlerFileInfoCollectionInterface;
+```
+This method collects all files that the export option has stored for the object in the current context and returns them as a file info collection.
+The current object can be accessed with _context->exportObject()_.
+The file collection and file infos can be created with a file factory provided by _context_ (_context->fileFactory()_).
+A file info can be created in two ways, either from a **ResourceIdentification** or a **SplFileInfo**.
+This choice determines value of the file identifiers that are provided to the other methods by _table_row_ids_.
+If the file info is created by using a **ResourceIdentification**, than the value returned by _table_row_id->getFileIdentifier()_ is the serialized resource identification.
+If the file info is created by using a **SplFileInfo**, than the value returned by _table_row_id->getFileIdentifier()_ is the file name.
+
+#### Method getFileSelection:
+```php
+public function getFileSelection(
+    ilExportHandlerConsumerContextInterface $context,
+    ilExportHandlerTableRowIdCollectionInterface $table_row_ids
+): ilExportHandlerFileInfoCollectionInterface;
+```
+Similar to _getFiles_, but should only return the files that match the file identifiers supplied by _table_row_ids_.
+
+### Example implementation of the default xml export option:
+```php
 use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
@@ -65,7 +142,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
         if (
-            $context->publicAccess()->hasPublicAccessFile($object_id) and
+            $context->publicAccess()->hasPublicAccessFile($object_id) and 
             $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType()
         ) {
             $context->publicAccess()->removePublicAccessFile($object_id);
@@ -101,7 +178,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         $object_id = new ObjectId($context->exportObject()->getId());
         return $this->buildElements($context, $object_id, $table_row_ids->fileIdentifiers());
     }
-
+    
     protected function buildElements(
         ilExportHandlerConsumerContextInterface $context,
         ObjectId $object_id,
@@ -127,3 +204,4 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         return $collection;
     }
 }
+```

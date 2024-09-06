@@ -85,7 +85,11 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
     public function hasElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool
     {
         $found_element = $this->getElement($element->getObjectId());
-        return $found_element->isStorable() and $found_element->getIdentification() === $element->getIdentification();
+        return (
+            $found_element->isStorable() and
+            $found_element->getIdentification() === $element->getIdentification() and
+            $found_element->getType() === $element->getType()
+        );
     }
 
     public function getElements(): ilExportHandlerPublicAccessRepositoryElementCollectionInterface

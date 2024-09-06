@@ -42,6 +42,11 @@ class ilCollection implements ilExportHandlerPublicAccessTypeRestrictionReposito
         return $clone;
     }
 
+    public function types(): array
+    {
+        return array_map(function (ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element) { return $element->getAllowedType(); }, $this->elements);
+    }
+
     public function valid(): bool
     {
         return isset($this->elements[$this->index]);

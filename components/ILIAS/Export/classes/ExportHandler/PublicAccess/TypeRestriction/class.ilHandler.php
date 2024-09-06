@@ -27,37 +27,75 @@ use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface
 class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionInterface
 {
     protected ilExportHandlerFactoryInterface $export_handler;
+    protected array $cache;
 
     public function __construct(
         ilExportHandlerFactoryInterface $export_handler
     ) {
         $this->export_handler = $export_handler;
+        $this->cache = [];
     }
 
     public function addAllowedType(ObjectId $object_id, string $type): bool
     {
-        return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->addAllowedType(
+        $success = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->addAllowedType(
             $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
                 ->withObjectId($object_id)
                 ->withAllowedType($type)
         );
+        if ($success) {
+            $this->updateCache(
+                $object_id,
+                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+            );
+        }
+        return $success;
     }
 
     public function removeAllowedType(ObjectId $object_id, string $type): bool
     {
-        return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->removeAllowedType(
+        $success = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->removeAllowedType(
             $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
                 ->withObjectId($object_id)
                 ->withAllowedType($type)
         );
+        if ($success) {
+            $this->updateCache(
+                $object_id,
+                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+            );
+        }
+        return $success;
     }
 
     public function isTypeAllowed(ObjectId $object_id, string $type): bool
     {
-        return $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->isTypeAllowed(
-            $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
-                ->withObjectId($object_id)
-                ->withAllowedType($type)
-        );
+        if (!$this->isCached($object_id)) {
+            $this->updateCache(
+                $object_id,
+                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+            );
+        }
+        return $this->isCachedType($object_id, $type);
+    }
+
+    protected function updateCache(
+        ObjectId $object_id,
+        array $types
+    ): void {
+        $this->cache[$object_id->toInt()]["types"] = $types;
+    }
+
+    protected function isCachedType(
+        ObjectId $object_id,
+        string $type
+    ): bool {
+        return in_array($type, $this->cache[$object_id->toInt()]["types"] ?? []);
+    }
+
+    protected function isCached(
+        ObjectId $object_id
+    ): bool {
+        return array_key_exists($object_id->toInt(), $this->cache);
     }
 }

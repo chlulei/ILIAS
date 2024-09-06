@@ -26,15 +26,31 @@ use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface
 
 interface ilHandlerInterface
 {
-    public function setPublicAccessFile(ObjectId $object_id, string $type, string $file_identifier);
+    public function setPublicAccessFile(
+        ObjectId $object_id,
+        string $type,
+        string $file_identifier
+    ): void;
 
-    public function removePublicAccessFile(ObjectId $object_id): void;
+    public function hasPublicAccessFile(
+        ObjectId $object_id
+    ): bool;
 
-    public function getPublicAccessFileIdentifier(ObjectId $object_id): string;
+    public function removePublicAccessFile(
+        ObjectId $object_id
+    ): void;
 
-    public function getPublicAccessFileType(ObjectId $object_id): string;
+    public function getPublicAccessFileIdentifier(
+        ObjectId $object_id
+    ): string;
 
-    public function downloadLinkOfPublicAccessFile(ReferenceId $reference_id): string;
+    public function getPublicAccessFileType(
+        ObjectId $object_id
+    ): string;
+
+    public function downloadLinkOfPublicAccessFile(
+        ReferenceId $reference_id
+    ): string;
 
     public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionInterface;
 }
