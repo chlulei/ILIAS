@@ -24,8 +24,8 @@ use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInt
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilFactoryInterface as ilExportHandlerContainerExportInfoFactroyInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ilHandlerInterface as ilExportHandlerContainerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\Container\ObjectId\ilFactoryInterface as ilExportHandlerContainerExportInfoObjectIdFactoryInterface;
-use ILIAS\Export\ExportHandler\Info\Export\Container\ObjectId\ilFactory as ilExportHandlerContainerExportInfoObjectIdFactory;
 use ILIAS\Export\ExportHandler\Info\Export\Container\ilHandler as ilExportHandlerContainerExportInfo;
+use ILIAS\Export\ExportHandler\Info\Export\Container\ObjectId\ilFactory as ilExportHandlerContainerExportInfoObjectIdFactory;
 
 class ilFactory implements ilExportHandlerContainerExportInfoFactroyInterface
 {
