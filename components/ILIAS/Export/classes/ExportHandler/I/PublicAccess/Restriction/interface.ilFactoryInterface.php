@@ -18,14 +18,14 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction;
+namespace ILIAS\Export\ExportHandler\I\PublicAccess\Restriction;
 
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\ilFactoryInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryFactoryInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\ilFactoryInterface as ilExportHandlerPublicAccessRestrictionRepositoryFactoryInterface;
 
 interface ilFactoryInterface
 {
-    public function handler(): ilExportHandlerPublicAccessTypeRestrictionInterface;
+    public function handler(): ilExportHandlerPublicAccessRestrictionInterface;
 
-    public function repository(): ilExportHandlerPublicAccessTypeRestrictionRepositoryFactoryInterface;
+    public function repository(): ilExportHandlerPublicAccessRestrictionRepositoryFactoryInterface;
 }

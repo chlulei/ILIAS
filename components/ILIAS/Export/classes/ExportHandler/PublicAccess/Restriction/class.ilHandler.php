@@ -18,13 +18,13 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction;
+namespace ILIAS\Export\ExportHandler\PublicAccess\Restriction;
 
 use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
 
-class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionInterface
+class ilHandler implements ilExportHandlerPublicAccessRestrictionInterface
 {
     protected ilExportHandlerFactoryInterface $export_handler;
     protected array $cache;
@@ -36,47 +36,50 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionInterface
         $this->cache = [];
     }
 
-    public function addAllowedType(ObjectId $object_id, string $type): bool
+    public function enablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool
     {
-        $success = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->addAllowedType(
-            $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
+        $repository = $this->export_handler->publicAccess()->restriction()->repository();
+        $success = $repository->handler()->addElement(
+            $repository->element()->handler()
                 ->withObjectId($object_id)
-                ->withAllowedType($type)
+                ->withExportOptionId($export_option_id)
         );
         if ($success) {
             $this->updateCache(
                 $object_id,
-                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+                $repository->handler()->getElements($object_id)->types()
             );
         }
         return $success;
     }
 
-    public function removeAllowedType(ObjectId $object_id, string $type): bool
+    public function disablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool
     {
-        $success = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->removeAllowedType(
-            $this->export_handler->publicAccess()->typeRestriction()->repository()->element()->handler()
+        $repository = $this->export_handler->publicAccess()->restriction()->repository();
+        $success = $repository->handler()->removeElement(
+            $repository->element()->handler()
                 ->withObjectId($object_id)
-                ->withAllowedType($type)
+                ->withExportOptionId($export_option_id)
         );
         if ($success) {
             $this->updateCache(
                 $object_id,
-                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+                $repository->handler()->getElements($object_id)->types()
             );
         }
         return $success;
     }
 
-    public function isTypeAllowed(ObjectId $object_id, string $type): bool
+    public function isPublicAccessForExportOptionAllowed(ObjectId $object_id, string $export_option_id): bool
     {
+        $repository = $this->export_handler->publicAccess()->restriction()->repository();
         if (!$this->isCached($object_id)) {
             $this->updateCache(
                 $object_id,
-                $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes($object_id)->types()
+                $repository->handler()->getElements($object_id)->types()
             );
         }
-        return $this->isCachedType($object_id, $type);
+        return $this->isCachedType($object_id, $export_option_id);
     }
 
     protected function updateCache(

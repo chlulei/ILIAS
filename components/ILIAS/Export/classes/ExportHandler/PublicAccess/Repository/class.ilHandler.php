@@ -54,12 +54,12 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         }
         $query = "INSERT INTO " . $this->db->quoteIdentifier(self::TABLE_NAME) . " VALUES"
             . " (" . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
-            . ", " . $this->db->quote($element->getType(), ilDBConstants::T_TEXT)
+            . ", " . $this->db->quote($element->getExportOptionId(), ilDBConstants::T_TEXT)
             . ", " . $this->db->quote($element->getIdentification(), ilDBConstants::T_TEXT)
             . ", " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP)
             . ") ON DUPLICATE KEY UPDATE"
             . " object_id = " . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
-            . ", type = " . $this->db->quote($element->getType(), ilDBConstants::T_TEXT)
+            . ", export_option_id = " . $this->db->quote($element->getExportOptionId(), ilDBConstants::T_TEXT)
             . ", identification = " . $this->db->quote($element->getIdentification(), ilDBConstants::T_TEXT)
             . ", timestamp = " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP);
         $this->db->manipulate($query);
@@ -78,7 +78,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         $rcid = $this->irss->manageContainer()->find($row['identification']);
         return $this->export_handler->publicAccess()->repository()->element()->handler()
             ->withObjectId($object_id)
-            ->withType($row['type'])
+            ->withExportOptionId($row['export_option_id'])
             ->withIdentification($rcid->serialize());
     }
 
@@ -88,7 +88,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         return (
             $found_element->isStorable() and
             $found_element->getIdentification() === $element->getIdentification() and
-            $found_element->getType() === $element->getType()
+            $found_element->getExportOptionId() === $element->getExportOptionId()
         );
     }
 

@@ -24,7 +24,7 @@ use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
 
 class ilHandler implements ilExportHandlerPublicAccessInterface
 {
@@ -46,7 +46,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         $success = $this->export_handler->publicAccess()->repository()->handler()->storeElement(
             $this->export_handler->publicAccess()->repository()->element()->handler()
                 ->withObjectId($object_id)
-                ->withType($type)
+                ->withExportOptionId($type)
                 ->withIdentification($file_identifier)
         );
         if ($success) {
@@ -66,7 +66,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         }
         $this->updateCache(
             $object_id,
-            $element->getType(),
+            $element->getExportOptionId(),
             $element->getIdentification()
         );
         return true;
@@ -79,7 +79,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
             $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
             $this->updateCache(
                 $object_id,
-                $element->getType(),
+                $element->getExportOptionId(),
                 $element->getIdentification()
             );
         }
@@ -93,7 +93,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
             $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
             $this->updateCache(
                 $object_id,
-                $element->getType(),
+                $element->getExportOptionId(),
                 $element->getIdentification()
             );
         }
@@ -119,9 +119,9 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         }
     }
 
-    public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionInterface
+    public function typeRestriction(): ilExportHandlerPublicAccessRestrictionInterface
     {
-        return $this->export_handler->publicAccess()->typeRestriction()->handler();
+        return $this->export_handler->publicAccess()->restriction()->handler();
     }
 
     protected function updateCache(

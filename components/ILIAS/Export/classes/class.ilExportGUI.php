@@ -121,13 +121,13 @@ class ilExportGUI
     {
         $this->export_options = $this->export_options->withExportOption($export_option);
         if ($export_option->publicAccessPossible($this->context)) {
-            $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
+            $this->export_handler->publicAccess()->restriction()->handler()->enablePublicAccessForExportOption(
                 new ObjectId($this->obj->getId()),
                 $export_option->getExportOptionId()
             );
         }
         if (!$export_option->publicAccessPossible($this->context)) {
-            $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
+            $this->export_handler->publicAccess()->restriction()->handler()->disablePublicAccessForExportOption(
                 new ObjectId($this->obj->getId()),
                 $export_option->getExportOptionId()
             );

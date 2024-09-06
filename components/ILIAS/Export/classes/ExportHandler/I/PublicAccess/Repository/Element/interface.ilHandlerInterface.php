@@ -29,9 +29,9 @@ interface ilHandlerInterface
 
     public function withIdentification(string $identification): ilHandlerInterface;
 
-    public function withType(string $type): ilHandlerInterface;
+    public function withExportOptionId(string $type): ilHandlerInterface;
 
-    public function getType(): string;
+    public function getExportOptionId(): string;
 
     public function getIdentification(): string;
 

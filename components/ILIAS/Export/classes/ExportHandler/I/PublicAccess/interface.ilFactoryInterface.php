@@ -23,7 +23,7 @@ namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Link\ilFactoryInterface as ilExportHandlerPublicAccessLinkFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\ilFactoryInterface as ilExportHandlerPublicAccessRepositoryFactoryInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilFactoryInterface as ilExportHandlerPublicAccessTypeRestrictionFactoryInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilFactoryInterface as ilExportHandlerPublicAccessRestrictionFactoryInterface;
 
 interface ilFactoryInterface
 {
@@ -33,5 +33,5 @@ interface ilFactoryInterface
 
     public function repository(): ilExportHandlerPublicAccessRepositoryFactoryInterface;
 
-    public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionFactoryInterface;
+    public function restriction(): ilExportHandlerPublicAccessRestrictionFactoryInterface;
 }

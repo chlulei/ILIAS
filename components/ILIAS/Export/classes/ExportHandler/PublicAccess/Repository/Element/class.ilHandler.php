@@ -30,7 +30,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 {
     protected ObjectId $object_id;
     protected string $resource_Id;
-    protected string $type;
+    protected string $export_option_id;
     protected DateTimeImmutable $last_modified;
     protected ResourcesStorageService $irss;
 
@@ -59,16 +59,16 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
         return $clone;
     }
 
-    public function withType(string $type): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function withExportOptionId(string $type): ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->type = $type;
+        $clone->export_option_id = $type;
         return $clone;
     }
 
-    public function getType(): string
+    public function getExportOptionId(): string
     {
-        return $this->type;
+        return $this->export_option_id;
     }
 
     public function getIdentification(): string
@@ -96,7 +96,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryElementInterface
 
     public function isStorable(): bool
     {
-        return isset($this->object_id) and isset($this->last_modified) and isset($this->resource_Id) and isset($this->type);
+        return isset($this->object_id) and isset($this->last_modified) and isset($this->resource_Id) and isset($this->export_option_id);
     }
 
     protected function downloadFromIRSS(ResourceIdentification $rid, string $zip_file_name): void

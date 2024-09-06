@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\Repository\Element;
+namespace ILIAS\Export\ExportHandler\PublicAccess\Restriction\Repository\Element;
 
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementCollectionInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessRestrictionRepositoryElementCollectionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionRepositoryElementInterface;
 
-class ilCollection implements ilExportHandlerPublicAccessTypeRestrictionRepositoryElementCollectionInterface
+class ilCollection implements ilExportHandlerPublicAccessRestrictionRepositoryElementCollectionInterface
 {
     protected array $elements;
     protected int $index;
@@ -35,8 +35,8 @@ class ilCollection implements ilExportHandlerPublicAccessTypeRestrictionReposito
     }
 
     public function withElement(
-        ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element
-    ): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementCollectionInterface {
+        ilExportHandlerPublicAccessRestrictionRepositoryElementInterface $element
+    ): ilExportHandlerPublicAccessRestrictionRepositoryElementCollectionInterface {
         $clone = clone $this;
         $clone->elements[] = $element;
         return $clone;
@@ -44,7 +44,7 @@ class ilCollection implements ilExportHandlerPublicAccessTypeRestrictionReposito
 
     public function types(): array
     {
-        return array_map(function (ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element) { return $element->getAllowedType(); }, $this->elements);
+        return array_map(function (ilExportHandlerPublicAccessRestrictionRepositoryElementInterface $element) { return $element->getExportOptionId(); }, $this->elements);
     }
 
     public function valid(): bool
@@ -67,7 +67,7 @@ class ilCollection implements ilExportHandlerPublicAccessTypeRestrictionReposito
         return $this->index;
     }
 
-    public function current(): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
+    public function current(): ilExportHandlerPublicAccessRestrictionRepositoryElementInterface
     {
         return $this->elements[$this->index];
     }

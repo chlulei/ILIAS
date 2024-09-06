@@ -211,17 +211,17 @@ class ilHandler implements ilExportHandlerTableInterface
      */
     protected function markAsPublicAccess(array $ids_sorted): void
     {
-        $pat_restriction = $this->export_handler->publicAccess()->typeRestriction()->handler();
+        $pat_restriction = $this->export_handler->publicAccess()->restriction()->handler();
         $pa_repository = $this->export_handler->publicAccess()->repository()->handler();
         $pa_repository_element_factory = $this->export_handler->publicAccess()->repository()->element();
         $obj_id = new ObjectId($this->context->exportObject()->getId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            $type_allowed = $pat_restriction->isTypeAllowed($obj_id, $export_option->getExportOptionId());
+            $type_allowed = $pat_restriction->isPublicAccessForExportOptionAllowed($obj_id, $export_option->getExportOptionId());
             foreach ($export_option->getFileSelection($this->context, $table_row_ids) as $file_info) {
                 $element = $pa_repository_element_factory->handler()
                     ->withIdentification($file_info->getFileIdentifier())
-                    ->withType($export_option->getExportOptionId())
+                    ->withExportOptionId($export_option->getExportOptionId())
                     ->withObjectId($obj_id);
                 if ($pa_repository->hasElement($element)) {
                     $pa_repository->deleteElement($element);

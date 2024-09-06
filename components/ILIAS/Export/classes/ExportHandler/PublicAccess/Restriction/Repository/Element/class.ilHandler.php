@@ -18,34 +18,34 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\PublicAccess\TypeRestriction\Repository\Element;
+namespace ILIAS\Export\ExportHandler\PublicAccess\Restriction\Repository\Element;
 
 use DateTimeImmutable;
 use ILIAS\Data\ObjectId;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionRepositoryElementInterface;
 
-class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
+class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryElementInterface
 {
     protected ObjectId $object_id;
-    protected string $type;
     protected DateTimeImmutable $last_modified;
+    protected string $export_option_id;
 
     public function __clone(): void
     {
         $this->last_modified = new DateTimeImmutable();
     }
 
-    public function withObjectId(ObjectId $object_id): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
+    public function withObjectId(ObjectId $object_id): ilExportHandlerPublicAccessRestrictionRepositoryElementInterface
     {
         $clone = clone $this;
         $clone->object_id = $object_id;
         return $clone;
     }
 
-    public function withAllowedType(string $type): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface
+    public function withExportOptionId(string $type): ilExportHandlerPublicAccessRestrictionRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->type = $type;
+        $clone->export_option_id = $type;
         return $clone;
     }
 
@@ -54,9 +54,9 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryE
         return $this->object_id;
     }
 
-    public function getAllowedType(): string
+    public function getExportOptionId(): string
     {
-        return $this->type;
+        return $this->export_option_id;
     }
 
     public function getLastModified(): DateTimeImmutable
@@ -66,6 +66,6 @@ class ilHandler implements ilExportHandlerPublicAccessTypeRestrictionRepositoryE
 
     public function isStorable(): bool
     {
-        return isset($this->object_id) and isset($this->type) and isset($this->last_modified);
+        return isset($this->object_id) and isset($this->export_option_id) and isset($this->last_modified);
     }
 }

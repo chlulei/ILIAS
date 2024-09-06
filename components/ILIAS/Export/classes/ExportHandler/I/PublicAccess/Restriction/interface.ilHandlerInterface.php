@@ -18,15 +18,15 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction;
+namespace ILIAS\Export\ExportHandler\I\PublicAccess\Restriction;
 
 use ILIAS\Data\ObjectId;
 
 interface ilHandlerInterface
 {
-    public function addAllowedType(ObjectId $object_id, string $type): bool;
+    public function enablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool;
 
-    public function removeAllowedType(ObjectId $object_id, string $type): bool;
+    public function disablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool;
 
-    public function isTypeAllowed(ObjectId $object_id, string $type): bool;
+    public function isPublicAccessForExportOptionAllowed(ObjectId $object_id, string $export_option_id): bool;
 }

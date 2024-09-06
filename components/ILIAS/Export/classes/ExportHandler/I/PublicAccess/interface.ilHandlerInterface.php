@@ -22,7 +22,7 @@ namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 
 use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
 
 interface ilHandlerInterface
 {
@@ -52,5 +52,5 @@ interface ilHandlerInterface
         ReferenceId $reference_id
     ): string;
 
-    public function typeRestriction(): ilExportHandlerPublicAccessTypeRestrictionInterface;
+    public function typeRestriction(): ilExportHandlerPublicAccessRestrictionInterface;
 }

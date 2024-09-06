@@ -18,7 +18,7 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element;
+namespace ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element;
 
 use DateTimeImmutable;
 use ILIAS\Data\ObjectId;
@@ -27,11 +27,11 @@ interface ilHandlerInterface
 {
     public function withObjectId(ObjectId $object_id): ilHandlerInterface;
 
-    public function withAllowedType(string $type): ilHandlerInterface;
+    public function withExportOptionId(string $type): ilHandlerInterface;
 
     public function getObjectId(): ObjectId;
 
-    public function getAllowedType(): string;
+    public function getExportOptionId(): string;
 
     public function getLastModified(): DateTimeImmutable;
 

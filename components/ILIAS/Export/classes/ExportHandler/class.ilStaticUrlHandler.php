@@ -54,9 +54,9 @@ class ilStaticUrlHandler
         $object_id = $ref_id->toObjectId();
         $access_granted = false;
         $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
-        $type_allowed = $this->export_handler->publicAccess()->typeRestriction()->handler()->isTypeAllowed(
-            $object_id,
-            $element->isStorable() ? $element->getType() : ""
+        $type_allowed = (
+            $element->isStorable() and
+            $this->export_handler->publicAccess()->restriction()->handler()->isPublicAccessForExportOptionAllowed($object_id, $element->getExportOptionId())
         );
         if ($context->isUserLoggedIn() and $context->checkPermission("read", $ref_id->toInt())) {
             $access_granted = true;

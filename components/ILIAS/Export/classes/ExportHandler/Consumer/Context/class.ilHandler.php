@@ -26,7 +26,6 @@ use ilDBInterface;
 use ilExportGUI;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilFactoryInterface as ilExportHandlerConsumerFileFactoryInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ilLanguage;
 use ilObject;

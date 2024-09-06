@@ -18,15 +18,15 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element;
+namespace ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element;
 
 use Countable;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionRepositoryElementInterface;
 use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {
-    public function withElement(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): ilCollectionInterface;
+    public function withElement(ilExportHandlerPublicAccessRestrictionRepositoryElementInterface $element): ilCollectionInterface;
 
     /**
      * @return string[]
@@ -41,7 +41,7 @@ interface ilCollectionInterface extends Iterator, Countable
 
     public function key(): int;
 
-    public function current(): ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
+    public function current(): ilExportHandlerPublicAccessRestrictionRepositoryElementInterface;
 
     public function count(): int;
 }
