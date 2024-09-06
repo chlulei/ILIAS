@@ -22,7 +22,6 @@ namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\TypeRestriction\Repository\Element\ilCollectionInterface as ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
 interface ilHandlerInterface
@@ -31,14 +30,13 @@ interface ilHandlerInterface
 
     public function getExportOptionId(): string;
 
+    public function publicAccessPossible(
+        ilExportHandlerConsumerContextInterface $context
+    ): bool;
+
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context
     ): string;
-
-    public function onPublicAccessTypeRestrictionsChanged(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerPublicAccessTypeRestrictionRepitoryElementCollectionInterface $allowed_types
-    ): void;
 
     public function onExportOptionSelected(
         ilExportHandlerConsumerContextInterface $context

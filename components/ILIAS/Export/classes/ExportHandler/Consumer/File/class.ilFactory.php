@@ -20,6 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\File;
 
+use ILIAS\Data\ObjectId;
+use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
+use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\File\ilFactoryInterface as ilExportHandlerConsumerFileFactoryInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
@@ -43,23 +46,37 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
 
     public function fileInfoFromSplFileInfo(
         SplFileInfo $spl_file_info,
-        string $type,
-        bool $public_access_possible
+        ilExportHandlerConsumerContextInterface $context,
+        ilExportHandlerConsumerExportOptionInterface $export_option
     ): ilExportHandlerFileInfoInterface {
-        return $this->export_handler->info()->file()->handler()
+        $object_id = new ObjectId($context->exportObject()->getId());
+        $file_info = $this->export_handler->info()->file()->handler()
             ->withSplFileInfo($spl_file_info)
-            ->withType($type)
-            ->withPublicAccessPossible($public_access_possible);
+            ->withType($export_option->getExportType())
+            ->withPublicAccessPossible($export_option->publicAccessPossible($context));
+        return $file_info->withPublicAccessEnabled(
+            $export_option->publicAccessPossible($context) and
+            $this->export_handler->publicAccess()->handler()->hasPublicAccessFile($object_id) and
+            $this->export_handler->publicAccess()->handler()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
+            $this->export_handler->publicAccess()->handler()->getPublicAccessFileIdentifier($object_id) === $file_info->getFileIdentifier()
+        );
     }
 
     public function fileInfoFromResourceId(
         ResourceIdentification $resource_id,
-        string $type,
-        bool $public_access_possible
+        ilExportHandlerConsumerContextInterface $context,
+        ilExportHandlerConsumerExportOptionInterface $export_option
     ): ilExportHandlerFileInfoInterface {
-        return $this->export_handler->info()->file()->handler()
+        $object_id = new ObjectId($context->exportObject()->getId());
+        $file_info = $this->export_handler->info()->file()->handler()
             ->withResourceId($resource_id)
-            ->withType($type)
-            ->withPublicAccessPossible($public_access_possible);
+            ->withType($export_option->getExportType())
+            ->withPublicAccessPossible($export_option->publicAccessPossible($context));
+        return $file_info->withPublicAccessEnabled(
+            $export_option->publicAccessPossible($context) and
+            $this->export_handler->publicAccess()->handler()->hasPublicAccessFile($object_id) and
+            $this->export_handler->publicAccess()->handler()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
+            $this->export_handler->publicAccess()->handler()->getPublicAccessFileIdentifier($object_id) === $file_info->getFileIdentifier()
+        );
     }
 }

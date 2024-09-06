@@ -20,9 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Table;
 
-use ilExportGUI;
+use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
-use ilObject;
 
 interface ilHandlerInterface
 {
@@ -33,17 +32,15 @@ interface ilHandlerInterface
     public const TABLE_COL_PUBLIC_ACCESS = 'public_access';
     public const TABLE_COL_PUBLIC_ACCESS_POSSIBLE = 'public_access_possible';
 
-    public function withExportOptions(ilExportHandlerConsumerExportOptionCollectionInterface $export_options): ilHandlerInterface;
-
-    public function withExportObject(
-        ilObject $export_object
-    ): ilHandlerInterface;
-
-    public function withExportGUI(
-        ilExportGUI $export_gui
+    public function withExportOptions(
+        ilExportHandlerConsumerExportOptionCollectionInterface $export_options
     ): ilHandlerInterface;
 
     public function handleCommands(): void;
 
     public function getHTML(): string;
+
+    public function withContext(
+        ilExportHandlerConsumerContextInterface $context
+    ): ilHandlerInterface;
 }

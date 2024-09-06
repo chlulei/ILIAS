@@ -117,8 +117,8 @@ abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOp
                 $context->fileFactory()
                 ->fileInfoFromSplFileInfo(
                     new SplFileInfo($dir . DIRECTORY_SEPARATOR . $file_name),
-                    $file_info["type"],
-                    false
+                    $context,
+                    $this
                 )->withPublicAccessEnabled(false)
             );
         }

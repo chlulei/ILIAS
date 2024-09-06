@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Table\RowId;
 
 use Countable;
-use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
 use Iterator;
 

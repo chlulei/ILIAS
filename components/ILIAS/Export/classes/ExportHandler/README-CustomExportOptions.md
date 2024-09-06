@@ -1,5 +1,6 @@
 ### Table of Contents
 - [Custom Export Options](#custom-export-options)
+- [Public Access](#public-access)
 - [Methods](#methods)
   - [Method getExportType](#method-getexporttype)
   - [Method getExportOptionId](#method-getexportoptionid)
@@ -16,6 +17,20 @@ The export allows for custom export options.
 Custom Export Options extend the class _ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler_:
 ```php
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilBasicExportOption;
+```
+Custom export options need to be added to the **ilExportGUI**:
+```php
+$export_gui = new ilExportGUI(...);
+$export_gui->addExportOption($my_export_option);
+```
+
+### Public Access
+Public access is on default disabled for all export types except the standard xml export.
+Public access can be enabled and disabled by using a method of **ilExportGUI**:
+```php
+$export_gui = new ilExportGUI(...);
+$export_gui->enablePublicAccessForType($my_export_option->get);
+$export_gui->disablePublicAccessForType("");
 ```
 
 ### Methods
@@ -99,7 +114,11 @@ The file collection and file infos can be created with a file factory provided b
 A file info can be created in two ways, either from a **ResourceIdentification** or a **SplFileInfo**.
 This choice determines value of the file identifiers that are provided to the other methods by _table_row_ids_.
 If the file info is created by using a **ResourceIdentification**, than the value returned by _table_row_id->getFileIdentifier()_ is the serialized resource identification.
-If the file info is created by using a **SplFileInfo**, than the value returned by _table_row_id->getFileIdentifier()_ is the file name.
+If the file info is created by using a **SplFileInfo**, than the value returned by _table_row_id->getFileIdentifier()_ is a composit id of the export option id and the file name.
+The composit id structure is:
+```
+<export option id>:<file name>
+```
 
 #### Method getFileSelection:
 ```php
@@ -140,6 +159,12 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         return "expxml";
     }
 
+    public function publicAccessPossible(
+        ilExportHandlerConsumerContextInterface $context,
+    ): bool {
+        return true;
+    }
+
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context
     ): string {
@@ -158,7 +183,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
         if (
-            $context->publicAccess()->hasPublicAccessFile($object_id) and 
+            $context->publicAccess()->hasPublicAccessFile($object_id) and
             $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType()
         ) {
             $context->publicAccess()->removePublicAccessFile($object_id);
@@ -194,7 +219,7 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         $object_id = new ObjectId($context->exportObject()->getId());
         return $this->buildElements($context, $object_id, $table_row_ids->fileIdentifiers());
     }
-    
+
     protected function buildElements(
         ilExportHandlerConsumerContextInterface $context,
         ObjectId $object_id,
@@ -208,12 +233,8 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         foreach ($elements as $element) {
             $file_info = $context->fileFactory()->fileInfoFromResourceId(
                 $element->getResourceId(),
-                $element->getFileType(),
-                $context->publicAccess()->typeRestriction()->isTypeAllowed($object_id, $this->getExportType())
-            )->withPublicAccessEnabled(
-                $context->publicAccess()->hasPublicAccessFile($object_id) and
-                $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType() and
-                $context->publicAccess()->getPublicAccessFileIdentifier($object_id) === $element->getResourceId()->serialize()
+                $context,
+                $this
             );
             $collection = $collection->withFileInfo($file_info);
         }

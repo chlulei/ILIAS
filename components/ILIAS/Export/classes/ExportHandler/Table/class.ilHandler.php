@@ -21,10 +21,10 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\Table;
 
 use ilCalendarSettings;
-use ilExportGUI;
 use ILIAS\Data\Factory as ilDataFactory;
 use ILIAS\Data\ObjectId;
 use ILIAS\DI\UIServices as ilUIServices;
+use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\ilHandlerInterface as ilExportHandlerTableInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowCollectionInterface;
@@ -35,7 +35,6 @@ use ILIAS\UI\Component\Table\Data as ilDataTable;
 use ILIAS\UI\URLBuilder;
 use ILIAS\UI\URLBuilderToken as ilURLBuilderToken;
 use ilLanguage;
-use ilObject;
 use ilObjUser;
 use JetBrains\PhpStorm\NoReturn;
 
@@ -66,9 +65,8 @@ class ilHandler implements ilExportHandlerTableInterface
     protected ilURLBuilderToken $action_parameter_token;
     protected ilURLBuilderToken $row_id_token;
     protected ilExportHandlerConsumerExportOptionCollectionInterface $export_options;
-    protected ilObject $export_object;
-    protected ilExportGUI $export_gui;
     protected ilDataTable $table;
+    protected ilExportHandlerConsumerContextInterface $context;
 
     public function __construct(
         ilUIServices $ui_services,
@@ -155,10 +153,9 @@ class ilHandler implements ilExportHandlerTableInterface
     {
         $items = [];
         $ids = [];
-        $context = $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object);
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            foreach ($export_option->getFileSelection($context, $table_row_ids) as $file_info) {
+            foreach ($export_option->getFileSelection($this->context, $table_row_ids) as $file_info) {
                 $table_row_id = $this->export_handler->table()->rowId()->handler()
                     ->withExportOptionId($export_option_id)
                     ->withFileIdentifier($file_info->getFileIdentifier());
@@ -192,10 +189,18 @@ class ilHandler implements ilExportHandlerTableInterface
      */
     protected function deleteItems(array $ids_sorted): void
     {
+        $object_id = new ObjectId($this->context->exportObject()->getId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
+            if (
+                $this->context->publicAccess()->hasPublicAccessFile($object_id) and
+                $this->context->publicAccess()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
+                in_array($this->context->publicAccess()->getPublicAccessFileIdentifier($object_id), $table_row_ids->fileIdentifiers())
+            ) {
+                $this->context->publicAccess()->removePublicAccessFile($object_id);
+            }
             $export_option->onDeleteFiles(
-                $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object),
+                $this->context,
                 $table_row_ids
             );
         }
@@ -209,27 +214,30 @@ class ilHandler implements ilExportHandlerTableInterface
         $pat_restriction = $this->export_handler->publicAccess()->typeRestriction()->handler();
         $pa_repository = $this->export_handler->publicAccess()->repository()->handler();
         $pa_repository_element_factory = $this->export_handler->publicAccess()->repository()->element();
-        $context = $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object);
-        $obj_id = new ObjectId($context->exportObject()->getId());
+        $obj_id = new ObjectId($this->context->exportObject()->getId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            $type_allowed = $pat_restriction->isTypeAllowed($obj_id, $export_option->getExportType());
-            foreach ($export_option->getFileSelection($context, $table_row_ids) as $file_info) {
+            $type_allowed = $pat_restriction->isTypeAllowed($obj_id, $export_option->getExportOptionId());
+            foreach ($export_option->getFileSelection($this->context, $table_row_ids) as $file_info) {
                 $element = $pa_repository_element_factory->handler()
                     ->withIdentification($file_info->getFileIdentifier())
-                    ->withType($file_info->getFileType())
+                    ->withType($export_option->getExportOptionId())
                     ->withObjectId($obj_id);
                 if ($pa_repository->hasElement($element)) {
                     $pa_repository->deleteElement($element);
                     continue;
                 }
-                if (!$file_info->getPublicAccessPossible() or !$type_allowed) {
+                if (
+                    !$export_option->publicAccessPossible($this->context) or
+                    !$file_info->getPublicAccessPossible() or
+                    !$type_allowed
+                ) {
                     continue;
                 }
                 $pa_repository->storeElement($element);
             }
         }
-        $context->ilCtrl()->redirect($this->export_gui, ilExportGUI::CMD_LIST_EXPORT_FILES);
+        $this->context->ilCtrl()->redirect($this->context->exportGUIObject(), $this->context->exportGUIObject()::CMD_LIST_EXPORT_FILES);
     }
 
     /**
@@ -240,7 +248,7 @@ class ilHandler implements ilExportHandlerTableInterface
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
             $export_option->onDownloadFiles(
-                $this->export_handler->consumer()->context()->handler($this->export_gui, $this->export_object),
+                $this->context,
                 $table_row_ids
             );
         }
@@ -256,8 +264,8 @@ class ilHandler implements ilExportHandlerTableInterface
             $this->getColumns(),
             $this->export_handler->table()->dataRetrieval()
                 ->withExportOptions($this->export_options)
-                ->withExportObject($this->export_object)
-                ->withExportGUI($this->export_gui)
+                ->withExportObject($this->context->exportObject())
+                ->withExportGUI($this->context->exportGUIObject())
         )
             ->withId(self::TABLE_ID)
             ->withActions($this->getActions())
@@ -320,17 +328,10 @@ class ilHandler implements ilExportHandlerTableInterface
         return $clone;
     }
 
-    public function withExportGUI(ilExportGUI $export_gui): ilExportHandlerTableInterface
+    public function withContext(ilExportHandlerConsumerContextInterface $context): ilExportHandlerTableInterface
     {
         $clone = clone $this;
-        $clone->export_gui = $export_gui;
-        return $clone;
-    }
-
-    public function withExportObject(ilObject $export_object): ilExportHandlerTableInterface
-    {
-        $clone = clone $this;
-        $clone->export_object = $export_object;
+        $clone->context = $context;
         return $clone;
     }
 }

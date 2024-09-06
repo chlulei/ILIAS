@@ -44,10 +44,10 @@ class ilHandler implements ilExportHandlerTableRowIdInterface
 
     public function withCompositId(string $composit_id): ilExportHandlerTableRowIdInterface
     {
-        $parts = explode(self::SEPARATOR, $composit_id);
         $clone = clone $this;
-        $clone->export_option_id = $parts[0];
-        $clone->file_info_id = $parts[1];
+        $clone->export_option_id = substr($composit_id, 0, stripos($composit_id, self::SEPARATOR));
+        ;
+        $clone->file_info_id = substr($composit_id, stripos($composit_id, self::SEPARATOR) + 1);
         return $clone;
     }
 

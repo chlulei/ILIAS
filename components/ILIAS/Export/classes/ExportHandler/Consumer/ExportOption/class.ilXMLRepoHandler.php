@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
 use ILIAS\Data\ObjectId;
-use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
@@ -47,6 +46,12 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         return "expxml";
     }
 
+    public function publicAccessPossible(
+        ilExportHandlerConsumerContextInterface $context,
+    ): bool {
+        return true;
+    }
+
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context
     ): string {
@@ -64,12 +69,6 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
-        if (
-            $context->publicAccess()->hasPublicAccessFile($object_id) and
-            $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType()
-        ) {
-            $context->publicAccess()->removePublicAccessFile($object_id);
-        }
         $this->export_handler->repository()->handler()->deleteElements(
             $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$table_row_ids->fileIdentifiers()),
             $this->export_handler->repository()->stakeholder()->withOwnerId($context->user()->getId())
@@ -115,12 +114,8 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         foreach ($elements as $element) {
             $file_info = $context->fileFactory()->fileInfoFromResourceId(
                 $element->getResourceId(),
-                $element->getFileType(),
-                $context->publicAccess()->typeRestriction()->isTypeAllowed($object_id, $this->getExportType())
-            )->withPublicAccessEnabled(
-                $context->publicAccess()->hasPublicAccessFile($object_id) and
-                $context->publicAccess()->getPublicAccessFileType($object_id) === $this->getExportType() and
-                $context->publicAccess()->getPublicAccessFileIdentifier($object_id) === $element->getResourceId()->serialize()
+                $context,
+                $this
             );
             $collection = $collection->withFileInfo($file_info);
         }

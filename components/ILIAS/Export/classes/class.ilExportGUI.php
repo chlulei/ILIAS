@@ -19,16 +19,13 @@
 declare(strict_types=1);
 
 use ILIAS\Data\ObjectId;
-use ILIAS\Data\ReferenceId;
 use ILIAS\DI\UIServices as ilUIServices;
-use ILIAS\HTTP\Services as ilHTTPServices;
-use ILIAS\Refinery\Factory as Factory;
-use ILIAS\HTTP\Services as Services;
-use ILIAS\Export\ExportHandler\ilFactory as ilExportHandler;
-use ILIAS\Refinery\Factory as ilRefineryFactory;
-use ILIAS\UI\Component\Button\Button as ilButton;
+use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
+use ILIAS\Export\ExportHandler\ilFactory as ilExportHandler;
+use ILIAS\HTTP\Services as ilHTTPServices;
+use ILIAS\Refinery\Factory as ilRefineryFactory;
 
 /**
  * Export User Interface Class
@@ -48,17 +45,16 @@ class ilExportGUI
     protected ilRefineryFactory $refinery;
     protected ilObjUser $il_user;
     protected ilLanguage $lng;
-    protected \ILIAS\Export\InternalGUIService $gui;
     protected ilObject $obj;
     protected ilGlobalTemplateInterface $tpl;
     protected ilCtrlInterface $ctrl;
     protected ilAccessHandler $access;
     protected ilErrorHandling $error;
     protected ilToolbarGUI $toolbar;
-    protected ilObjectDefinition $objDefinition;
+    protected ilObjectDefinition $obj_definition;
     protected ilTree $tree;
     protected ilExportHandler $export_handler;
-    protected array $formats = [];
+    protected ilExportHandlerConsumerContextInterface $context;
     protected object $parent_gui;
 
     public function __construct(object $a_parent_gui, ?ilObject $a_main_obj = null)
@@ -76,76 +72,66 @@ class ilExportGUI
         $this->error = $DIC['ilErr'];
         $this->toolbar = $DIC->toolbar();
         $this->parent_gui = $a_parent_gui;
-        $this->objDefinition = $DIC['objDefinition'];
+        $this->obj_definition = $DIC['objDefinition'];
         $this->tree = $DIC->repositoryTree();
         $this->obj = $a_main_obj ?? $a_parent_gui->getObject();
-        $this->gui = $DIC->export()->internal()->gui();
         $this->export_handler = new ilExportHandler();
+        $this->context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
         $this->export_options = $this->export_handler->consumer()->exportOption()->collection();
         $this->enableStandardXMLExport();
-        $this->enablePublicAccessForType("xml");
     }
 
-    protected function initExportOptionsFromPost(): array
+    public function executeCommand(): void
     {
-        $options = [];
-        if ($this->http_services->wrapper()->post()->has('cp_options')) {
-            $custom_transformer = $this->refinery->custom()->transformation(
-                function ($array) {
-                    return $array;
-                }
-            );
-            $options = $this->http_services->wrapper()->post()->retrieve(
-                'cp_options',
-                $custom_transformer
-            );
+        // this should work (at least) for repository objects
+        if (method_exists($this->obj, 'getRefId') and $this->obj->getRefId()) {
+            if (!$this->access->checkAccess('write', '', $this->obj->getRefId())) {
+                $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->WARNING);
+            }
+            // check export activation of container
+            $exp_limit = new ilExportLimitation();
+            if ($this->obj_definition->isContainer(ilObject::_lookupType($this->obj->getRefId(), true)) &&
+                $exp_limit->getLimitationMode() == ilExportLimitation::SET_EXPORT_DISABLED) {
+                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("exp_error_disabled"));
+                return;
+            }
         }
-        return $options;
-    }
-
-    protected function builtExportOptionCommand(ilExportHandlerConsumerExportOptionInterface $export_option): string
-    {
-        return self::CMD_EXPORT_OPTION_PREFIX . $export_option->getExportOptionId();
+        $cmd = $this->ctrl->getCmd(self::CMD_LIST_EXPORT_FILES);
+        if (str_starts_with($cmd, self::CMD_EXPORT_OPTION_PREFIX)) {
+            foreach ($this->export_options as $export_option) {
+                if ($cmd === $this->builtExportOptionCommand($export_option)) {
+                    $export_option->onExportOptionSelected($this->context);
+                }
+            }
+        }
+        switch ($cmd) {
+            case self::CMD_LIST_EXPORT_FILES:
+                $this->displayExportFiles();
+                break;
+            case self::CMD_EXPORT_XML:
+                $this->createXMLExportFile();
+                break;
+            case self::CMD_SAVE_ITEM_SELECTION:
+                $this->saveItemSelection();
+                break;
+        }
     }
 
     public function addExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): void
     {
         $this->export_options = $this->export_options->withExportOption($export_option);
-    }
-
-    public function enablePublicAccessForType(string $type)
-    {
-        $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
-            new ObjectId($this->obj->getId())
-        );
-        foreach ($this->export_options as $export_option) {
-            $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
+        if ($export_option->publicAccessPossible($this->context)) {
+            $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
+                new ObjectId($this->obj->getId()),
+                $export_option->getExportOptionId()
+            );
         }
-        $this->export_handler->publicAccess()->typeRestriction()->handler()->addAllowedType(
-            new ObjectId($this->obj->getId()),
-            $type
-        );
-    }
-
-    public function disablePublicAccessForType(string $type)
-    {
-        $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-        $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
-            new ObjectId($this->obj->getId()),
-            $type
-        );
-        $allowed_types = $this->export_handler->publicAccess()->typeRestriction()->repository()->handler()->getAllowedTypes(
-            new ObjectId($this->obj->getId())
-        );
-        foreach ($this->export_options as $export_option) {
-            $export_option->onPublicAccessTypeRestrictionsChanged($context, $allowed_types);
+        if (!$export_option->publicAccessPossible($this->context)) {
+            $this->export_handler->publicAccess()->typeRestriction()->handler()->removeAllowedType(
+                new ObjectId($this->obj->getId()),
+                $export_option->getExportOptionId()
+            );
         }
-    }
-
-    public function enableStandardXMLExport(): void
-    {
-        $this->addExportOption($this->export_handler->consumer()->exportOption()->basicXml());
     }
 
     /**
@@ -172,59 +158,58 @@ class ilExportGUI
 
     }
 
+    /**
+     * @depricated
+     */
+    public function listExportFiles(): void
+    {
+
+    }
+
+    /**
+     * @depricated
+     */
     public function getFormats(): array
     {
-        return $this->formats;
+        return [];
     }
 
-    public function executeCommand(): void
+    protected function initExportOptionsFromPost(): array
     {
-        // this should work (at least) for repository objects
-        if (method_exists($this->obj, 'getRefId') and $this->obj->getRefId()) {
-            if (!$this->access->checkAccess('write', '', $this->obj->getRefId())) {
-                $this->error->raiseError($this->lng->txt('permission_denied'), $this->error->WARNING);
-            }
-            // check export activation of container
-            $exp_limit = new ilExportLimitation();
-            if ($this->objDefinition->isContainer(ilObject::_lookupType($this->obj->getRefId(), true)) &&
-                $exp_limit->getLimitationMode() == ilExportLimitation::SET_EXPORT_DISABLED) {
-                $this->tpl->setOnScreenMessage('failure', $this->lng->txt("exp_error_disabled"));
-                return;
-            }
-        }
-        $cmd = $this->ctrl->getCmd(self::CMD_LIST_EXPORT_FILES);
-        if (str_starts_with($cmd, self::CMD_EXPORT_OPTION_PREFIX)) {
-            $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
-            foreach ($this->export_options as $export_option) {
-                if ($cmd === $this->builtExportOptionCommand($export_option)) {
-                    $export_option->onExportOptionSelected($context);
+        $options = [];
+        if ($this->http_services->wrapper()->post()->has('cp_options')) {
+            $custom_transformer = $this->refinery->custom()->transformation(
+                function ($array) {
+                    return $array;
                 }
-            }
+            );
+            $options = $this->http_services->wrapper()->post()->retrieve(
+                'cp_options',
+                $custom_transformer
+            );
         }
-        switch ($cmd) {
-            case self::CMD_LIST_EXPORT_FILES:
-                $this->listExportFiles();
-                break;
-            case self::CMD_EXPORT_XML:
-                $this->createXMLExportFile();
-                break;
-            case self::CMD_SAVE_ITEM_SELECTION:
-                $this->saveItemSelection();
-                break;
-        }
+        return $options;
     }
 
-    public function listExportFiles(): void
+    protected function builtExportOptionCommand(ilExportHandlerConsumerExportOptionInterface $export_option): string
+    {
+        return self::CMD_EXPORT_OPTION_PREFIX . $export_option->getExportOptionId();
+    }
+
+    protected function enableStandardXMLExport(): void
+    {
+        $this->addExportOption($this->export_handler->consumer()->exportOption()->basicXml());
+    }
+
+    protected function displayExportFiles(): void
     {
         $table = $this->export_handler->table()->handler()
             ->withExportOptions($this->export_options)
-            ->withExportGUI($this)
-            ->withExportObject($this->obj);
+            ->withContext($this->context);
         $table->handleCommands();
-        $context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
         $infos = [];
         foreach ($this->export_options as $export_option) {
-            $infos[$export_option->getLabel($context)] = $this->ctrl->getLinkTarget($this, $this->builtExportOptionCommand($export_option));
+            $infos[$export_option->getLabel($this->context)] = $this->ctrl->getLinkTarget($this, $this->builtExportOptionCommand($export_option));
         }
         if (count($infos) === 1) {
             $this->toolbar->addComponent($this->ui_services->factory()->button()->standard(
@@ -239,7 +224,7 @@ class ilExportGUI
             }
             $this->toolbar->addComponent(
                 $this->ui_services->factory()->dropdown()->standard($links)
-                ->withLabel($this->lng->txt("exp_export_dropdown"))
+                    ->withLabel($this->lng->txt("exp_export_dropdown"))
             );
         }
         $this->tpl->setContent($table->getHTML());
@@ -299,7 +284,7 @@ class ilExportGUI
         $eo->addOption(ilExportOptions::KEY_ROOT, 0, 0, $this->obj->getId());
         $items_selected = $eo->addOptions(
             $this->parent_gui->getObject()->getRefId(),
-            $this->objDefinition,
+            $this->obj_definition,
             $this->access,
             $this->tree->getSubTree($this->tree->getNodeData($this->parent_gui->getObject()->getRefId())),
             $this->initExportOptionsFromPost()
@@ -311,7 +296,7 @@ class ilExportGUI
             $export_option_id = (int) $info["type"];
             if (
                 $export_option_id === ilExportOptions::EXPORT_OMIT ||
-                !$this->objDefinition->allowExport(ilObject::_lookupType($ref_id, true)) ||
+                !$this->obj_definition->allowExport(ilObject::_lookupType($ref_id, true)) ||
                 !$this->access->checkAccess('write', '', $ref_id)
             ) {
                 continue;
