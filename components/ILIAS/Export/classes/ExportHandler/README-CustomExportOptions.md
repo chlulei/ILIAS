@@ -1,9 +1,9 @@
 ### Table of Contents
 - [Custom Export Options](#custom-export-options)
-- [Public Access](#public-access)
 - [Methods](#methods)
   - [Method getExportType](#method-getexporttype)
   - [Method getExportOptionId](#method-getexportoptionid)
+  - [Method publicAccessPossible](#method-publicaccesspossible)
   - [Method getLabel](#method-getlabel)
   - [Method onExportOptionSelected](#method-onexportoptionselected)
   - [Method onDeleteFiles](#method-ondeletefiles)
@@ -24,15 +24,6 @@ $export_gui = new ilExportGUI(...);
 $export_gui->addExportOption($my_export_option);
 ```
 
-### Public Access
-Public access is on default disabled for all export types except the standard xml export.
-Public access can be enabled and disabled by using a method of **ilExportGUI**:
-```php
-$export_gui = new ilExportGUI(...);
-$export_gui->enablePublicAccessForType($my_export_option->get);
-$export_gui->disablePublicAccessForType("");
-```
-
 ### Methods
 The inheriting classes need to define methods as described.
 
@@ -50,6 +41,17 @@ This method returns a unique identifier.
 The export option is addressed by using this identifier.
 For example _expxml_.
 If multiple export options share an identifier, than they cannot be displayed together in the export tab.
+
+#### Method publicAccessPossible:
+```php
+public function publicAccessPossible(
+    ilExportHandlerConsumerContextInterface $context
+): bool;
+```
+This method returns true if it is allowed to mark the files managed by the export option as public accessable and false otherwise.
+By default this setting is set to false.
+Files that are marked as public accessable can be accessed via download links and automaticaly harvested.
+The return value sould never be set to true if the export option manages files with private information.
 
 #### Method getLabel:
 ```php
