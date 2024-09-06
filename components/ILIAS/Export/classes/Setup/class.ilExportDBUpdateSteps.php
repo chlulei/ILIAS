@@ -77,7 +77,7 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
                 'default' => 0,
                 'notnull' => true
             ],
-            'type' => [
+            'export_option_id' => [
                 'type' => 'text',
                 'length' => 64,
                 'default' => '',
@@ -112,7 +112,7 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
                 'default' => 0,
                 'notnull' => true
             ],
-            'type' => [
+            'export_option_id' => [
                 'type' => 'text',
                 'length' => 64,
                 'default' => '',
@@ -123,7 +123,7 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
                 'notnull' => true
             ],
         ]);
-        $this->db->addPrimaryKey("export_pub_acc_types", ["object_id", "type"]);
+        $this->db->addPrimaryKey("export_pub_acc_types", ["object_id", "export_option_id"]);
     }
 
     /**
