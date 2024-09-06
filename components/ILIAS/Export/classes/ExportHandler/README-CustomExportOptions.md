@@ -1,9 +1,24 @@
+### Table of Contents
+- [Custom Export Options](#custom-export-options)
+- [Methods](#methods)
+  - [Method getExportType](#method-getexporttype)
+  - [Method getExportOptionId](#method-getexportoptionid)
+  - [Method getLabel](#method-getlabel)
+  - [Method onExportOptionSelected](#method-onexportoptionselected)
+  - [Method onDeleteFiles](#method-ondeletefiles)
+  - [Method onDownloadFiles](#method-ondownloadfiles)
+  - [Method getFiles](#method-getfiles)
+  - [Method getFileSelection](#method-getfileselection)
+- [Example implementation](#example-implementation)
+
 ### Custom Export Options
 The export allows for custom export options.
 Custom Export Options extend the class _ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler_:
 ```php
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilBasicExportOption;
 ```
+
+### Methods
 The inheriting classes need to define methods as described.
 
 #### Method getExportType:
@@ -95,7 +110,8 @@ public function getFileSelection(
 ```
 Similar to _getFiles_, but should only return the files that match the file identifiers supplied by _table_row_ids_.
 
-### Example implementation of the default xml export option:
+### Example implementation:
+Implementation of the default xml export option.
 ```php
 use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
