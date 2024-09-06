@@ -30,9 +30,7 @@ interface ilHandlerInterface
 
     public function getExportOptionId(): string;
 
-    public function publicAccessPossible(
-        ilExportHandlerConsumerContextInterface $context
-    ): bool;
+    public function publicAccessPossible(): bool;
 
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context

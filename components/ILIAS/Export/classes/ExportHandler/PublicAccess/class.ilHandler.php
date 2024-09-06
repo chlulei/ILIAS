@@ -61,7 +61,7 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
             return true;
         }
         $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
-        if (!$element->isStorable()) {
+        if (is_null($element)) {
             return false;
         }
         $this->updateCache(

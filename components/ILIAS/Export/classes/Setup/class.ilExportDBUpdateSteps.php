@@ -102,10 +102,10 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
      */
     public function step_3(): void
     {
-        if ($this->db->tableExists("export_pub_acc_types")) {
+        if ($this->db->tableExists("export_pa_restriction")) {
             return;
         }
-        $this->db->createTable("export_pub_acc_types", [
+        $this->db->createTable("export_pa_restriction", [
             'object_id' => [
                 'type' => 'integer',
                 'length' => 8,
@@ -118,12 +118,18 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
                 'default' => '',
                 'notnull' => true
             ],
+            'export_option_class' => [
+                'type' => 'text',
+                'length' => 64,
+                'default' => '',
+                'notnull' => true
+            ],
             'timestamp' => [
                 'type' => 'timestamp',
                 'notnull' => true
             ],
         ]);
-        $this->db->addPrimaryKey("export_pub_acc_types", ["object_id", "export_option_id"]);
+        $this->db->addPrimaryKey("export_pa_restriction", ["object_id", "export_option_id"]);
     }
 
     /**

@@ -20,14 +20,17 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
-use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 
 abstract class ilBasicHandler implements ilExportHandlerConsumerExportOptionInterface
 {
-    public function publicAccessPossible(
-        ilExportHandlerConsumerContextInterface $context
-    ): bool {
+    final public function __construct()
+    {
+
+    }
+
+    public function publicAccessPossible(): bool
+    {
         return false;
     }
 }

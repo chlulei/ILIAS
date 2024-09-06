@@ -26,13 +26,15 @@ use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\Repository\Element\ilH
 
 interface ilHandlerInterface
 {
-    public const TABLE_NAME = "export_pub_acc_types";
+    public const TABLE_NAME = "export_pa_restriction";
 
     public function addElement(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 
     public function removeElement(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 
     public function getElements(ObjectId $object_id): ilExportHandlerPublicAccessTypeRestrictionElementCollectionInterface;
+
+    public function getElement(ObjectId $objectId, string $export_option_id): ?ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface;
 
     public function hasElement(ilExportHandlerPublicAccessTypeRestrictionRepositoryElementInterface $element): bool;
 }

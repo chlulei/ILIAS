@@ -66,14 +66,14 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
         return true;
     }
 
-    public function getElement(ObjectId $object_id): ilExportHandlerPublicAccessRepositoryElementInterface
+    public function getElement(ObjectId $object_id): ?ilExportHandlerPublicAccessRepositoryElementInterface
     {
         $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
             . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER);
         $res = $this->db->query($query);
         $row = $res->fetchAssoc();
         if (is_null($row)) {
-            return $this->export_handler->publicAccess()->repository()->element()->handler();
+            return null;
         }
         $rcid = $this->irss->manageContainer()->find($row['identification']);
         return $this->export_handler->publicAccess()->repository()->element()->handler()
@@ -86,7 +86,7 @@ class ilHandler implements ilExportHandlerPublicAccessRepositoryInterface
     {
         $found_element = $this->getElement($element->getObjectId());
         return (
-            $found_element->isStorable() and
+            !is_null($found_element) and
             $found_element->getIdentification() === $element->getIdentification() and
             $found_element->getExportOptionId() === $element->getExportOptionId()
         );

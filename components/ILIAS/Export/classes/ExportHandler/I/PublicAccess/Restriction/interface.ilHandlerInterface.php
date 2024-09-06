@@ -24,9 +24,19 @@ use ILIAS\Data\ObjectId;
 
 interface ilHandlerInterface
 {
-    public function enablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool;
+    public function enablePublicAccessForExportOption(
+        ObjectId $object_id,
+        string $export_option_id,
+        string $export_option_class
+    ): bool;
 
-    public function disablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool;
+    public function disablePublicAccessForExportOption(
+        ObjectId $object_id,
+        string $export_option_id
+    ): bool;
 
-    public function isPublicAccessForExportOptionAllowed(ObjectId $object_id, string $export_option_id): bool;
+    public function isPublicAccessForExportOptionAllowed(
+        ObjectId $object_id,
+        string $export_option_id
+    ): bool;
 }

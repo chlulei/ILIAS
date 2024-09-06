@@ -53,9 +53,9 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
         $file_info = $this->export_handler->info()->file()->handler()
             ->withSplFileInfo($spl_file_info)
             ->withType($export_option->getExportType())
-            ->withPublicAccessPossible($export_option->publicAccessPossible($context));
+            ->withPublicAccessPossible($export_option->publicAccessPossible());
         return $file_info->withPublicAccessEnabled(
-            $export_option->publicAccessPossible($context) and
+            $export_option->publicAccessPossible() and
             $this->export_handler->publicAccess()->handler()->hasPublicAccessFile($object_id) and
             $this->export_handler->publicAccess()->handler()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
             $this->export_handler->publicAccess()->handler()->getPublicAccessFileIdentifier($object_id) === $file_info->getFileIdentifier()
@@ -71,9 +71,9 @@ class ilFactory implements ilExportHandlerConsumerFileFactoryInterface
         $file_info = $this->export_handler->info()->file()->handler()
             ->withResourceId($resource_id)
             ->withType($export_option->getExportType())
-            ->withPublicAccessPossible($export_option->publicAccessPossible($context));
+            ->withPublicAccessPossible($export_option->publicAccessPossible());
         return $file_info->withPublicAccessEnabled(
-            $export_option->publicAccessPossible($context) and
+            $export_option->publicAccessPossible() and
             $this->export_handler->publicAccess()->handler()->hasPublicAccessFile($object_id) and
             $this->export_handler->publicAccess()->handler()->getPublicAccessFileType($object_id) === $export_option->getExportOptionId() and
             $this->export_handler->publicAccess()->handler()->getPublicAccessFileIdentifier($object_id) === $file_info->getFileIdentifier()

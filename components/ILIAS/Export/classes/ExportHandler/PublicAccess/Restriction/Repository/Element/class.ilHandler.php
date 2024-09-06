@@ -29,6 +29,7 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryEleme
     protected ObjectId $object_id;
     protected DateTimeImmutable $last_modified;
     protected string $export_option_id;
+    protected string $export_option_class;
 
     public function __clone(): void
     {
@@ -49,6 +50,13 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryEleme
         return $clone;
     }
 
+    public function withExportOptionClass(string $class): ilExportHandlerPublicAccessRestrictionRepositoryElementInterface
+    {
+        $clone = clone $this;
+        $clone->export_option_class = $class;
+        return $clone;
+    }
+
     public function getObjectId(): ObjectId
     {
         return $this->object_id;
@@ -59,6 +67,11 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryEleme
         return $this->export_option_id;
     }
 
+    public function getExportOptionClass(): string
+    {
+        return $this->export_option_class;
+    }
+
     public function getLastModified(): DateTimeImmutable
     {
         return $this->last_modified;
@@ -66,6 +79,6 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryEleme
 
     public function isStorable(): bool
     {
-        return isset($this->object_id) and isset($this->export_option_id) and isset($this->last_modified);
+        return isset($this->object_id) and isset($this->export_option_id) and isset($this->export_option_class) and isset($this->last_modified);
     }
 }

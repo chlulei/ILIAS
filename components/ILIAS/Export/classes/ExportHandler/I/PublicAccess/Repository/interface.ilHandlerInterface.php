@@ -28,7 +28,7 @@ interface ilHandlerInterface
 {
     public function storeElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool;
 
-    public function getElement(ObjectId $object_id): ilExportHandlerPublicAccessRepositoryElementInterface;
+    public function getElement(ObjectId $object_id): ?ilExportHandlerPublicAccessRepositoryElementInterface;
 
     public function hasElement(ilExportHandlerPublicAccessRepositoryElementInterface $element): bool;
 

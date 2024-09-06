@@ -36,13 +36,17 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionInterface
         $this->cache = [];
     }
 
-    public function enablePublicAccessForExportOption(ObjectId $object_id, string $export_option_id): bool
-    {
+    public function enablePublicAccessForExportOption(
+        ObjectId $object_id,
+        string $export_option_id,
+        string $export_option_class
+    ): bool {
         $repository = $this->export_handler->publicAccess()->restriction()->repository();
         $success = $repository->handler()->addElement(
             $repository->element()->handler()
                 ->withObjectId($object_id)
                 ->withExportOptionId($export_option_id)
+                ->withExportOptionClass($export_option_class)
         );
         if ($success) {
             $this->updateCache(

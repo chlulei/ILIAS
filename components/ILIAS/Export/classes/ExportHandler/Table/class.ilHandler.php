@@ -228,7 +228,7 @@ class ilHandler implements ilExportHandlerTableInterface
                     continue;
                 }
                 if (
-                    !$export_option->publicAccessPossible($this->context) or
+                    !$export_option->publicAccessPossible() or
                     !$file_info->getPublicAccessPossible() or
                     !$type_allowed
                 ) {

@@ -18,8 +18,6 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
-
 use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
@@ -27,13 +25,15 @@ use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInt
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
-class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
+class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
 {
     protected ilExportHandlerFactoryInterface $export_handler;
 
-    public function __construct(ilExportHandlerFactoryInterface $export_handler)
+    public function withExportHandler(ilExportHandlerFactoryInterface $export_handler): ilExportXMLExportOption
     {
-        $this->export_handler = $export_handler;
+        $clone = clone $this;
+        $clone->export_handler = $export_handler;
+        return $clone;
     }
 
     public function getExportType(): string
@@ -46,9 +46,8 @@ class ilXMLRepoHandler extends ilExportHandlerConsumerBasicExportOption
         return "expxml";
     }
 
-    public function publicAccessPossible(
-        ilExportHandlerConsumerContextInterface $context,
-    ): bool {
+    public function publicAccessPossible(): bool
+    {
         return true;
     }
 

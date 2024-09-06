@@ -49,10 +49,12 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryInter
         $query = "INSERT INTO " . $this->db->quoteIdentifier(self::TABLE_NAME) . " VALUES"
             . " (" . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
             . ", " . $this->db->quote($element->getExportOptionId(), ilDBConstants::T_TEXT)
+            . ", " . $this->db->quote($element->getExportOptionClass(), ilDBConstants::T_TEXT)
             . ", " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP)
             . ") ON DUPLICATE KEY UPDATE"
             . " object_id = " . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
             . ", export_option_id = " . $this->db->quote($element->getExportOptionId(), ilDBConstants::T_TEXT)
+            . ", export_option_class = " . $this->db->quote($element->getExportOptionClass(), ilDBConstants::T_TEXT)
             . ", timestamp = " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP);
         $this->db->manipulate($query);
         return true;
@@ -81,9 +83,22 @@ class ilHandler implements ilExportHandlerPublicAccessRestrictionRepositoryInter
                 $this->export_handler->publicAccess()->restriction()->repository()->element()->handler()
                     ->withObjectId(new ObjectId((int) $row['object_id']))
                     ->withExportOptionId($row['export_option_id'])
+                    ->withExportOptionClass($row['export_option_class'])
             );
         }
         return $collection;
+    }
+
+    public function getElement(
+        ObjectId $objectId,
+        string $export_option_id
+    ): ?ilExportHandlerPublicAccessRestrictionRepositoryElementInterface {
+        foreach ($this->getElements($objectId) as $element) {
+            if ($element->getExportOptionId() === $export_option_id) {
+                return $element;
+            }
+        }
+        return null;
     }
 
     public function hasElement(ilExportHandlerPublicAccessRestrictionRepositoryElementInterface $element): bool

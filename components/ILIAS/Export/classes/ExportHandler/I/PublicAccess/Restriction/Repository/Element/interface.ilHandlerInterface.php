@@ -29,9 +29,13 @@ interface ilHandlerInterface
 
     public function withExportOptionId(string $type): ilHandlerInterface;
 
+    public function withExportOptionClass(string $class): ilHandlerInterface;
+
     public function getObjectId(): ObjectId;
 
     public function getExportOptionId(): string;
+
+    public function getExportOptionClass(): string;
 
     public function getLastModified(): DateTimeImmutable;
 
