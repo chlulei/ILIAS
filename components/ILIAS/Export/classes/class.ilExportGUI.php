@@ -119,20 +119,7 @@ class ilExportGUI
 
     public function addExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): void
     {
-        $this->export_options = $this->export_options->withExportOption($export_option);
-        if ($export_option->publicAccessPossible()) {
-            $this->export_handler->publicAccess()->restriction()->handler()->enablePublicAccessForExportOption(
-                new ObjectId($this->obj->getId()),
-                $export_option->getExportOptionId(),
-                $export_option::class
-            );
-        }
-        if (!$export_option->publicAccessPossible()) {
-            $this->export_handler->publicAccess()->restriction()->handler()->disablePublicAccessForExportOption(
-                new ObjectId($this->obj->getId()),
-                $export_option->getExportOptionId()
-            );
-        }
+        $this->export_options = $this->export_options->withElement($export_option);
     }
 
     /**

@@ -20,9 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
+use ilExportBuildExportOptionsMapObjective;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilCollection as ilExportHandlerConsumerExportOptionCollection;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilFactoryInterface as ilExportHandlerConsumerExportOptionFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 
 class ilFactory implements ilExportHandlerConsumerExportOptionFactoryInterface
@@ -38,5 +40,17 @@ class ilFactory implements ilExportHandlerConsumerExportOptionFactoryInterface
     public function collection(): ilExportHandlerConsumerExportOptionCollectionInterface
     {
         return new ilExportHandlerConsumerExportOptionCollection($this->export_handler);
+    }
+
+    public function implementingClasses(): ilExportHandlerConsumerExportOptionCollectionInterface
+    {
+        $collection = $this->collection();
+        $class_names = include ilExportBuildExportOptionsMapObjective::PATH();
+        foreach ($class_names as $class_name) {
+            /** @var ilExportHandlerConsumerExportOptionInterface $export_option */
+            $export_option = new ($class_name)();
+            $collection = $collection->withElement($export_option);
+        }
+        return $collection;
     }
 }

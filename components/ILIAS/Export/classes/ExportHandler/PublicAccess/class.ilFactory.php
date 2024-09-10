@@ -26,11 +26,9 @@ use ILIAS\Export\ExportHandler\I\PublicAccess\ilFactoryInterface as ilExportHand
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Link\ilFactoryInterface as ilExportHandlerPublicAccessLinkFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\Repository\ilFactoryInterface as ilExportHandlerPublicAccessRepositoryFactoryInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilFactoryInterface as ilExportHandlerPublicAccessRestrictionFactoryInterface;
 use ILIAS\Export\ExportHandler\PublicAccess\ilHandler as ilExportHandlerPublicAccess;
 use ILIAS\Export\ExportHandler\PublicAccess\Link\ilFactory as ilExportHandlerPublicAccessLinkFactory;
 use ILIAS\Export\ExportHandler\PublicAccess\Repository\ilFactory as ilExportHandlerPublicAccessRepositoryFactory;
-use ILIAS\Export\ExportHandler\PublicAccess\Restriction\ilFactory as ilExportHandlerPublicAccessRestrictionFactory;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 use ILIAS\StaticURL\Services as StaticUrl;
 
@@ -66,10 +64,5 @@ class ilFactory implements ilExportHandlerPublicAccessFactoryInterface
     public function repository(): ilExportHandlerPublicAccessRepositoryFactoryInterface
     {
         return new ilExportHandlerPublicAccessRepositoryFactory($this->export_handler, $this->irss, $this->db);
-    }
-
-    public function restriction(): ilExportHandlerPublicAccessRestrictionFactoryInterface
-    {
-        return new ilExportHandlerPublicAccessRestrictionFactory($this->export_handler, $this->db);
     }
 }

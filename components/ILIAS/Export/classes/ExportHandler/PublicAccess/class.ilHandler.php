@@ -24,7 +24,6 @@ use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\PublicAccess\ilHandlerInterface as ilExportHandlerPublicAccessInterface;
-use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
 
 class ilHandler implements ilExportHandlerPublicAccessInterface
 {
@@ -117,11 +116,6 @@ class ilHandler implements ilExportHandlerPublicAccessInterface
         ) {
             $this->removeCache($object_id);
         }
-    }
-
-    public function restriction(): ilExportHandlerPublicAccessRestrictionInterface
-    {
-        return $this->export_handler->publicAccess()->restriction()->handler();
     }
 
     protected function updateCache(

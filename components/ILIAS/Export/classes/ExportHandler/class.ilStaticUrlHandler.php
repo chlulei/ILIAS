@@ -53,14 +53,17 @@ class ilStaticUrlHandler
         $operation = $request->getAdditionalParameters()[0] ?? "";
         $object_id = $ref_id->toObjectId();
         $access_granted = false;
-        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
         $pa_possible = false;
-        if (!is_null($element)) {
-            $restriction = $this->export_handler->publicAccess()->restriction()->repository()->handler()->getElement(
-                $object_id,
-                $element->getExportOptionId()
-            );
-            $pa_possible = (new ($restriction->getExportOptionClass())())->publicAccessPossible();
+        $export_options = $this->export_handler->consumer()->exportOption()->implementingClasses();
+        $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
+        foreach ($export_options as $export_option) {
+            if (
+                !is_null($element) and
+                $export_option->getExportOptionId() === $element->getExportOptionId()
+            ) {
+                $pa_possible = $export_option->publicAccessPossible();
+                break;
+            }
         }
         if ($context->isUserLoggedIn() and $context->checkPermission("read", $ref_id->toInt())) {
             $access_granted = true;
@@ -71,7 +74,6 @@ class ilStaticUrlHandler
         if (!$pa_possible or !$access_granted or $operation !== self::DOWNLOAD) {
             return $response_factory->can($context->ctrl()->getLinkTargetByClass(ilDashboardGUI::class));
         }
-        $element->download();
         return $response_factory->cannot();
     }
 }

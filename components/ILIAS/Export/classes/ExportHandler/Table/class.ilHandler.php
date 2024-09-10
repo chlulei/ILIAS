@@ -211,7 +211,6 @@ class ilHandler implements ilExportHandlerTableInterface
      */
     protected function markAsPublicAccess(array $ids_sorted): void
     {
-        $pat_restriction = $this->export_handler->publicAccess()->restriction()->handler();
         $pa_repository = $this->export_handler->publicAccess()->repository()->handler();
         $pa_repository_element_factory = $this->export_handler->publicAccess()->repository()->element();
         $obj_id = new ObjectId($this->context->exportObject()->getId());

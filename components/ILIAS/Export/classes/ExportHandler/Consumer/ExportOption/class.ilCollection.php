@@ -41,10 +41,10 @@ class ilCollection implements ilExportHandlerConsumerExportOptionCollectionInter
         $this->export_handler = $export_handler;
     }
 
-    public function withExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): ilExportHandlerConsumerExportOptionCollectionInterface
+    public function withElement(ilExportHandlerConsumerExportOptionInterface $element): ilExportHandlerConsumerExportOptionCollectionInterface
     {
         $clone = clone $this;
-        $clone->elements[] = $export_option;
+        $clone->elements[] = $element;
         return $clone;
     }
 

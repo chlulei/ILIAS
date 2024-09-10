@@ -25,4 +25,6 @@ use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as 
 interface ilFactoryInterface
 {
     public function collection(): ilExportHandlerConsumerExportOptionCollectionInterface;
+
+    public function implementingClasses(): ilExportHandlerConsumerExportOptionCollectionInterface;
 }

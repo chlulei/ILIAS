@@ -26,7 +26,7 @@ use Iterator;
 
 interface ilCollectionInterface extends Iterator, Countable
 {
-    public function withExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): ilCollectionInterface;
+    public function withElement(ilExportHandlerConsumerExportOptionInterface $element): ilCollectionInterface;
 
     public function getById(string $id): ?ilExportHandlerConsumerExportOptionInterface;
 

@@ -22,7 +22,6 @@ namespace ILIAS\Export\ExportHandler\I\PublicAccess;
 
 use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
-use ILIAS\Export\ExportHandler\I\PublicAccess\Restriction\ilHandlerInterface as ilExportHandlerPublicAccessRestrictionInterface;
 
 interface ilHandlerInterface
 {
@@ -51,6 +50,4 @@ interface ilHandlerInterface
     public function downloadLinkOfPublicAccessFile(
         ReferenceId $reference_id
     ): string;
-
-    public function restriction(): ilExportHandlerPublicAccessRestrictionInterface;
 }

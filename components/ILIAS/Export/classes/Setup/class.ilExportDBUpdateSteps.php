@@ -118,12 +118,6 @@ class ilExportDBUpdateSteps implements ilDatabaseUpdateSteps
                 'default' => '',
                 'notnull' => true
             ],
-            'export_option_class' => [
-                'type' => 'text',
-                'length' => 64,
-                'default' => '',
-                'notnull' => true
-            ],
             'timestamp' => [
                 'type' => 'timestamp',
                 'notnull' => true

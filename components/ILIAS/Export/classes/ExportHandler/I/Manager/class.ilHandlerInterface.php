@@ -29,7 +29,6 @@ interface ilHandlerInterface
 {
     public function createContainerExport(
         int $user_id,
-        #int $timestamp,
         ilExportHandlerContainerExportInfoInterface $container_export_info
     ): ilExportHandlerRepositoryElementInterface;
 
