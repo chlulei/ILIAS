@@ -20,14 +20,19 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
 
+use ILIAS\Data\ObjectId;
+use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
 abstract class ilBasicHandler implements ilExportHandlerConsumerExportOptionInterface
 {
     final public function __construct()
     {
-
+        $this->init();
     }
+
+    abstract protected function init();
 
     public function publicAccessPossible(): bool
     {

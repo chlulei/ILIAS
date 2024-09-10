@@ -20,9 +20,13 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
+use ILIAS\Data\ObjectId;
+use ILIAS\Data\ReferenceId;
+use ILIAS\StaticURL\Context as ilStaticURLContext;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
 
 interface ilHandlerInterface
 {
@@ -48,6 +52,11 @@ interface ilHandlerInterface
     public function onDownloadFiles(
         ilExportHandlerConsumerContextInterface $context,
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
+    ): void;
+
+    public function onDownloadWithLink(
+        ReferenceId $reference_id,
+        ilExportHandlerTableRowIdInterface $table_row_id
     ): void;
 
     public function getFiles(

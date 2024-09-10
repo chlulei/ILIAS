@@ -24,10 +24,14 @@ use ilExport;
 use ilExportFileInfo;
 use ilFileDelivery;
 use ilFileUtils;
+use ILIAS\Data\ObjectId;
+use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
+use ilObject;
 use SplFileInfo;
 
 abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOption
@@ -80,6 +84,25 @@ abstract class ilBasicLegacyHandler extends ilExportHandlerConsumerBasicExportOp
                 $file[1]
             );
         }
+    }
+
+    public function onDownloadWithLink(
+        ReferenceId $reference_id,
+        ilExportHandlerTableRowIdInterface $table_row_id
+    ): void {
+        $object_id = $reference_id->toObjectId()->toInt();
+        $type = ilObject::_lookupType($object_id);
+        $file = explode(":", trim($table_row_id->getCompositId()));
+        $export_dir = ilExport::_getExportDirectory(
+            $object_id,
+            str_replace("..", "", $file[0]),
+            $type
+        );
+        $file[1] = basename($file[1]);
+        ilFileDelivery::deliverFileLegacy(
+            $export_dir . "/" . $file[1],
+            $file[1]
+        );
     }
 
     public function getFileSelection(

@@ -42,7 +42,7 @@ class ilFactory implements ilExportHandlerConsumerExportOptionFactoryInterface
         return new ilExportHandlerConsumerExportOptionCollection($this->export_handler);
     }
 
-    public function implementingClasses(): ilExportHandlerConsumerExportOptionCollectionInterface
+    public function allExportOptions(): ilExportHandlerConsumerExportOptionCollectionInterface
     {
         $collection = $this->collection();
         $class_names = include ilExportBuildExportOptionsMapObjective::PATH();
@@ -52,5 +52,16 @@ class ilFactory implements ilExportHandlerConsumerExportOptionFactoryInterface
             $collection = $collection->withElement($export_option);
         }
         return $collection;
+    }
+
+    public function exportOptionWithId(
+        string $export_option_id
+    ): ?ilExportHandlerConsumerExportOptionInterface {
+        foreach ($this->allExportOptions() as $export_option) {
+            if ($export_option->getExportOptionId() === $export_option_id) {
+                return $export_option;
+            }
+        }
+        return null;
     }
 }

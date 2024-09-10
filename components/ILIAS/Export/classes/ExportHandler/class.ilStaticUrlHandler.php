@@ -54,26 +54,29 @@ class ilStaticUrlHandler
         $object_id = $ref_id->toObjectId();
         $access_granted = false;
         $pa_possible = false;
-        $export_options = $this->export_handler->consumer()->exportOption()->implementingClasses();
         $element = $this->export_handler->publicAccess()->repository()->handler()->getElement($object_id);
-        foreach ($export_options as $export_option) {
-            if (
-                !is_null($element) and
-                $export_option->getExportOptionId() === $element->getExportOptionId()
-            ) {
-                $pa_possible = $export_option->publicAccessPossible();
-                break;
-            }
-        }
+        $export_option = $this->export_handler->consumer()->exportOption()->exportOptionWithId($element->getExportOptionId() ?? "");
         if ($context->isUserLoggedIn() and $context->checkPermission("read", $ref_id->toInt())) {
             $access_granted = true;
         }
         if ($context->getUserId() === ANONYMOUS_USER_ID and $context->isPublicSectionActive()) {
             $access_granted = true;
         }
-        if (!$pa_possible or !$access_granted or $operation !== self::DOWNLOAD) {
+        if (
+            is_null($element) or
+            is_null($export_option) or
+            !$export_option->publicAccessPossible() or
+            !$access_granted or
+            $operation !== self::DOWNLOAD
+        ) {
             return $response_factory->can($context->ctrl()->getLinkTargetByClass(ilDashboardGUI::class));
         }
+        $export_option->onDownloadWithLink(
+            $ref_id,
+            $this->export_handler->table()->rowId()->handler()
+            ->withExportOptionId($export_option->getExportOptionId())
+            ->withFileIdentifier($element->getIdentification())
+        );
         return $response_factory->cannot();
     }
 }

@@ -21,10 +21,15 @@ declare(strict_types=1);
 namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
 use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilCollectionInterface as ilExportHandlerConsumerExportOptionCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
 
 interface ilFactoryInterface
 {
     public function collection(): ilExportHandlerConsumerExportOptionCollectionInterface;
 
-    public function implementingClasses(): ilExportHandlerConsumerExportOptionCollectionInterface;
+    public function allExportOptions(): ilExportHandlerConsumerExportOptionCollectionInterface;
+
+    public function exportOptionWithId(
+        string $export_option_id
+    ): ?ilExportHandlerConsumerExportOptionInterface;
 }

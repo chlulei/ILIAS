@@ -186,7 +186,7 @@ class ilExportGUI
 
     protected function enableStandardXMLExport(): void
     {
-        $this->addExportOption((new ilExportXMLExportOption())->withExportHandler($this->export_handler));
+        $this->addExportOption(new ilExportXMLExportOption());
     }
 
     protected function displayExportFiles(): void

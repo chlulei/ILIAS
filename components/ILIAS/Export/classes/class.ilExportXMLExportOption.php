@@ -19,9 +19,13 @@
 declare(strict_types=1);
 
 use ILIAS\Data\ObjectId;
+use ILIAS\Data\ReferenceId;
+use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
+use ILIAS\StaticURL\Context as ilStaticURLContext;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
+use ILIAS\Export\ExportHandler\ilFactory as ilExportHandlerFactory;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
 
@@ -29,11 +33,9 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
 {
     protected ilExportHandlerFactoryInterface $export_handler;
 
-    public function withExportHandler(ilExportHandlerFactoryInterface $export_handler): ilExportXMLExportOption
+    protected function init()
     {
-        $clone = clone $this;
-        $clone->export_handler = $export_handler;
-        return $clone;
+        $this->export_handler = new ilExportHandlerFactory();
     }
 
     public function getExportType(): string
@@ -79,7 +81,24 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
-        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$table_row_ids->fileIdentifiers());
+        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
+            $object_id,
+            ...$table_row_ids->fileIdentifiers()
+        );
+        foreach ($elements as $element) {
+            $element->download();
+        }
+    }
+
+    public function onDownloadWithLink(
+        ReferenceId $reference_id,
+        ilExportHandlerTableRowIdInterface $table_row_id
+    ): void {
+        $object_id = $reference_id->toObjectId();
+        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
+            $object_id,
+            $table_row_id->getFileIdentifier()
+        );
         foreach ($elements as $element) {
             $element->download();
         }

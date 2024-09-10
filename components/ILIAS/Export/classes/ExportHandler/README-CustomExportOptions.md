@@ -8,6 +8,7 @@
   - [Method onExportOptionSelected](#method-onexportoptionselected)
   - [Method onDeleteFiles](#method-ondeletefiles)
   - [Method onDownloadFiles](#method-ondownloadfiles)
+  - [Method onDownloadWithLink]()
   - [Method getFiles](#method-getfiles)
   - [Method getFileSelection](#method-getfileselection)
 - [Example implementation](#example-implementation)
@@ -103,6 +104,17 @@ public function onDownloadFiles(
 ): void;
 ```
 This method implements the download of files that match the file identifiers provieded _table_row_ids_. 
+
+
+#### Method onDownloadWithLink:
+```php
+    public function onDownloadWithLink(
+        ReferenceId $reference_id,
+        ilExportHandlerTableRowIdInterface $table_row_id
+    ): void;
+```
+This method implements the download of files that match the file identifier provieded by _table_row_id_.
+It is called if a resource is accessed with a download link.
 
 #### Method getFiles:
 ```php
