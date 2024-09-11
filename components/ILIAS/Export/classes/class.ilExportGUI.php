@@ -188,7 +188,7 @@ class ilExportGUI
     {
         $export_options = $this->export_handler->consumer()->exportOption()->allExportOptions();
         foreach ($export_options as $export_option) {
-            if (in_array($this->obj->getType(), $export_option->getSupportedTRepositoryObjectTypes())) {
+            if (in_array($this->obj->getType(), $export_option->getSupportedRepositoryObjectTypes())) {
                 $this->export_options = $this->export_options->withElement($export_option);
             }
         }

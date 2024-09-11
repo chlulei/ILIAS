@@ -34,7 +34,7 @@ interface ilHandlerInterface
 
     public function getExportOptionId(): string;
 
-    public function getSupportedTRepositoryObjectTypes(): array;
+    public function getSupportedRepositoryObjectTypes(): array;
 
     public function isPublicAccessPossible(): bool;
 

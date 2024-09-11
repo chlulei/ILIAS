@@ -4,7 +4,7 @@
   - [Method init](#method-init)
   - [Method getExportType](#method-getexporttype)
   - [Method getExportOptionId](#method-getexportoptionid)
-  - [Method getSupportedTRepositoryObjectTypes](#method-getsupportedtrepositoryobjecttypes)
+  - [Method getSupportedRepositoryObjectTypes](#method-getsupportedrepositoryobjecttypes)
   - [Method isPublicAccessPossible](#method-ispublicaccesspossible)
   - [Method getLabel](#method-getlabel)
   - [Method onExportOptionSelected](#method-onexportoptionselected)
@@ -46,9 +46,9 @@ The export option is addressed by using this identifier.
 For example _expxml_.
 If multiple export options share an identifier, than they cannot be displayed together in the export tab.
 
-#### Method getSupportedTRepositoryObjectTypes:
+#### Method getSupportedRepositoryObjectTypes:
 ```php
-public function getSupportedTRepositoryObjectTypes(): array
+public function getSupportedRepositoryObjectTypes(): array
 ```
 This method returns an array of repository object types, for example \['crs', 'grp'].
 The returned array is used to determine in wich export tab the export option is displayed.
