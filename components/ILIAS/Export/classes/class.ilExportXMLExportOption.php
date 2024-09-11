@@ -48,7 +48,12 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         return "expxml";
     }
 
-    public function publicAccessPossible(): bool
+    public function getSupportedTypes(): array
+    {
+        return ['crs'];
+    }
+
+    public function isPublicAccessPossible(): bool
     {
         return true;
     }

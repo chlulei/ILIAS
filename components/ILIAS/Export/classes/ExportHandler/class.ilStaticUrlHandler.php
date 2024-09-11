@@ -65,7 +65,7 @@ class ilStaticUrlHandler
         if (
             is_null($element) or
             is_null($export_option) or
-            !$export_option->publicAccessPossible() or
+            !$export_option->isPublicAccessPossible() or
             !$access_granted or
             $operation !== self::DOWNLOAD
         ) {
@@ -74,8 +74,8 @@ class ilStaticUrlHandler
         $export_option->onDownloadWithLink(
             $ref_id,
             $this->export_handler->table()->rowId()->handler()
-            ->withExportOptionId($export_option->getExportOptionId())
-            ->withFileIdentifier($element->getIdentification())
+                ->withExportOptionId($export_option->getExportOptionId())
+                ->withFileIdentifier($element->getIdentification())
         );
         return $response_factory->cannot();
     }

@@ -34,7 +34,7 @@ abstract class ilBasicHandler implements ilExportHandlerConsumerExportOptionInte
 
     abstract protected function init();
 
-    public function publicAccessPossible(): bool
+    public function isPublicAccessPossible(): bool
     {
         return false;
     }

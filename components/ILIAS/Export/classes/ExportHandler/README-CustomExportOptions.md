@@ -20,11 +20,6 @@ Custom Export Options extend the class _ILIAS\Export\ExportHandler\Consumer\Expo
 ```php
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilBasicExportOption;
 ```
-Custom export options need to be added to the **ilExportGUI**:
-```php
-$export_gui = new ilExportGUI(...);
-$export_gui->addExportOption($my_export_option);
-```
 
 ### Methods
 The inheriting classes need to define methods as described.
@@ -50,9 +45,17 @@ The export option is addressed by using this identifier.
 For example _expxml_.
 If multiple export options share an identifier, than they cannot be displayed together in the export tab.
 
-#### Method publicAccessPossible:
+#### Method getSupportedTypes:
 ```php
-public function publicAccessPossible(
+public function getSupportedTypes(): array;
+```
+This method returns an array of repository object types, for example \['crs', 'grp'].
+The returned array is used to determine in wich export tab the export option is displayed.
+The export option is displayed in the export tab of each repository objects that matches one of the types. 
+
+#### Method isPublicAccessPossible:
+```php
+public function isPublicAccessPossible(
     ilExportHandlerConsumerContextInterface $context
 ): bool;
 ```

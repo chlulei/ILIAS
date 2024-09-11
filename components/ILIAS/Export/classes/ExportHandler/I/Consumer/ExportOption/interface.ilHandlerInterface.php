@@ -34,7 +34,9 @@ interface ilHandlerInterface
 
     public function getExportOptionId(): string;
 
-    public function publicAccessPossible(): bool;
+    public function getSupportedTypes(): array;
+
+    public function isPublicAccessPossible(): bool;
 
     public function getLabel(
         ilExportHandlerConsumerContextInterface $context

@@ -216,7 +216,7 @@ class ilHandler implements ilExportHandlerTableInterface
         $obj_id = new ObjectId($this->context->exportObject()->getId());
         foreach ($ids_sorted as $export_option_id => $table_row_ids) {
             $export_option = $this->export_options->getById($export_option_id);
-            $type_allowed = $export_option->publicAccessPossible();
+            $type_allowed = $export_option->isPublicAccessPossible();
             foreach ($export_option->getFileSelection($this->context, $table_row_ids) as $file_info) {
                 $element = $pa_repository_element_factory->handler()
                     ->withIdentification($file_info->getFileIdentifier())
@@ -227,7 +227,7 @@ class ilHandler implements ilExportHandlerTableInterface
                     continue;
                 }
                 if (
-                    !$export_option->publicAccessPossible() or
+                    !$export_option->isPublicAccessPossible() or
                     !$file_info->getPublicAccessPossible() or
                     !$type_allowed
                 ) {

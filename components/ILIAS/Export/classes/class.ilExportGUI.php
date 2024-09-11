@@ -78,7 +78,7 @@ class ilExportGUI
         $this->export_handler = new ilExportHandler();
         $this->context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
         $this->export_options = $this->export_handler->consumer()->exportOption()->collection();
-        $this->enableStandardXMLExport();
+        $this->initExportOptions();
     }
 
     public function executeCommand(): void
@@ -115,11 +115,6 @@ class ilExportGUI
                 $this->saveItemSelection();
                 break;
         }
-    }
-
-    public function addExportOption(ilExportHandlerConsumerExportOptionInterface $export_option): void
-    {
-        $this->export_options = $this->export_options->withElement($export_option);
     }
 
     /**
@@ -186,11 +181,24 @@ class ilExportGUI
 
     protected function enableStandardXMLExport(): void
     {
-        $this->addExportOption(new ilExportXMLExportOption());
+        $this->export_options = $this->export_options->withElement(new ilExportXMLExportOption());
+    }
+
+    protected function initExportOptions(): void
+    {
+        $export_options = $this->export_handler->consumer()->exportOption()->allExportOptions();
+        foreach ($export_options as $export_option) {
+            if (in_array($this->obj->getType(), $export_option->getSupportedTypes())) {
+                $this->export_options = $this->export_options->withElement($export_option);
+            }
+        }
     }
 
     protected function displayExportFiles(): void
     {
+        if ($this->export_options->count() === 0) {
+            return;
+        }
         $table = $this->export_handler->table()->handler()
             ->withExportOptions($this->export_options)
             ->withContext($this->context);
