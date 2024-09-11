@@ -20,60 +20,34 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\Repository;
 
-use ilDBConstants;
-use ilDBInterface;
-use ilFileUtils;
 use ILIAS\Data\ObjectId;
-use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Element\ilFactoryInterface as ilExportHandlerRepositoryElementFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
-use ILIAS\Filesystem\Filesystems;
-use ILIAS\Filesystem\Stream\Streams;
-use ILIAS\Filesystem\Util\Archive\Zip;
-use ILIAS\Filesystem\Util\Archive\ZipOptions;
-use ILIAS\ResourceStorage\Identification\ResourceIdentification;
-use ILIAS\ResourceStorage\Services as ResourcesStorageService;
-use SplFileInfo;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilCollectionInterface as ilExportHandlerRepositoryKeyCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilFactoryInterface as ilExportHandlerRepositoryKeyFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\DB\ilHandlerInterface as ilExportHandlerRepositoryDBWrapperInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\IRSS\ilHandlerInterface as ilExportHandlerRepositoryIRSSWrapperInterface;
 
 class ilHandler implements ilExportHandlerRepositoryInterface
 {
-    protected ilDBInterface $db;
-    protected ilExportHandlerFactoryInterface $export_handler;
-    protected ResourcesStorageService $irss;
-    protected Filesystems $filesystems;
+    protected ilExportHandlerRepositoryKeyFactoryInterface $key_factory;
+    protected ilExportHandlerRepositoryElementFactoryInterface $element_factory;
+    protected ilExportHandlerRepositoryDBWrapperInterface $db_wrapper;
+    protected ilExportHandlerRepositoryIRSSWrapperInterface $irss_wrapper;
 
     public function __construct(
-        ResourcesStorageService $irss,
-        ilDBInterface $db,
-        ilExportHandlerFactoryInterface $export_handler,
-        Filesystems $filesystems
+        ilExportHandlerRepositoryKeyFactoryInterface $key_factory,
+        ilExportHandlerRepositoryElementFactoryInterface $element_factory,
+        ilExportHandlerRepositoryDBWrapperInterface $db_wrapper,
+        ilExportHandlerRepositoryIRSSWrapperInterface $irss_wrapper
     ) {
-        $this->irss = $irss;
-        $this->db = $db;
-        $this->export_handler = $export_handler;
-        $this->filesystems = $filesystems;
-    }
-
-    protected function createEmptyContainer(
-        ilExportHandlerExportInfoInterface $info,
-        ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
-    ): ResourceIdentification {
-        $tmp_dir_info = new SplFileInfo(ilFileUtils::ilTempnam());
-        $this->filesystems->temp()->createDir($tmp_dir_info->getFilename());
-        $export_dir = $tmp_dir_info->getRealPath();
-        $options = (new ZipOptions())
-            ->withZipOutputName($info->getZipFileName())
-            ->withZipOutputPath($export_dir);
-        $zip = new Zip(
-            $options,
-        );
-        $zip->addStream(Streams::ofString(self::TMP_FILE_CONTENT), self::TMP_FILE_PATH);
-        $rid = $this->irss->manageContainer()->containerFromStream($zip->get(), $stakeholder->asAbstractResourceStakeholder());
-        ilFileUtils::delDir($export_dir);
-        return $rid;
+        $this->element_factory = $element_factory;
+        $this->db_wrapper = $db_wrapper;
+        $this->irss_wrapper = $irss_wrapper;
     }
 
     public function createElement(
@@ -81,132 +55,37 @@ class ilHandler implements ilExportHandlerRepositoryInterface
         ilExportHandlerExportInfoInterface $info,
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
     ): ilExportHandlerRepositoryElementInterface {
-        $element = $this->export_handler->repository()->element()->handler()
+        $element = $this->element_factory->handler()
             ->withObjectId($object_id)
-            ->withResourceId($this->createEmptyContainer($info, $stakeholder))
-            ->withStakeholder($stakeholder);
+            ->withResourceIdSerialized($this->irss_wrapper->createEmptyContainer($info, $stakeholder)->serialize())
+            ->withOwnerId($stakeholder->getOwnerId());
         $this->storeElement($element);
         return $element;
     }
 
-    public function storeElement(ilExportHandlerRepositoryElementInterface $element): bool
+    public function storeElement(ilExportHandlerRepositoryElementInterface $element): void
     {
-        if (!$element->isStorable()) {
-            return false;
+        if ($element->isStorable()) {
+            $this->db_wrapper->store($element);
         }
-        $query = "INSERT INTO " . $this->db->quoteIdentifier(self::TABLE_NAME) . " VALUES"
-            . " (" . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
-            . ", " . $this->db->quote($element->getResourceId(), ilDBConstants::T_TEXT)
-            . ", " . $this->db->quote($element->getStakeholder()->getOwnerId(), ilDBConstants::T_INTEGER)
-            . ", " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP)
-            . ") ON DUPLICATE KEY UPDATE"
-            . " object_id = " . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
-            . ", rid = " . $this->db->quote($element->getResourceId(), ilDBConstants::T_TEXT)
-            . ", owner_id = " . $this->db->quote($element->getStakeholder()->getOwnerId(), ilDBConstants::T_INTEGER)
-            . ", timestamp = " . $this->db->quote($element->getLastModified()->format("Y-m-d-H-i-s"), ilDBConstants::T_TIMESTAMP);
-        $this->db->manipulate($query);
-        return true;
-    }
-
-    public function deleteElement(
-        ilExportHandlerRepositoryElementInterface $element,
-        ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
-    ): bool {
-        return $this->deleteElements(
-            $this->export_handler->repository()->element()->collection()->withElement($element),
-            $stakeholder
-        );
     }
 
     public function deleteElements(
-        ilExportHandlerRepositoryElementCollectionInterface $elements,
+        ilExportHandlerRepositoryKeyCollectionInterface $keys,
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
-    ): bool {
-        $tuples = [];
-        foreach ($elements as $element) {
-            if (!$element->isStorable()) {
-                return false;
+    ): void {
+        $removed_keys = $this->key_factory->collection();
+        foreach ($keys as $key) {
+            if ($this->irss_wrapper->removeContainer($key->getResourceId(), $stakeholder)) {
+                $removed_keys = $removed_keys->withElement($key);
             }
-            $tuples[] = "("
-                . $this->db->quote($element->getObjectId()->toInt(), ilDBConstants::T_INTEGER)
-                . ","
-                . $this->db->quote($element->getResourceId()->serialize(), ilDBConstants::T_TEXT)
-                . ")";
         }
-        if (count($tuples) === 0) {
-            return true;
-        }
-        foreach ($elements as $element) {
-            $this->irss->manageContainer()->remove(
-                $element->getResourceId(),
-                $stakeholder->asAbstractResourceStakeholder()
-            );
-        }
-        $query = "DELETE FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE (object_id, rid) in (" . implode(",", $tuples) . ")";
-        $this->db->manipulate($query);
-        return true;
-    }
-
-    public function hasElement(
-        ObjectId $object_id,
-        string $resource_id_serialized
-    ): bool {
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER)
-            . " AND rid = " . $this->db->quote($resource_id_serialized, ilDBConstants::T_TEXT);
-        $res = $this->db->query($query);
-        $row = $res->fetchAssoc();
-        if (is_null($row)) {
-            return false;
-        }
-        return true;
+        $this->db_wrapper->deleteElements($removed_keys);
     }
 
     public function getElements(
-        ObjectId $object_id
+        ilExportHandlerRepositoryKeyCollectionInterface $keys
     ): ilExportHandlerRepositoryElementCollectionInterface {
-        $collection = $this->export_handler->repository()->element()->collection();
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE object_id = " . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER);
-        $res = $this->db->query($query);
-        while ($row = $res->fetchAssoc()) {
-            $rcid = $this->irss->manageContainer()->find($row['rid']);
-            $collection = $collection->withElement(
-                $this->export_handler->repository()->element()->handler()
-                ->withResourceId($rcid)
-                ->withObjectId($object_id)
-                ->withStakeholder($this->export_handler->repository()->stakeholder()
-                    ->withOwnerId((int) $row['owner_id']))
-            );
-        }
-        return $collection;
-    }
-
-    public function getElementsByResourceIds(
-        ObjectId $object_id,
-        string ...$resource_ids_serialized
-    ): ilExportHandlerRepositoryElementCollectionInterface {
-        $collection = $this->export_handler->repository()->element()->collection();
-        $tuples = [];
-        foreach ($resource_ids_serialized as $resource_id_serialized) {
-            $tuples[] = "("
-                . $this->db->quote($object_id->toInt(), ilDBConstants::T_INTEGER)
-                . ","
-                . $this->db->quote($resource_id_serialized, ilDBConstants::T_TEXT)
-                . ")";
-        }
-        $query = "SELECT * FROM " . $this->db->quoteIdentifier(self::TABLE_NAME)
-            . " WHERE (object_id, rid) in (" . implode(",", $tuples) . ")";
-        $res = $this->db->query($query);
-        while ($row = $res->fetchAssoc()) {
-            $collection = $collection->withElement(
-                $this->export_handler->repository()->element()->handler()
-                    ->withResourceId($this->irss->manageContainer()->find($row['rid']))
-                    ->withObjectId($object_id)
-                    ->withStakeholder($this->export_handler->repository()->stakeholder()->withOwnerId((int) $row['owner_id']))
-            );
-        }
-        return $collection;
+        return $this->db_wrapper->getElements($keys);
     }
 }

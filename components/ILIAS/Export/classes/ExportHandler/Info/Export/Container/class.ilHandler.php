@@ -79,14 +79,15 @@ class ilHandler implements ilExportHandlerContainerExportInfoInterface
             ->withContainerExportInfo($this);
         $set_id = 2;
         $this->export_infos = $this->export_handler->info()->export()->collection();
+        $repository = $this->export_handler->repository();
         foreach ($this->getObjectIds() as $object_id_handler) {
             $object_id = $object_id_handler->getObjectId();
             if ($object_id->toInt() === $this->main_export_entity_object_id->toInt()) {
                 continue;
             }
-            $repository = $this->export_handler->repository()->handler();
+            $keys = $repository->key()->collection()->withElement($repository->key()->handler()->withObjectId($object_id));
             $timestamp = $object_id_handler->getReuseExport()
-                ? $repository->getElements($object_id)->newest()->getLastModified()->getTimestamp()
+                ? $repository->handler()->getElements($keys)->newest()->getCreationDate()->getTimestamp()
                 : $this->getTimestamp();
             $this->export_infos = $this->export_infos->withElement(
                 $this->getExportInfo($object_id, $timestamp)

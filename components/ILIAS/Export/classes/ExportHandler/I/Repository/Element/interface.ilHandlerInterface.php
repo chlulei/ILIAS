@@ -22,18 +22,16 @@ namespace ILIAS\Export\ExportHandler\I\Repository\Element;
 
 use DateTimeImmutable;
 use ILIAS\Data\ObjectId;
-use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
 use ILIAS\Filesystem\Stream\FileStream;
-use ILIAS\Filesystem\Util\Archive\Unzip;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 interface ilHandlerInterface
 {
     public function withObjectId(ObjectId $object_id): ilHandlerInterface;
 
-    public function withResourceId(ResourceIdentification $resource_id): ilHandlerInterface;
+    public function withResourceIdSerialized(string $resource_id_serialized): ilHandlerInterface;
 
-    public function withStakeholder(ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder): ilHandlerInterface;
+    public function withOwnerId(int $owner_id): ilHandlerInterface;
 
     public function write(FileStream $stream, string $path_in_container): bool;
 
@@ -43,27 +41,21 @@ interface ilHandlerInterface
 
     public function download(string $zip_file_name = ""): void;
 
-    public function getZip(): Unzip;
-
     public function getStream(): FileStream;
 
     public function getObjectId(): ObjectId;
 
     public function getResourceId(): ResourceIdentification;
 
-    public function getLastModified(): DateTimeImmutable;
+    public function getCreationDate(): DateTimeImmutable;
 
     public function getFileName(): string;
 
-    public function getFileNameWithoutExtension(): string;
-
     public function getFileType(): string;
-
-    public function getDownloadURL(): string;
 
     public function getFileSize(): int;
 
-    public function getStakeholder(): ilExportHandlerRepositoryResourceStakeholderInterface;
+    public function getOwnerId(): int;
 
     public function isStorable(): bool;
 }

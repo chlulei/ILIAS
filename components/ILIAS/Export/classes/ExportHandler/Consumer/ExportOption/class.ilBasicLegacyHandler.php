@@ -24,7 +24,6 @@ use ilExport;
 use ilExportFileInfo;
 use ilFileDelivery;
 use ilFileUtils;
-use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
 use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;

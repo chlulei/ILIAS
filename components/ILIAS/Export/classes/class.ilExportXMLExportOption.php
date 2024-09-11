@@ -50,7 +50,7 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
 
     public function getSupportedRepositoryObjectTypes(): array
     {
-        return ['crs'];
+        return [];
     }
 
     public function isPublicAccessPossible(): bool
@@ -75,8 +75,14 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
+        $keys = $this->export_handler->repository()->key()->collection();
+        foreach ($table_row_ids as $table_row_id) {
+            $keys = $keys->withElement($this->export_handler->repository()->key()->handler()
+                ->withObjectId($object_id)
+                ->withResourceId($table_row_id->getFileIdentifier()));
+        }
         $this->export_handler->repository()->handler()->deleteElements(
-            $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$table_row_ids->fileIdentifiers()),
+            $keys,
             $this->export_handler->repository()->stakeholder()->withOwnerId($context->user()->getId())
         );
     }
@@ -86,10 +92,13 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdCollectionInterface $table_row_ids
     ): void {
         $object_id = new ObjectId($context->exportObject()->getId());
-        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $object_id,
-            ...$table_row_ids->fileIdentifiers()
-        );
+        $keys = $this->export_handler->repository()->key()->collection();
+        foreach ($table_row_ids as $table_row_id) {
+            $keys = $keys->withElement($this->export_handler->repository()->key()->handler()
+                ->withObjectId($object_id)
+                ->withResourceId($table_row_id->getFileIdentifier()));
+        }
+        $elements = $this->export_handler->repository()->handler()->getElements($keys);
         foreach ($elements as $element) {
             $element->download();
         }
@@ -100,10 +109,11 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         ilExportHandlerTableRowIdInterface $table_row_id
     ): void {
         $object_id = $reference_id->toObjectId();
-        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $object_id,
-            $table_row_id->getFileIdentifier()
-        );
+        $keys = $this->export_handler->repository()->key()->collection()
+            ->withElement($this->export_handler->repository()->key()->handler()
+                ->withObjectId($object_id)
+                ->withResourceId($table_row_id->getFileIdentifier()));
+        $elements = $this->export_handler->repository()->handler()->getElements($keys);
         foreach ($elements as $element) {
             $element->download();
         }
@@ -127,13 +137,22 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
     protected function buildElements(
         ilExportHandlerConsumerContextInterface $context,
         ObjectId $object_id,
-        array $ids,
+        array $file_identifiers,
         bool $all_elements = false
     ): ilExportHandlerFileInfoCollectionInterface {
         $collection = $context->fileFactory()->collection();
-        $elements = $all_elements
-            ? $this->export_handler->repository()->handler()->getElements($object_id)
-            : $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$ids);
+        $keys = $this->export_handler->repository()->key()->collection();
+        if ($all_elements) {
+            $keys = $keys->withElement($this->export_handler->repository()->key()->handler()->withObjectId($object_id));
+        }
+        if (!$all_elements) {
+            foreach ($file_identifiers as $id) {
+                $keys = $keys->withElement($this->export_handler->repository()->key()->handler()
+                    ->withObjectId($object_id)
+                    ->withResourceId($id));
+            }
+        }
+        $elements = $this->export_handler->repository()->handler()->getElements($keys);
         foreach ($elements as $element) {
             $file_info = $context->fileFactory()->fileInfoFromResourceId(
                 $element->getResourceId(),

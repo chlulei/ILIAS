@@ -18,12 +18,12 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Repository\Element;
+namespace ILIAS\Export\ExportHandler\Repository\Key;
 
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilCollectionInterface as ilExportHandlerRepositoryKeyCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilHandlerInterface as ilExportHandlerRepositoryKeyInterface;
 
-class ilCollection implements ilExportHandlerRepositoryElementCollectionInterface
+class ilCollection implements ilExportHandlerRepositoryKeyCollectionInterface
 {
     protected array $elements;
     protected int $index;
@@ -34,28 +34,15 @@ class ilCollection implements ilExportHandlerRepositoryElementCollectionInterfac
         $this->index = 0;
     }
 
-    public function withElement(ilExportHandlerRepositoryElementInterface $element): ilExportHandlerRepositoryElementCollectionInterface
-    {
+    public function withElement(
+        ilExportHandlerRepositoryKeyInterface $element
+    ): ilExportHandlerRepositoryKeyCollectionInterface {
         $clone = clone $this;
         $clone->elements[] = $element;
         return $clone;
     }
 
-    public function newest(): ?ilExportHandlerRepositoryElementInterface
-    {
-        usort($this->elements, function (
-            ilExportHandlerRepositoryElementInterface $a,
-            ilExportHandlerRepositoryElementInterface $b
-        ) {
-            if ($a->getCreationDate() === $b->getCreationDate()) {
-                return 0;
-            }
-            return $a->getCreationDate() < $b->getCreationDate() ? 1 : -1;
-        });
-        return $this->elements[0] ?? null;
-    }
-
-    public function current(): ilExportHandlerRepositoryElementInterface
+    public function current(): ilExportHandlerRepositoryKeyInterface
     {
         return $this->elements[$this->index];
     }

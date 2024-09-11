@@ -18,36 +18,24 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Repository;
+namespace ILIAS\Export\ExportHandler\I\Repository\Wrapper\IRSS;
 
-use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Info\Export\ilHandlerInterface as ilExportHandlerExportInfoInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Key\ilCollectionInterface as ilExportHandlerRepositoryKeyCollectionInterface;
+use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 interface ilHandlerInterface
 {
     public const TMP_FILE_PATH = "tmp_file_ztopslcaneadw";
     public const TMP_FILE_CONTENT = "tmp_file_content";
 
-    public function createElement(
-        ObjectId $object_id,
+    public function createEmptyContainer(
         ilExportHandlerExportInfoInterface $info,
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
-    ): ilExportHandlerRepositoryElementInterface;
+    ): ResourceIdentification;
 
-    public function storeElement(
-        ilExportHandlerRepositoryElementInterface $element
-    ): void;
-
-    public function deleteElements(
-        ilExportHandlerRepositoryKeyCollectionInterface $keys,
+    public function removeContainer(
+        string $resource_identification_serialized,
         ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder
-    ): void;
-
-    public function getElements(
-        ilExportHandlerRepositoryKeyCollectionInterface $keys
-    ): ilExportHandlerRepositoryElementCollectionInterface;
+    ): bool;
 }

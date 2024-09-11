@@ -24,35 +24,21 @@ use DateTimeImmutable;
 use ILIAS\components\ResourceStorage\Container\Wrapper\ZipReader;
 use ILIAS\Data\ObjectId;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
-use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
-use ILIAS\Export\ExportHandler\I\Repository\ilResourceStakeholderInterface as ilExportHandlerRepositoryResourceStakeholderInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Element\Wrapper\IRSS\ilHandlerInterface as ilExportHandlerRepositoryElementIRSSWrapperInterface;
 use ILIAS\Filesystem\Stream\FileStream;
-use ILIAS\Filesystem\Util\Archive\Unzip;
-use ILIAS\Filesystem\Util\Archive\UnzipOptions;
-use ILIAS\Filesystem\Util\Archive\ZipDirectoryHandling;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
-use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
 class ilHandler implements ilExportHandlerRepositoryElementInterface
 {
-    protected ResourcesStorageService $irss;
-    protected DateTimeImmutable $last_modified;
-    protected ResourceIdentification $resource_id;
-    protected ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder;
+    protected ilExportHandlerRepositoryElementIRSSWrapperInterface $irss_wrapper;
     protected ObjectId $object_id;
+    protected string $resource_id_serialized;
+    protected int $owner_id;
 
     public function __construct(
-        ResourcesStorageService $irss,
+        ilExportHandlerRepositoryElementIRSSWrapperInterface $irss_wrapper
     ) {
-        $this->irss = $irss;
-    }
-
-    protected function removeTmpFile(): void
-    {
-        $this->irss->manageContainer()->removePathInsideContainer(
-            $this->getResourceId(),
-            ilExportHandlerRepositoryInterface::TMP_FILE_PATH
-        );
+        $this->irss_wrapper = $irss_wrapper;
     }
 
     public function withObjectId(ObjectId $object_id): ilExportHandlerRepositoryElementInterface
@@ -62,19 +48,17 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         return $clone;
     }
 
-    public function withResourceId(ResourceIdentification $resource_id): ilExportHandlerRepositoryElementInterface
+    public function withResourceIdSerialized(string $resource_id_serialized): ilExportHandlerRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->resource_id = $resource_id;
-        $clone->last_modified = $this->irss->manageContainer()->getResource($resource_id)
-            ->getCurrentRevision()->getInformation()->getCreationDate();
+        $clone->resource_id_serialized = $resource_id_serialized;
         return $clone;
     }
 
-    public function withStakeholder(ilExportHandlerRepositoryResourceStakeholderInterface $stakeholder): ilExportHandlerRepositoryElementInterface
+    public function withOwnerId(int $owner_id): ilExportHandlerRepositoryElementInterface
     {
         $clone = clone $this;
-        $clone->stakeholder = $stakeholder;
+        $clone->owner_id = $owner_id;
         return $clone;
     }
 
@@ -82,14 +66,12 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         FileStream $stream,
         string $path_in_container
     ): bool {
-        if (!isset($this->resource_id)) {
-            global $DIC;
+        if (!isset($this->resource_id_serialized)) {
             return false;
         }
-        $this->last_modified = new DateTimeImmutable();
-        $success = $this->irss->manageContainer()->addStreamToContainer($this->getResourceId(), $stream, $path_in_container);
+        $success = $this->irss_wrapper->addStreamToContainer($this->resource_id_serialized, $stream, $path_in_container);
         if ($success) {
-            $this->removeTmpFile();
+            $this->irss_wrapper->removeTmpFile($this->resource_id_serialized);
         }
         return $success;
     }
@@ -118,23 +100,14 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         return $this->writeZip($other->getStream(), $path_in_container);
     }
 
-    public function getZip(): Unzip
-    {
-        return $this->irss->consume()->containerZIP($this->getResourceId())->getZIP((new UnzipOptions())->withDirectoryHandling(ZipDirectoryHandling::KEEP_STRUCTURE));
-    }
-
     public function getStream(): FileStream
     {
-        return $this->irss->consume()->stream($this->getResourceId())->getStream();
+        return $this->irss_wrapper->getStream($this->resource_id_serialized);
     }
 
     public function download(string $zip_file_name = ""): void
     {
-        $download = $this->irss->consume()->download($this->getResourceId());
-        if ($zip_file_name !== "") {
-            $download = $download->overrideFileName($zip_file_name);
-        }
-        $download->run();
+        $this->irss_wrapper->download($this->resource_id_serialized, $zip_file_name);
     }
 
     public function getObjectId(): ObjectId
@@ -144,24 +117,17 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
 
     public function getResourceId(): ResourceIdentification
     {
-        return $this->resource_id;
+        return $this->irss_wrapper->getResourceId($this->resource_id_serialized);
     }
 
-    public function getLastModified(): DateTimeImmutable
+    public function getCreationDate(): DateTimeImmutable
     {
-        return $this->last_modified;
+        return $this->irss_wrapper->getCreationDate($this->resource_id_serialized);
     }
 
     public function getFileName(): string
     {
-        return $this->irss->manageContainer()->getResource($this->getResourceId())
-            ->getCurrentRevision()->getInformation()->getTitle();
-    }
-
-    public function getFileNameWithoutExtension(): string
-    {
-        $filename = $this->getFileName();
-        return substr($filename, 0, strlen($filename) - 4);
+        return $this->irss_wrapper->getFileName($this->resource_id_serialized);
     }
 
     public function getFileType(): string
@@ -169,24 +135,18 @@ class ilHandler implements ilExportHandlerRepositoryElementInterface
         return "xml";
     }
 
-    public function getDownloadURL(): string
-    {
-        return (string) $this->irss->consume()->containerURI($this->getResourceId())->getURI();
-    }
-
     public function getFileSize(): int
     {
-        return $this->irss->manageContainer()->getResource($this->getResourceId())
-            ->getCurrentRevision()->getInformation()->getSize();
+        return $this->irss_wrapper->getFileSize($this->resource_id_serialized);
     }
 
-    public function getStakeholder(): ilExportHandlerRepositoryResourceStakeholderInterface
+    public function getOwnerId(): int
     {
-        return $this->stakeholder;
+        return $this->owner_id;
     }
 
     public function isStorable(): bool
     {
-        return isset($this->last_modified) && isset($this->object_id) && isset($this->resource_id);
+        return isset($this->object_id) && isset($this->resource_id_serialized);
     }
 }

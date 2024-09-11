@@ -81,10 +81,11 @@ class ilHandler implements ilExportHandlerManagerInterface
     ): ilExportHandlerRepositoryElementInterface {
         $main_export_info = $container_export_info->getMainEntityExportInfo();
         $main_element = $this->createExport($user_id, $main_export_info, "set_" . $main_export_info->getSetNumber());
-
+        $repository = $this->export_handler->repository();
         foreach ($container_export_info->getExportInfos() as $export_info) {
+            $keys = $repository->key()->collection()->withElement($repository->key()->handler()->withObjectId($export_info->getTargetObjectId()));
             $element = $export_info->getResueExport()
-                ? $this->export_handler->repository()->handler()->getElements($export_info->getTargetObjectId())->newest()
+                ? $this->export_handler->repository()->handler()->getElements($keys)->newest()
                 : $this->createExport($user_id, $export_info, "");
             $zip_reader = new ZipReader($element->getStream());
             $zip_structure = $zip_reader->getStructure();

@@ -205,9 +205,12 @@ class ilExportSelectionTableGUI extends ilTable2GUI
             $r = array();
 
             $reference_id = new ReferenceId((int) $node['ref_id']);
-            $elements = $this->export_handler->repository()->handler()->getElements($reference_id->toObjectId());
+            $keys = $this->export_handler->repository()->key()->collection()->withElement(
+                $this->export_handler->repository()->key()->handler()->withObjectId($reference_id->toObjectId())
+            );
+            $elements = $this->export_handler->repository()->handler()->getElements($keys);
             if ($elements->count() > 0) {
-                $r['last_export'] = $elements->newest()->getLastModified()->getTimestamp();
+                $r['last_export'] = $elements->newest()->getCreationDate()->getTimestamp();
             } else {
                 $r['last_export'] = 0;
             }

@@ -25,9 +25,13 @@ use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInt
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilFactoryInterface as ilExportHandlerRepositoryElementFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilFactoryInterface as ilExportHandlerRepositoryFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilFactoryInterface as ilExportHandlerRepositoryKeyFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\ilFactoryInterface as ilExportHandlerRepositoryWrapperFactoryInterface;
 use ILIAS\Export\ExportHandler\Repository\Element\ilFactory as ilExportHandlerRepositoryElementFactory;
 use ILIAS\Export\ExportHandler\Repository\ilHandler as ilExportHandlerRepository;
 use ILIAS\Export\ExportHandler\Repository\ilResourceStakeholder as ilExportHandlerRepositoryResourceStakeholder;
+use ILIAS\Export\ExportHandler\Repository\Key\ilFactory as ilExportHandlerRepositoryKeyFactory;
+use ILIAS\Export\ExportHandler\Repository\Wrapper\ilFactory as ilExportHandlerRepositoryWrapperFactory;
 use ILIAS\Filesystem\Filesystems;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
@@ -52,16 +56,39 @@ class ilFactory implements ilExportHandlerRepositoryFactoryInterface
 
     public function handler(): ilExportHandlerRepositoryInterface
     {
-        return new ilExportHandlerRepository($this->irss, $this->db, $this->export_handler, $this->filesystems);
+        return new ilExportHandlerRepository(
+            $this->export_handler->repository()->key(),
+            $this->export_handler->repository()->element(),
+            $this->export_handler->repository()->wrapper()->db()->handler(),
+            $this->export_handler->repository()->wrapper()->irss()->handler()
+        );
     }
 
     public function element(): ilExportHandlerRepositoryElementFactoryInterface
     {
-        return new ilExportHandlerRepositoryElementFactory($this->export_handler, $this->irss);
+        return new ilExportHandlerRepositoryElementFactory(
+            $this->export_handler,
+            $this->irss
+        );
     }
 
     public function stakeholder(): ilExportHandlerRepositoryResourceStakeholder
     {
         return new ilExportHandlerRepositoryResourceStakeholder();
+    }
+
+    public function key(): ilExportHandlerRepositoryKeyFactoryInterface
+    {
+        return new ilExportHandlerRepositoryKeyFactory($this->export_handler);
+    }
+
+    public function wrapper(): ilExportHandlerRepositoryWrapperFactoryInterface
+    {
+        return new ilExportHandlerRepositoryWrapperFactory(
+            $this->export_handler,
+            $this->irss,
+            $this->db,
+            $this->filesystems
+        );
     }
 }

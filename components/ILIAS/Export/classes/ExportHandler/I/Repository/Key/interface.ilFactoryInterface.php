@@ -18,17 +18,17 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Repository\Element;
+namespace ILIAS\Export\ExportHandler\I\Repository\Key;
 
-use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
-use ILIAS\Export\ExportHandler\I\Repository\Element\Wrapper\ilFactoryInterface as ilExportHandlerRepositoryElementWrapperFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilCollectionInterface as ilExportHandlerRepositoryKeyCollectionInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilHandlerInterface as ilExportHandlerRepositoryKeyInterface;
 
 interface ilFactoryInterface
 {
-    public function handler(): ilExportHandlerRepositoryElementInterface;
+    public function handler(): ilExportHandlerRepositoryKeyInterface;
 
-    public function collection(): ilExportHandlerRepositoryElementCollectionInterface;
+    public function handlerFromElement(ilExportHandlerRepositoryElementInterface $element): ilExportHandlerRepositoryKeyInterface;
 
-    public function wrapper(): ilExportHandlerRepositoryElementWrapperFactoryInterface;
+    public function collection(): ilExportHandlerRepositoryKeyCollectionInterface;
 }

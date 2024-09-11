@@ -18,8 +18,11 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\I\Wrapper;
+namespace ILIAS\Export\ExportHandler\I\Repository\Wrapper\IRSS;
+
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\IRSS\ilHandlerInterface as ilExportHandlerRepositoryIRSSWrapperInterface;
 
 interface ilFactoryInterface
 {
+    public function handler(): ilExportHandlerRepositoryIRSSWrapperInterface;
 }

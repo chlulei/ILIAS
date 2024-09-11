@@ -18,6 +18,11 @@
 
 declare(strict_types=1);
 
+namespace ILIAS\Export\ExportHandler\I\Repository\Wrapper\DB;
+
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\DB\ilHandlerInterface as ilExportHandlerRepositoryDBWrapperInterface;
+
 interface ilFactoryInterface
 {
+    public function handler(): ilExportHandlerRepositoryDBWrapperInterface;
 }

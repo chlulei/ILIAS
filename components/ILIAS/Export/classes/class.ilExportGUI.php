@@ -79,6 +79,7 @@ class ilExportGUI
         $this->context = $this->export_handler->consumer()->context()->handler($this, $this->obj);
         $this->export_options = $this->export_handler->consumer()->exportOption()->collection();
         $this->initExportOptions();
+        $this->enableStandardXMLExport();
     }
 
     public function executeCommand(): void

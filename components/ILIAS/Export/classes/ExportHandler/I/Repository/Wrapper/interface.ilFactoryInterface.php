@@ -18,6 +18,14 @@
 
 declare(strict_types=1);
 
-interface ilHandlerInterface
+namespace ILIAS\Export\ExportHandler\I\Repository\Wrapper;
+
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\DB\ilFactoryInterface as ilExportHandlerRepositoryDBWrapperFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\IRSS\ilFactoryInterface as ilExportHandlerRepositoryIRSSWrapperFactoryInterface;
+
+interface ilFactoryInterface
 {
+    public function db(): ilExportHandlerRepositoryDBWrapperFactoryInterface;
+
+    public function irss(): ilExportHandlerRepositoryIRSSWrapperFactoryInterface;
 }

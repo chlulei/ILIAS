@@ -22,6 +22,8 @@ namespace ILIAS\Export\ExportHandler\I\Repository;
 
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilFactoryInterface as ilExportHandlerRepositoryElementFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\ilHandlerInterface as ilExportHandlerRepositoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Key\ilFactoryInterface as ilExportHandlerRepositoryKeyFactoryInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Wrapper\ilFactoryInterface as ilExportHandlerRepositoryWrapperFactoryInterface;
 use ILIAS\Export\ExportHandler\Repository\ilResourceStakeholder as ilExportHandlerRepositoryResourceStakeholder;
 
 interface ilFactoryInterface
@@ -31,4 +33,8 @@ interface ilFactoryInterface
     public function element(): ilExportHandlerRepositoryElementFactoryInterface;
 
     public function stakeholder(): ilExportHandlerRepositoryResourceStakeholder;
+
+    public function key(): ilExportHandlerRepositoryKeyFactoryInterface;
+
+    public function wrapper(): ilExportHandlerRepositoryWrapperFactoryInterface;
 }

@@ -18,21 +18,11 @@
 
 declare(strict_types=1);
 
-namespace ILIAS\Export\ExportHandler\Consumer\ExportOption;
+namespace ILIAS\Export\ExportHandler\I\Repository\Element\Wrapper;
 
-use ILIAS\Export\ExportHandler\I\Consumer\ExportOption\ilHandlerInterface as ilExportHandlerConsumerExportOptionInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Element\Wrapper\IRSS\ilFactoryInterface as ilExportHandlerRepositoryElementIRSSWrapperFactoryInterface;
 
-abstract class ilBasicHandler implements ilExportHandlerConsumerExportOptionInterface
+interface ilFactoryInterface
 {
-    final public function __construct()
-    {
-        $this->init();
-    }
-
-    abstract protected function init();
-
-    public function isPublicAccessPossible(): bool
-    {
-        return false;
-    }
+    public function irss(): ilExportHandlerRepositoryElementIRSSWrapperFactoryInterface;
 }

@@ -20,9 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Export\ExportHandler\I\Consumer\ExportOption;
 
-use ILIAS\Data\ObjectId;
 use ILIAS\Data\ReferenceId;
-use ILIAS\StaticURL\Context as ilStaticURLContext;
 use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
 use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;

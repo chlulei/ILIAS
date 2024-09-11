@@ -166,8 +166,9 @@ class ilHandler implements ilExportHandlerTableDataRetrievalInterface
         ?array $filter_data,
         ?array $additional_parameters
     ): ?int {
-        return  $this->export_handler->repository()->handler()->getElements(
-            new ObjectId($this->export_object->getId())
-        )->count();
+        $keys = $this->export_handler->repository()->key()->collection()->withElement(
+            $this->export_handler->repository()->key()->handler()->withObjectId(new ObjectId($this->export_object->getId()))
+        );
+        return  $this->export_handler->repository()->handler()->getElements($keys)->count();
     }
 }

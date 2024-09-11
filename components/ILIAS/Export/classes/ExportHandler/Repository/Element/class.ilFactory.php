@@ -24,8 +24,10 @@ use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInt
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilCollectionInterface as ilExportHandlerRepositoryElementCollectionInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilFactoryInterface as ilExportHanlderRepositoryElementFactoryInterface;
 use ILIAS\Export\ExportHandler\I\Repository\Element\ilHandlerInterface as ilExportHandlerRepositoryElementInterface;
+use ILIAS\Export\ExportHandler\I\Repository\Element\Wrapper\ilFactoryInterface as ilExportHandlerRepositoryElementWrapperFactoryInterface;
 use ILIAS\Export\ExportHandler\Repository\Element\ilCollection as ilExportHandlerRepositoryElementCollection;
 use ILIAS\Export\ExportHandler\Repository\Element\ilHandler as ilExportHandlerRepositoryElement;
+use ILIAS\Export\ExportHandler\Repository\Element\Wrapper\ilFactory as ilExportHandlerRepositoryElementWrapperFactory;
 use ILIAS\ResourceStorage\Services as ResourcesStorageService;
 
 class ilFactory implements ilExportHanlderRepositoryElementFactoryInterface
@@ -43,11 +45,21 @@ class ilFactory implements ilExportHanlderRepositoryElementFactoryInterface
 
     public function handler(): ilExportHandlerRepositoryElementInterface
     {
-        return new ilExportHandlerRepositoryElement($this->irss);
+        return new ilExportHandlerRepositoryElement(
+            $this->export_handler->repository()->element()->wrapper()->irss()->handler()
+        );
     }
 
     public function collection(): ilExportHandlerRepositoryElementCollectionInterface
     {
         return new ilExportHandlerRepositoryElementCollection();
+    }
+
+    public function wrapper(): ilExportHandlerRepositoryElementWrapperFactoryInterface
+    {
+        return new ilExportHandlerRepositoryElementWrapperFactory(
+            $this->export_handler,
+            $this->irss
+        );
     }
 }
