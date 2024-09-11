@@ -48,7 +48,7 @@ class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
         return "expxml";
     }
 
-    public function getSupportedTypes(): array
+    public function getSupportedTRepositoryObjectTypes(): array
     {
         return ['crs'];
     }

@@ -4,7 +4,8 @@
   - [Method init](#method-init)
   - [Method getExportType](#method-getexporttype)
   - [Method getExportOptionId](#method-getexportoptionid)
-  - [Method publicAccessPossible](#method-publicaccesspossible)
+  - [Method getSupportedTRepositoryObjectTypes](#method-getsupportedtrepositoryobjecttypes)
+  - [Method isPublicAccessPossible](#method-ispublicaccesspossible)
   - [Method getLabel](#method-getlabel)
   - [Method onExportOptionSelected](#method-onexportoptionselected)
   - [Method onDeleteFiles](#method-ondeletefiles)
@@ -45,9 +46,9 @@ The export option is addressed by using this identifier.
 For example _expxml_.
 If multiple export options share an identifier, than they cannot be displayed together in the export tab.
 
-#### Method getSupportedTypes:
+#### Method getSupportedTRepositoryObjectTypes:
 ```php
-public function getSupportedTypes(): array;
+public function getSupportedTRepositoryObjectTypes(): array
 ```
 This method returns an array of repository object types, for example \['crs', 'grp'].
 The returned array is used to determine in wich export tab the export option is displayed.
@@ -154,128 +155,4 @@ public function getFileSelection(
 Similar to _getFiles_, but should only return the files that match the file identifiers supplied by _table_row_ids_.
 
 ### Example implementation:
-Implementation of the default xml export option.
-```php
-use ILIAS\Data\ObjectId;
-use ILIAS\Data\ReferenceId;
-use ILIAS\Export\ExportHandler\I\Table\RowId\ilHandlerInterface as ilExportHandlerTableRowIdInterface;
-use ILIAS\StaticURL\Context as ilStaticURLContext;
-use ILIAS\Export\ExportHandler\Consumer\ExportOption\ilBasicHandler as ilExportHandlerConsumerBasicExportOption;
-use ILIAS\Export\ExportHandler\I\Consumer\Context\ilHandlerInterface as ilExportHandlerConsumerContextInterface;
-use ILIAS\Export\ExportHandler\I\ilFactoryInterface as ilExportHandlerFactoryInterface;
-use ILIAS\Export\ExportHandler\ilFactory as ilExportHandlerFactory;
-use ILIAS\Export\ExportHandler\I\Info\File\ilCollectionInterface as ilExportHandlerFileInfoCollectionInterface;
-use ILIAS\Export\ExportHandler\I\Table\RowId\ilCollectionInterface as ilExportHandlerTableRowIdCollectionInterface;
-
-class ilExportXMLExportOption extends ilExportHandlerConsumerBasicExportOption
-{
-    protected ilExportHandlerFactoryInterface $export_handler;
-
-    protected function init()
-    {
-        $this->export_handler = new ilExportHandlerFactory();
-    }
-
-    public function getExportType(): string
-    {
-        return "xml";
-    }
-
-    public function getExportOptionId(): string
-    {
-        return "expxml";
-    }
-
-    public function publicAccessPossible(): bool
-    {
-        return true;
-    }
-
-    public function getLabel(
-        ilExportHandlerConsumerContextInterface $context
-    ): string {
-        return $context->ilLng()->txt("exp_create_file") . " (xml)";
-    }
-
-    public function onExportOptionSelected(
-        ilExportHandlerConsumerContextInterface $context
-    ): void {
-        $context->ilCtrl()->redirect($context->exportGUIObject(), $context->exportGUIObject()::CMD_EXPORT_XML);
-    }
-
-    public function onDeleteFiles(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
-    ): void {
-        $object_id = new ObjectId($context->exportObject()->getId());
-        $this->export_handler->repository()->handler()->deleteElements(
-            $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$table_row_ids->fileIdentifiers()),
-            $this->export_handler->repository()->stakeholder()->withOwnerId($context->user()->getId())
-        );
-    }
-
-    public function onDownloadFiles(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
-    ): void {
-        $object_id = new ObjectId($context->exportObject()->getId());
-        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $object_id,
-            ...$table_row_ids->fileIdentifiers()
-        );
-        foreach ($elements as $element) {
-            $element->download();
-        }
-    }
-
-    public function onDownloadWithLink(
-        ReferenceId $reference_id,
-        ilExportHandlerTableRowIdInterface $table_row_id
-    ): void {
-        $object_id = $reference_id->toObjectId();
-        $elements = $this->export_handler->repository()->handler()->getElementsByResourceIds(
-            $object_id,
-            $table_row_id->getFileIdentifier()
-        );
-        foreach ($elements as $element) {
-            $element->download();
-        }
-    }
-
-    public function getFiles(
-        ilExportHandlerConsumerContextInterface $context
-    ): ilExportHandlerFileInfoCollectionInterface {
-        $object_id = new ObjectId($context->exportObject()->getId());
-        return $this->buildElements($context, $object_id, [], true);
-    }
-
-    public function getFileSelection(
-        ilExportHandlerConsumerContextInterface $context,
-        ilExportHandlerTableRowIdCollectionInterface $table_row_ids
-    ): ilExportHandlerFileInfoCollectionInterface {
-        $object_id = new ObjectId($context->exportObject()->getId());
-        return $this->buildElements($context, $object_id, $table_row_ids->fileIdentifiers());
-    }
-
-    protected function buildElements(
-        ilExportHandlerConsumerContextInterface $context,
-        ObjectId $object_id,
-        array $ids,
-        bool $all_elements = false
-    ): ilExportHandlerFileInfoCollectionInterface {
-        $collection = $context->fileFactory()->collection();
-        $elements = $all_elements
-            ? $this->export_handler->repository()->handler()->getElements($object_id)
-            : $this->export_handler->repository()->handler()->getElementsByResourceIds($object_id, ...$ids);
-        foreach ($elements as $element) {
-            $file_info = $context->fileFactory()->fileInfoFromResourceId(
-                $element->getResourceId(),
-                $context,
-                $this
-            );
-            $collection = $collection->withFileInfo($file_info);
-        }
-        return $collection;
-    }
-}
-```
+Implementation of the default xml export option is located here: "components/ILIAS/Export/classes/class.ilExportXMLExportOption.php"
