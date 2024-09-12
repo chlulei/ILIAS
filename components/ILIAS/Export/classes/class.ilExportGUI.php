@@ -291,7 +291,9 @@ class ilExportGUI
 
         $ref_ids_export = [$this->parent_gui->getObject()->getRefId()];
         $ref_ids_all = [$this->parent_gui->getObject()->getRefId()];
-        $valid_ref_ids = array_diff(array_keys($post_export_options), array_diff($ref_ids_all, array_keys($post_export_options)));
+        $tree_ref_ids = array_map(function ($node) { return (int) $node['ref_id']; }, $tree_nodes);
+        $post_ref_ids = array_map(function ($key) {return (int) $key; }, array_keys($post_export_options));
+        $valid_ref_ids = array_intersect($post_ref_ids, $tree_ref_ids);
         foreach ($valid_ref_ids as $ref_id) {
             $info = $post_export_options[$ref_id];
             $export_option_id = (int) $info["type"];

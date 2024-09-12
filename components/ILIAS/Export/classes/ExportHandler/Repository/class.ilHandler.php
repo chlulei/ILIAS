@@ -48,6 +48,7 @@ class ilHandler implements ilExportHandlerRepositoryInterface
         $this->element_factory = $element_factory;
         $this->db_wrapper = $db_wrapper;
         $this->irss_wrapper = $irss_wrapper;
+        $this->key_factory = $key_factory;
     }
 
     public function createElement(
