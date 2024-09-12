@@ -277,19 +277,23 @@ class ilExportGUI
 
     protected function createXMLExport()
     {
+        $tree_nodes = $this->tree->getSubTree($this->tree->getNodeData($this->parent_gui->getObject()->getRefId()));
+        $post_export_options = $this->initExportOptionsFromPost();
         $eo = ilExportOptions::newInstance(ilExportOptions::allocateExportId());
         $eo->addOption(ilExportOptions::KEY_ROOT, 0, 0, $this->obj->getId());
         $items_selected = $eo->addOptions(
             $this->parent_gui->getObject()->getRefId(),
             $this->obj_definition,
             $this->access,
-            $this->tree->getSubTree($this->tree->getNodeData($this->parent_gui->getObject()->getRefId())),
-            $this->initExportOptionsFromPost()
+            $tree_nodes,
+            $post_export_options
         );
 
         $ref_ids_export = [$this->parent_gui->getObject()->getRefId()];
         $ref_ids_all = [$this->parent_gui->getObject()->getRefId()];
-        foreach ($this->initExportOptionsFromPost() as $ref_id => $info) {
+        $valid_ref_ids = array_diff(array_keys($post_export_options), array_diff($ref_ids_all, array_keys($post_export_options)));
+        foreach ($valid_ref_ids as $ref_id) {
+            $info = $post_export_options[$ref_id];
             $export_option_id = (int) $info["type"];
             if (
                 $export_option_id === ilExportOptions::EXPORT_OMIT ||
