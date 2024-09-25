@@ -18,7 +18,10 @@
 
 declare(strict_types=1);
 
+use ILIAS\Data\ObjectId;
 use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
+use ILIAS\Poll\Image\I\FactoryInterface as ilPollImageFactoryInterface;
+use ILIAS\Poll\Image\Factory as ilPollImageFactory;
 
 /**
 * Class ilObjPoll
@@ -27,6 +30,7 @@ use ILIAS\Filesystem\Util\Convert\ImageOutputOptions;
 */
 class ilObjPoll extends ilObject2
 {
+    protected ilPollImageFactory $poll_image_factory;
     protected \ILIAS\Notes\Service $notes;
     protected int $access_type = 0;
     protected int $access_begin = 0;
@@ -65,7 +69,7 @@ class ilObjPoll extends ilObject2
         $this->setAccessType(ilObjectActivation::TIMINGS_DEACTIVATED);
         $this->setVotingPeriod(false);
         $this->notes = $DIC->notes();
-
+        $this->poll_image_factory = new ilPollImageFactory();
         parent::__construct($a_id, $a_reference);
     }
 
@@ -346,12 +350,17 @@ class ilObjPoll extends ilObject2
 
         // question/image
         $new_obj->setQuestion($this->getQuestion());
-        $image = $this->getImageFullPath();
+        /*$image = $this->getImageFullPath();
         if ($image) {
             $image = array("tmp_name" => $image,
                 "name" => $this->getImage());
             $new_obj->uploadImage($image, true);
-        }
+        }*/
+        $this->poll_image_factory->handler()->cloneImage(
+            new ObjectId($this->id),
+            new ObjectId($new_obj->getId()),
+            $this->user->getId()
+        );
 
         //copy online status if object is not the root copy object
         $cp_options = ilCopyWizardOptions::_getInstance($a_copy_id);
@@ -433,10 +442,17 @@ class ilObjPoll extends ilObject2
 
     public function uploadImage(array $a_upload, bool $a_clone = false): bool
     {
-        if (!$this->id) {
+        $file_path = (string) ($a_upload['tmp_name'] ?? "");
+        if (!$this->id or $file_path === "") {
             return false;
         }
-
+        $this->poll_image_factory->handler()->uploadImage(
+            new ObjectId($this->id),
+            $file_path,
+            $this->user->getId()
+        );
+        return true;
+        /*
         $this->deleteImage();
 
         // #10074
@@ -481,6 +497,7 @@ class ilObjPoll extends ilObject2
             return true;
         }
         return false;
+        */
     }
 
     public static function getImageSize(): string
