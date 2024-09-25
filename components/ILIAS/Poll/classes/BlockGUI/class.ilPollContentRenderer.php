@@ -235,7 +235,8 @@ class ilPollContentRenderer
         if ($img_path) {
             $tpl->setVariable(
                 "URL_IMAGE",
-                $img_path #ilWACSignedPath::signFile($img_path)
+                $img_path
+                #ilWACSignedPath::signFile($img_path)
             );
         }
     }

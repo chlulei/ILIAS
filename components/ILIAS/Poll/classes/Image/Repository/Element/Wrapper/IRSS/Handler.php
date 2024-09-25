@@ -76,10 +76,7 @@ class Handler implements ilPollImageRepositoryElementIRSSWrapperInterface
         if (is_null($rid)) {
             return null;
         }
-        $definition = new CropToSquare(
-            true,
-            $this->processed_size
-        );
+        $definition = new CropToSquare(true, $this->processed_size);
         $flavour = $this->irss->flavours()->get($rid, $definition);
         $urls_of_flavour_streams = $this->irss->consume()->flavourUrls($flavour);
         return $urls_of_flavour_streams->getURLsAsArray(true)[0];
@@ -91,10 +88,7 @@ class Handler implements ilPollImageRepositoryElementIRSSWrapperInterface
         if (is_null($rid)) {
             return null;
         }
-        $definition = new CropToSquare(
-            true,
-            $this->thumbnail_size
-        );
+        $definition = new CropToSquare(true, $this->thumbnail_size);
         $flavour = $this->irss->flavours()->get($rid, $definition);
         $urls_of_flavour_streams = $this->irss->consume()->flavourUrls($flavour);
         return $urls_of_flavour_streams->getURLsAsArray(true)[0];
