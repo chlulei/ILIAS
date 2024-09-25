@@ -23,8 +23,8 @@ namespace ILIAS\Poll\Image;
 use ILIAS\Data\ObjectId;
 use ILIAS\Filesystem\Stream\Streams;
 use ILIAS\Poll\Image\I\HandlerInterface as ilPollImageInterface;
-use ILIAS\ResourceStorage\Services as ilResourceStorageServices;
 use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
+use ILIAS\ResourceStorage\Services as ilResourceStorageServices;
 
 class Handler implements ilPollImageInterface
 {
@@ -44,6 +44,10 @@ class Handler implements ilPollImageInterface
         string $file_path,
         int $user_id
     ): void {
+        $this->deleteImage(
+            $object_id,
+            $user_id
+        );
         $rid = $this->irss->manage()->stream(
             Streams::ofResource(fopen($file_path, 'r')),
             $this->repository->stakeholder()->handler()->withUserId($user_id)
@@ -60,20 +64,56 @@ class Handler implements ilPollImageInterface
         ObjectId $clone_object_id,
         int $user_id
     ): void {
+        $this->deleteImage(
+            $clone_object_id,
+            $user_id
+        );
         $key_clone = $this->repository->key()->handler()
             ->withObjectId($clone_object_id);
         $key_original = $this->repository->key()->handler()
             ->withObjectId($original_object_id);
-        $existing_element = $this->repository->handler()->getElement($key_clone);
-        if (!is_null($existing_element)) {
-            $existing_element->getIRSS()->delete();
-            $this->repository->handler()->deleteElement($existing_element->getKey());
-        }
         $element_original = $this->repository->handler()->getElement($key_original);
         $rid_original = $element_original->getIRSS()->getResourceIdentification();
         $rid_clone = $this->irss->manage()->clone($rid_original);
         $values_clone = $this->repository->values()->handler()
             ->withResourceIdSerialized($rid_clone->serialize());
         $this->repository->handler()->store($key_clone, $values_clone);
+    }
+
+    public function deleteImage(
+        ObjectId $object_id,
+        int $user_id
+    ): void {
+        $key = $this->repository->key()->handler()
+            ->withObjectId($object_id);
+        $existing_element = $this->repository->handler()->getElement($key);
+        if (!is_null($existing_element)) {
+            $existing_element->getIRSS()->delete($user_id);
+            $this->repository->handler()->deleteElement($existing_element->getKey());
+        }
+    }
+
+    public function getThumbnailImageURL(
+        ObjectId $object_id
+    ): null|string {
+        $key = $this->repository->key()->handler()
+            ->withObjectId($object_id);
+        $element = $this->repository->handler()->getElement($key);
+        if (is_null($element)) {
+            return null;
+        }
+        return $element->getIRSS()->getThumbnailImageURL();
+    }
+
+    public function getProcessedImageURL(
+        ObjectId $object_id
+    ): null|string {
+        $key = $this->repository->key()->handler()
+            ->withObjectId($object_id);
+        $element = $this->repository->handler()->getElement($key);
+        if (is_null($element)) {
+            return null;
+        }
+        return $element->getIRSS()->getProcessedImageURL();
     }
 }

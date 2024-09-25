@@ -21,7 +21,6 @@ declare(strict_types=1);
 namespace ILIAS\Poll\Image\Repository\Stakeholder;
 
 use ILIAS\Poll\Image\I\Repository\Stakeholder\HandlerInterface as ilPollImageRepositoryStakeholderInterface;
-use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Stakeholder\AbstractResourceStakeholder;
 
 class Handler extends AbstractResourceStakeholder implements ilPollImageRepositoryStakeholderInterface

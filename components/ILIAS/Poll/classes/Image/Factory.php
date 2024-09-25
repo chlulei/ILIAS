@@ -21,12 +21,12 @@ declare(strict_types=1);
 namespace ILIAS\Poll\Image;
 
 use ilDBInterface;
+use ILIAS\Poll\Image\Handler as ilPollImage;
 use ILIAS\Poll\Image\I\FactoryInterface as ilPollImageFactoryInterface;
+use ILIAS\Poll\Image\I\HandlerInterface as ilPollImageInterface;
 use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\Repository\Factory as ilPollImageRepositoryFactory;
 use ILIAS\ResourceStorage\Services as ilResourceStorageServices;
-use ILIAS\Poll\Image\I\HandlerInterface as ilPollImageInterface;
-use ILIAS\Poll\Image\Handler as ilPollImage;
 
 class Factory implements ilPollImageFactoryInterface
 {
@@ -37,7 +37,7 @@ class Factory implements ilPollImageFactoryInterface
     {
         global $DIC;
         $this->db = $DIC->database();
-        $this->irss = $DIC->irss();
+        $this->irss = $DIC->resourceStorage();
     }
 
     public function repository(): ilPollImageRepositoryFactoryInterface

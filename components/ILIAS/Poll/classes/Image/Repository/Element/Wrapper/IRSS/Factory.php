@@ -22,23 +22,28 @@ namespace ILIAS\Poll\Image\Repository\Element\Wrapper\IRSS;
 
 use ILIAS\Poll\Image\I\Repository\Element\Wrapper\IRSS\FactoryInterface as ilPollImageRepositoryElementIRSSWrapperFactory;
 use ILIAS\Poll\Image\I\Repository\Element\Wrapper\IRSS\HandlerInterface as ilPollImageRepositoryElementIRSSWrapperInterface;
+use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\Repository\Element\Wrapper\IRSS\Handler as ilPollImageRepositoryElementIRSSWrapper;
 use ILIAS\ResourceStorage\Services as ILIASResourceStorageService;
 
 class Factory implements ilPollImageRepositoryElementIRSSWrapperFactory
 {
     protected ILIASResourceStorageService $irss;
+    protected ilPollImageRepositoryFactoryInterface $repository;
 
     public function __construct(
-        ILIASResourceStorageService $irss
+        ILIASResourceStorageService $irss,
+        ilPollImageRepositoryFactoryInterface $repository
     ) {
         $this->irss = $irss;
+        $this->repository = $repository;
     }
 
     public function handler(): ilPollImageRepositoryElementIRSSWrapperInterface
     {
         return new ilPollImageRepositoryElementIRSSWrapper(
-            $this->irss
+            $this->irss,
+            $this->repository
         );
     }
 }

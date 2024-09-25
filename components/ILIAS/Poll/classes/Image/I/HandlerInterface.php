@@ -35,4 +35,17 @@ interface HandlerInterface
         ObjectId $clone_object_id,
         int $user_id
     ): void;
+
+    public function deleteImage(
+        ObjectId $object_id,
+        int $user_id
+    ): void;
+
+    public function getThumbnailImageURL(
+        ObjectId $object_id
+    ): null|string;
+
+    public function getProcessedImageURL(
+        ObjectId $object_id
+    ): null|string;
 }

@@ -22,17 +22,17 @@ namespace ILIAS\Poll\Image\Repository;
 
 use ilDBInterface;
 use ILIAS\Poll\Image\I\Repository\Element\FactoryInterface as ilPollImageRepositoryElementFactoryInterface;
-use ILIAS\Poll\Image\Repository\Element\Factory as ilPollImageRepositoryElementFactory;
 use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\HandlerInterface as ilPollImageRepositoryInterface;
-use ILIAS\Poll\Image\Repository\Handler as ilPollImageRepository;
 use ILIAS\Poll\Image\I\Repository\Key\FactoryInterface as ilPollImageRepositoryKeyFactoryInterface;
-use ILIAS\Poll\Image\Repository\Key\Factory as ilPollImageRepositoryKeyFactory;
 use ILIAS\Poll\Image\I\Repository\Stakeholder\FactoryInterface as ilPollImageRepositoryStakeholderFactoryInterface;
-use ILIAS\Poll\Image\Repository\Stakeholder\Factory as ilPollImageRepositoryStakeholderFactory;
 use ILIAS\Poll\Image\I\Repository\Values\FactoryInterface as ilPollImageRepositoryValuesFactoryInterface;
-use ILIAS\Poll\Image\Repository\Values\Factory as ilPollImageRepositoryValuesFactory;
 use ILIAS\Poll\Image\I\Repository\Wrapper\FactoryInterface as ilPollImageRepositoryWrapperFactoryInterface;
+use ILIAS\Poll\Image\Repository\Element\Factory as ilPollImageRepositoryElementFactory;
+use ILIAS\Poll\Image\Repository\Handler as ilPollImageRepository;
+use ILIAS\Poll\Image\Repository\Key\Factory as ilPollImageRepositoryKeyFactory;
+use ILIAS\Poll\Image\Repository\Stakeholder\Factory as ilPollImageRepositoryStakeholderFactory;
+use ILIAS\Poll\Image\Repository\Values\Factory as ilPollImageRepositoryValuesFactory;
 use ILIAS\Poll\Image\Repository\Wrapper\Factory as ilPollImageRepositoryWrapperFactory;
 use ILIAS\ResourceStorage\Services as ilResourceStorageServices;
 
@@ -52,7 +52,8 @@ class Factory implements ilPollImageRepositoryFactoryInterface
     public function element(): ilPollImageRepositoryElementFactoryInterface
     {
         return new ilPollImageRepositoryElementFactory(
-            $this->irss
+            $this->irss,
+            $this
         );
     }
 
@@ -81,6 +82,8 @@ class Factory implements ilPollImageRepositoryFactoryInterface
 
     public function handler(): ilPollImageRepositoryInterface
     {
-        return new ilPollImageRepository();
+        return new ilPollImageRepository(
+            $this->wrapper()->db()->handler()
+        );
     }
 }

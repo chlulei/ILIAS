@@ -18,6 +18,9 @@
 
 declare(strict_types=1);
 
+use ILIAS\Poll\Image\I\FactoryInterface as ilPollImageFactoryInterface;
+use ILIAS\Poll\Image\Factory as ilPollImageFactory;
+
 /**
  * Poll Dataset class
  *
@@ -30,6 +33,7 @@ declare(strict_types=1);
 class ilPollDataSet extends ilDataSet
 {
     protected \ILIAS\Notes\Service $notes;
+    protected ilPollImageFactoryInterface $poll_image_factory;
 
     public function __construct()
     {
@@ -37,6 +41,7 @@ class ilPollDataSet extends ilDataSet
 
         parent::__construct();
         $this->notes = $DIC->notes();
+        $this->poll_image_factory = new ilPollImageFactory();
     }
 
     public function getSupportedVersions(): array
@@ -63,8 +68,8 @@ class ilPollDataSet extends ilDataSet
                         "Description" => "text",
                         "Question" => "text",
                         "Image" => "text",
-                        "ViewResults" => "integer",
-                        "Dir" => "directory"
+                        "ViewResults" => "integer"#,
+                        #"Dir" => "directory"
                         );
                     break;
                 case "5.0.0":
@@ -75,7 +80,7 @@ class ilPollDataSet extends ilDataSet
                         "Question" => "text",
                         "Image" => "text",
                         "ViewResults" => "integer",
-                        "Dir" => "directory",
+                        #"Dir" => "directory",
                         "ShowResultsAs" => "integer",
                         "ShowComments" => "integer",
                         "MaxAnswers" => "integer",
@@ -163,8 +168,8 @@ class ilPollDataSet extends ilDataSet
     public function getXmlRecord(string $a_entity, string $a_version, array $a_set): array
     {
         if ($a_entity === "poll") {
-            $dir = ilObjPoll::initStorage((int) $a_set["Id"]);
-            $a_set["Dir"] = $dir;
+            #$dir = ilObjPoll::initStorage((int) $a_set["Id"]);
+            #$a_set["Dir"] = $dir;
 
             $a_set["ShowComments"] = $this->notes->domain()->commentsActive((int) $a_set["Id"]);
         }
@@ -220,7 +225,7 @@ class ilPollDataSet extends ilDataSet
                 }
                 $newObj->setShowComments((bool) ($a_rec["ShowComments"] ?? false));
                 $newObj->setQuestion((string) ($a_rec["Question"] ?? ''));
-                $newObj->setImage((string) ($a_rec["Image"] ?? ''));
+                #$newObj->setImage((string) ($a_rec["Image"] ?? ''));
                 $newObj->setViewResults((int) ($a_rec["ViewResults"] ?? ilObjPoll::VIEW_RESULTS_AFTER_VOTE));
                 $newObj->setVotingPeriod((bool) ($a_rec["Period"] ?? 0));
                 $newObj->setVotingPeriodBegin((int) ($a_rec["PeriodBegin"] ?? 0));
@@ -228,6 +233,7 @@ class ilPollDataSet extends ilDataSet
                 $newObj->update();
 
                 // handle image(s)
+                /*
                 if ($a_rec["Image"]) {
                     $dir = str_replace("..", "", (string) ($a_rec["Dir"] ?? ''));
                     if ($dir !== "" && $this->getImportDirectory() !== "") {
@@ -236,6 +242,7 @@ class ilPollDataSet extends ilDataSet
                         ilFileUtils::rCopy($source_dir, $target_dir);
                     }
                 }
+                */
 
                 $a_mapping->addMapping("components/ILIAS/Poll", "poll", (string) ($a_rec["Id"] ?? "0"), (string) $newObj->getId());
                 break;

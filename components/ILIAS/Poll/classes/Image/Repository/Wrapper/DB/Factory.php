@@ -21,10 +21,10 @@ declare(strict_types=1);
 namespace ILIAS\Poll\Image\Repository\Wrapper\DB;
 
 use ilDBInterface;
+use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\Wrapper\DB\FactoryInterface as ilPollImageRepositoryDBWrapperFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\Wrapper\DB\HandlerInterface as ilPollImageRepositoryWrapperDBInterface;
 use ILIAS\Poll\Image\Repository\Wrapper\DB\Handler as ilPollImageRepositoryWrapperDB;
-use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 
 class Factory implements ilPollImageRepositoryDBWrapperFactoryInterface
 {

@@ -23,21 +23,22 @@ namespace ILIAS\Poll\Image\Repository\Wrapper\DB;
 use ilDBConstants;
 use ilDBInterface;
 use ILIAS\Poll\Image\I\Repository\Element\HandlerInterface as ilPollImageRepositoryElementInterface;
+use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\Key\HandlerInterface as ilPollImageRepositoryKeyInterface;
 use ILIAS\Poll\Image\I\Repository\Values\HandlerInterface as ilPollImageRepositoryValuesInterface;
 use ILIAS\Poll\Image\I\Repository\Wrapper\DB\HandlerInterface as ilPollImageRepositoryWrapperDBInterface;
-use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 
 class Handler implements ilPollImageRepositoryWrapperDBInterface
 {
-    protected ilPollImageRepositoryFactoryInterface $ilPollImageRepositoryFactory;
+    protected ilPollImageRepositoryFactoryInterface $repository;
     protected ilDBInterface $db;
 
     public function __construct(
-        ilPollImageRepositoryFactoryInterface $ilPollImageRepositoryFactory,
+        ilPollImageRepositoryFactoryInterface $repository,
         ilDBInterface $db
     ) {
         $this->db = $db;
+        $this->repository = $repository;
     }
 
     public function insert(
@@ -61,9 +62,9 @@ class Handler implements ilPollImageRepositoryWrapperDBInterface
         if (is_null($row)) {
             return null;
         }
-        $values = $this->ilPollImageRepositoryFactory->values()->handler()
+        $values = $this->repository->values()->handler()
             ->withResourceIdSerialized($row['rid']);
-        return $this->ilPollImageRepositoryFactory->element()->handler()
+        return $this->repository->element()->handler()
             ->withKey($key)
             ->withValues($values);
     }

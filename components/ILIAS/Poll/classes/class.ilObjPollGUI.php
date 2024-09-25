@@ -18,8 +18,11 @@ declare(strict_types=1);
  *
  *********************************************************************/
 
+use ILIAS\Data\ObjectId;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
+use ILIAS\Poll\Image\I\FactoryInterface as ilPollImageFactoryInterface;
+use ILIAS\Poll\Image\Factory as ilPollImageFactory;
 
 /**
  * Class ilObjPollGUI
@@ -36,6 +39,7 @@ class ilObjPollGUI extends ilObject2GUI
     protected ilNavigationHistory $nav_history;
     protected Factory $ui_factory;
     protected Renderer $ui_renderer;
+    protected ilPollImageFactoryInterface $poll_image_factory;
 
     public function __construct(int $a_id = 0, int $a_id_type = self::REPOSITORY_NODE_ID, int $a_parent_node_id = 0)
     {
@@ -53,6 +57,7 @@ class ilObjPollGUI extends ilObject2GUI
         $this->locator = $DIC["ilLocator"];
         $this->ui_factory = $DIC->ui()->factory();
         $this->ui_renderer = $DIC->ui()->renderer();
+        $this->poll_image_factory = new ilPollImageFactory();
 
         parent::__construct($a_id, $a_id_type, $a_parent_node_id);
 
@@ -353,10 +358,14 @@ class ilObjPollGUI extends ilObject2GUI
         $form->addItem($img);
 
         // show existing file
-        $file = $this->object->getImageFullPath(true);
+        $url = $this->poll_image_factory->handler()->getThumbnailImageURL(new ObjectId($this->object_id));
+        if (!is_null($url)) {
+            $img->setImage($url);
+        }
+        /*$file = $this->object->getImageFullPath(true);
         if ($file) {
             $img->setImage(ilWACSignedPath::signFile($file));
-        }
+        }*/
 
         $anonymous = new ilRadioGroupInputGUI($this->lng->txt("poll_mode"), "mode");
         $option = new ilRadioOption($this->lng->txt("poll_mode_anonymous"), "0");
@@ -444,9 +453,13 @@ class ilObjPollGUI extends ilObject2GUI
             $image = $form->getItemByPostVar("image");
             $res = $form->getFileUpload("image");
             if (!empty($res)) {
-                $this->object->uploadImage($res);
+                $this->object->uploadImage((string) ($res['tmp_name'] ?? ""));
             } elseif ($image->getDeletionFlag()) {
-                $this->object->deleteImage();
+                $this->poll_image_factory->handler()->deleteImage(
+                    new ObjectId($this->object->getId()),
+                    $this->user->getId()
+                );
+                #$this->object->deleteImage();
             }
 
             if ($this->object->update()) {

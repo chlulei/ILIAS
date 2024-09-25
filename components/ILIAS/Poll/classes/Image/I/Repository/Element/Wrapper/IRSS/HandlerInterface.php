@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Poll\Image\I\Repository\Element\Wrapper\IRSS;
 
-use ILIAS\Data\URI;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 interface HandlerInterface

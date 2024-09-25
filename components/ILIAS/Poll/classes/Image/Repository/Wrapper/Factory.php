@@ -23,8 +23,8 @@ namespace ILIAS\Poll\Image\Repository\Wrapper;
 use ilDBInterface;
 use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\Wrapper\DB\FactoryInterface as ilPollImageRepositoryDBWrapperFactoryInterface;
-use ILIAS\Poll\Image\Repository\Wrapper\DB\Factory as ilPollImageRepositoryDBWrapperFactory;
 use ILIAS\Poll\Image\I\Repository\Wrapper\FactoryInterface as ilPollImageRepositoryWrapperFactoryInterface;
+use ILIAS\Poll\Image\Repository\Wrapper\DB\Factory as ilPollImageRepositoryDBWrapperFactory;
 
 class Factory implements ilPollImageRepositoryWrapperFactoryInterface
 {

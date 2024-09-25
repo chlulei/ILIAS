@@ -21,11 +21,11 @@ declare(strict_types=1);
 namespace ILIAS\Poll\Image\I\Repository;
 
 use ILIAS\Poll\Image\I\Repository\Element\FactoryInterface as ilPollImageRepositoryElementFactoryInterface;
-use ILIAS\Poll\Image\I\Repository\Key\FactoryInterface as ilPollImageRepositoryKeyFactoryInterface;
-use ILIAS\Poll\Image\I\Repository\Values\FactoryInterface as ilPollImageRepositoryValuesFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\HandlerInterface as ilPollImageRepositoryInterface;
-use ILIAS\Poll\Image\I\Repository\Wrapper\FactoryInterface as ilPollImageRepositoryWrapperFactoryInterface;
+use ILIAS\Poll\Image\I\Repository\Key\FactoryInterface as ilPollImageRepositoryKeyFactoryInterface;
 use ILIAS\Poll\Image\I\Repository\Stakeholder\FactoryInterface as ilPollImageRepositoryStakeholderFactoryInterface;
+use ILIAS\Poll\Image\I\Repository\Values\FactoryInterface as ilPollImageRepositoryValuesFactoryInterface;
+use ILIAS\Poll\Image\I\Repository\Wrapper\FactoryInterface as ilPollImageRepositoryWrapperFactoryInterface;
 
 interface FactoryInterface
 {

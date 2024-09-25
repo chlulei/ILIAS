@@ -20,9 +20,9 @@ declare(strict_types=1);
 
 namespace ILIAS\Poll\Image\I\Repository\Wrapper\DB;
 
+use ILIAS\Poll\Image\I\Repository\Element\HandlerInterface as ilPollImageRepositoryElementInterface;
 use ILIAS\Poll\Image\I\Repository\Key\HandlerInterface as ilPollImageRepositoryKeyInterface;
 use ILIAS\Poll\Image\I\Repository\Values\HandlerInterface as ilPollImageRepositoryValuesInterface;
-use ILIAS\Poll\Image\I\Repository\Element\HandlerInterface as ilPollImageRepositoryElementInterface;
 
 interface HandlerInterface
 {

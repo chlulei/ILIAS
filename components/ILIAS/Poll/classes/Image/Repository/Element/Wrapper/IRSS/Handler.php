@@ -20,14 +20,11 @@ declare(strict_types=1);
 
 namespace ILIAS\Poll\Image\Repository\Element\Wrapper\IRSS;
 
-use ILIAS\Data\URI;
 use ILIAS\Poll\Image\I\Repository\Element\Wrapper\IRSS\HandlerInterface as ilPollImageRepositoryElementIRSSWrapperInterface;
+use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 use ILIAS\ResourceStorage\Flavour\Definition\CropToSquare;
-use ILIAS\ResourceStorage\Flavour\Definition\PagesToExtract;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 use ILIAS\ResourceStorage\Services as ILIASResourceStorageService;
-use ILIAS\UI\Implementation\Component\Image\Image;
-use ILIAS\Poll\Image\I\Repository\FactoryInterface as ilPollImageRepositoryFactoryInterface;
 
 class Handler implements ilPollImageRepositoryElementIRSSWrapperInterface
 {
@@ -85,7 +82,7 @@ class Handler implements ilPollImageRepositoryElementIRSSWrapperInterface
         );
         $flavour = $this->irss->flavours()->get($rid, $definition);
         $urls_of_flavour_streams = $this->irss->consume()->flavourUrls($flavour);
-        return $urls_of_flavour_streams->getURLsAsArray()[0];
+        return $urls_of_flavour_streams->getURLsAsArray(true)[0];
     }
 
     public function getThumbnailImageURL(): null|string
@@ -100,7 +97,7 @@ class Handler implements ilPollImageRepositoryElementIRSSWrapperInterface
         );
         $flavour = $this->irss->flavours()->get($rid, $definition);
         $urls_of_flavour_streams = $this->irss->consume()->flavourUrls($flavour);
-        return $urls_of_flavour_streams->getURLsAsArray()[0];
+        return $urls_of_flavour_streams->getURLsAsArray(true)[0];
     }
 
     public function getResourceIdentification(): null|ResourceIdentification

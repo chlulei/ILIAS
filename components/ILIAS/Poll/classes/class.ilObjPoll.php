@@ -128,6 +128,7 @@ class ilObjPoll extends ilObject2
         return $this->question;
     }
 
+    /*
     public function setImage(string $a_value): void
     {
         $this->image = $a_value;
@@ -137,6 +138,7 @@ class ilObjPoll extends ilObject2
     {
         return $this->image;
     }
+    */
 
     public function setViewResults(int $a_value): void
     {
@@ -236,7 +238,7 @@ class ilObjPoll extends ilObject2
                 " WHERE id = " . $ilDB->quote($this->getId(), "integer"));
         $row = $ilDB->fetchAssoc($set);
         $this->setQuestion((string) ($row["question"] ?? ''));
-        $this->setImage((string) ($row["image"] ?? ''));
+        #$this->setImage((string) ($row["image"] ?? ''));
         $this->setViewResults((int) ($row["view_results"] ?? self::VIEW_RESULTS_AFTER_VOTE));
         $this->setVotingPeriod((bool) ($row["period"] ?? 0));
         $this->setVotingPeriodBegin((int) ($row["period_begin"] ?? 0));
@@ -265,7 +267,7 @@ class ilObjPoll extends ilObject2
     {
         return array(
             "question" => array("text", $this->getQuestion()),
-            "image" => array("text", $this->getImage()),
+            #"image" => array("text", $this->getImage()),
             "view_results" => array("integer", $this->getViewResults()),
             "period" => array("integer", $this->getVotingPeriod()),
             "period_begin" => array("integer", $this->getVotingPeriodBegin()),
@@ -332,7 +334,11 @@ class ilObjPoll extends ilObject2
         $ilDB = $this->db;
 
         if ($this->getId()) {
-            $this->deleteImage();
+            $this->poll_image_factory->handler()->deleteImage(
+                new ObjectId($this->getId()),
+                $this->user->getId()
+            );
+            #$this->deleteImage();
             $this->deleteAllAnswers();
 
             if ($this->ref_id) {
@@ -396,7 +402,7 @@ class ilObjPoll extends ilObject2
     //
     // image
     //
-
+    /*
     public function getImageFullPath(bool $a_as_thumb = false): ?string
     {
         $img = $this->getImage();
@@ -411,7 +417,8 @@ class ilObjPoll extends ilObject2
 
         return null;
     }
-
+    */
+    /*
     public function deleteImage(): void
     {
         if ($this->id) {
@@ -421,7 +428,9 @@ class ilObjPoll extends ilObject2
             $this->setImage("");
         }
     }
+    */
 
+    /*
     public static function initStorage(int $a_id, ?string $a_subdir = null): string
     {
         $storage = new ilFSStoragePoll($a_id);
@@ -439,19 +448,19 @@ class ilObjPoll extends ilObject2
 
         return $path;
     }
+    */
 
-    public function uploadImage(array $a_upload, bool $a_clone = false): bool
+    public function uploadImage(string $file_path): void
     {
-        $file_path = (string) ($a_upload['tmp_name'] ?? "");
-        if (!$this->id or $file_path === "") {
-            return false;
+        if (!$this->getId() or $file_path === "") {
+            return;
         }
         $this->poll_image_factory->handler()->uploadImage(
-            new ObjectId($this->id),
+            new ObjectId($this->getId()),
             $file_path,
             $this->user->getId()
         );
-        return true;
+        return;
         /*
         $this->deleteImage();
 
