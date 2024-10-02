@@ -32,7 +32,25 @@ interface HandlerInterface
         string $resource_id_serialized
     ): HandlerInterface;
 
+    public function withIsGlobal(
+        bool $is_global
+    ): HandlerInterface;
+
     public function getObjectId(): ObjectId;
 
     public function getResourceIdSerialized(): string;
+
+    public function getIsGlobal(): bool;
+
+    public function isValid(): bool;
+
+    public function isObjectIdKey(): bool;
+
+    public function isResourceIdKey(): bool;
+
+    public function isIsGlobalKey(): bool;
+
+    public function isCompositKeyOfObjectIdAndResourceId(): bool;
+
+    public function isCompositKeyOfAll(): bool;
 }

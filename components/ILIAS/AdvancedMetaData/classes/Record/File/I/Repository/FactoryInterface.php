@@ -23,6 +23,7 @@ namespace ILIAS\AdvancedMetaData\Record\File\I\Repository;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\FactoryInterface as ilAMDRecordFileRepositoryElementFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\HandlerInterface as ilAMDRecordFileRepositoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Key\FactoryInterface as ilAMDRecordFileRepositoryKeyFactoryInterface;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Stakeholder\FactoryInterface as ilAMDRecordFileRepositoryStakeholderFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Values\FactoryInterface as ilAMDRecordFileRepositoryValuesFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Wrapper\FactoryInterface as ilAMDRecordFileRepositoryWrapperFactoryInterface;
 
@@ -33,6 +34,8 @@ interface FactoryInterface
     public function element(): ilAMDRecordFileRepositoryElementFactoryInterface;
 
     public function key(): ilAMDRecordFileRepositoryKeyFactoryInterface;
+
+    public function stakeholder(): ilAMDRecordFileRepositoryStakeholderFactoryInterface;
 
     public function values(): ilAMDRecordFileRepositoryValuesFactoryInterface;
 

@@ -27,6 +27,7 @@ class Handler implements ilAMDRecordFileRepositoryKeyInterface
 {
     protected ObjectId $object_id;
     protected string $resource_id_serialized;
+    protected bool $is_global;
 
     public function withObjectId(
         ObjectId $object_id
@@ -44,6 +45,14 @@ class Handler implements ilAMDRecordFileRepositoryKeyInterface
         return $clone;
     }
 
+    public function withIsGlobal(
+        bool $is_global
+    ): ilAMDRecordFileRepositoryKeyInterface {
+        $clone = clone $this;
+        $clone->is_global = $is_global;
+        return $clone;
+    }
+
     public function getObjectId(): ObjectId
     {
         return $this->object_id;
@@ -52,5 +61,65 @@ class Handler implements ilAMDRecordFileRepositoryKeyInterface
     public function getResourceIdSerialized(): string
     {
         return $this->resource_id_serialized;
+    }
+
+    public function getIsGlobal(): bool
+    {
+        return $this->is_global;
+    }
+
+    public function isValid(): bool
+    {
+        return (
+            $this->isObjectIdKey() or
+            $this->isResourceIdKey() or
+            $this->isCompositKeyOfObjectIdAndResourceId() or
+            $this->isCompositKeyOfAll()
+        );
+    }
+
+    public function isObjectIdKey(): bool
+    {
+        return (
+            isset($this->object_id) and
+            !isset($this->resource_id_serialized) and
+            !isset($this->is_global)
+        );
+    }
+
+    public function isResourceIdKey(): bool
+    {
+        return (
+            !isset($this->object_id) and
+            isset($this->resource_id_serialized) and
+            !isset($this->is_global)
+        );
+    }
+
+    public function isIsGlobalKey(): bool
+    {
+        return (
+            !isset($this->object_id) and
+            !isset($this->resource_id_serialized) and
+            isset($this->is_global)
+        );
+    }
+
+    public function isCompositKeyOfObjectIdAndResourceId(): bool
+    {
+        return (
+            isset($this->object_id) and
+            isset($this->resource_id_serialized) and
+            !isset($this->is_global)
+        );
+    }
+
+    public function isCompositKeyOfAll(): bool
+    {
+        return (
+            isset($this->object_id) and
+            isset($this->resource_id_serialized) and
+            isset($this->is_global)
+        );
     }
 }

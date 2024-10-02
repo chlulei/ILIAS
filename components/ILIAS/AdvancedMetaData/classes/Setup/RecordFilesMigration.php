@@ -67,15 +67,16 @@ class RecordFilesMigration implements ilSetupMigration
         Environment $environment
     ): void {
         $files = $this->getFiles();
-        $object_id = array_key_first($files) === self::NULL_KEY ? -1 : array_key_first($files);
+        $object_id = array_key_first($files);
         $file_path = $files[$object_id][0];
         $stakeholder = (new ilAMDRecordFileRepositoryStakeholder())->withOwnerId(6);
         $irss_helper = new ilResourceStorageMigrationHelper($stakeholder, $environment);
         $rid = $irss_helper->movePathToStorage($file_path, 6, null, null, false);
         $this->db->manipulate(
             "INSERT INTO adv_md_record_files VALUES ("
-            . $this->db->quote($object_id, ilDBConstants::T_INTEGER) . ", "
-            . $this->db->quote($rid->serialize(), ilDBConstants::T_TEXT) . ")"
+            . $this->db->quote(($object_id === self::NULL_KEY ? 0 : $object_id), ilDBConstants::T_INTEGER) . ", "
+            . $this->db->quote($rid->serialize(), ilDBConstants::T_TEXT) . ", "
+            . $this->db->quote((int) ($object_id === self::NULL_KEY), ilDBConstants::T_INTEGER) . ")"
         );
     }
 

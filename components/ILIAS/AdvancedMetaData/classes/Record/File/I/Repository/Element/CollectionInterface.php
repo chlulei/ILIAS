@@ -22,7 +22,24 @@ namespace ILIAS\AdvancedMetaData\Record\File\I\Repository\Element;
 
 use Countable;
 use Iterator;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\HandlerInterface as ilAMDRecordFileRepositoryElementInterface;
 
 interface CollectionInterface extends Iterator, Countable
 {
+    public function withElement(
+        ilAMDRecordFileRepositoryElementInterface $element
+    ): CollectionInterface;
+
+    public function current(): ilAMDRecordFileRepositoryElementInterface;
+
+    public function key(): int;
+
+    public function valid(): bool;
+
+    public function rewind(): void;
+
+    public function next(): void;
+
+    public function count(): int;
+
 }

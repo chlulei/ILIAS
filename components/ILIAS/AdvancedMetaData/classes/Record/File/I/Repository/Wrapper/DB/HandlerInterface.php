@@ -22,6 +22,7 @@ namespace ILIAS\AdvancedMetaData\Record\File\I\Repository\Wrapper\DB;
 
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Key\HandlerInterface as ilAMDRecordFileRepositoryKeyInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Values\HandlerInterface as ilAMDRecordFileRepositoryValuesInterface;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\CollectionInterface as ilAMDRecordFileRepositoryElementCollectionInterface;
 
 interface HandlerInterface
 {
@@ -38,7 +39,7 @@ interface HandlerInterface
 
     public function select(
         ilAMDRecordFileRepositoryKeyInterface $key
-    ): void;
+    ): ilAMDRecordFileRepositoryElementCollectionInterface;
 
     public function buildSelectQuery(
         ilAMDRecordFileRepositoryKeyInterface $key

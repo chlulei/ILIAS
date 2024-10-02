@@ -20,15 +20,30 @@ declare(strict_types=1);
 
 namespace ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\Wrapper\IRSS;
 
+use DateTimeImmutable;
 use ILIAS\ResourceStorage\Identification\ResourceIdentification;
 
 interface HandlerInterface
 {
     public function withResourceIdSerialized(
         string $resource_id_serialized
-    ): void;
+    ): HandlerInterface;
 
     public function getResourceIdSerialized(): string;
 
-    public function getResourceIdentification(): ResourceIdentification;
+    public function getResourceSize(): int;
+
+    public function getCreationDate(): DateTimeImmutable;
+
+    public function getFileName(): string;
+
+    public function getRecords(): array;
+
+    public function deleteResource(): void;
+
+    public function resourceExists(): bool;
+
+    public function download(string|null $new_filename = null): void;
+
+    public function getResourceIdentification(): ResourceIdentification|null;
 }

@@ -22,10 +22,13 @@ namespace ILIAS\AdvancedMetaData\Record\File\I\Repository\Element;
 
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\HandlerInterface as ilAMDRecordFileRepositoryElementInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\Wrapper\FactoryInterface as ilAMDRecordFileRepositoryElementWrapperFactoryInterface;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\CollectionInterface as ilAMDRecordFileRepositoryElementCollectionInterface;
 
 interface FactoryInterface
 {
     public function handler(): ilAMDRecordFileRepositoryElementInterface;
+
+    public function collection(): ilAMDRecordFileRepositoryElementCollectionInterface;
 
     public function wrapper(): ilAMDRecordFileRepositoryElementWrapperFactoryInterface;
 }

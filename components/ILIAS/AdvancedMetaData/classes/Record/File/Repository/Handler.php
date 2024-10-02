@@ -23,6 +23,7 @@ namespace ILIAS\AdvancedMetaData\Record\File\Repository;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\HandlerInterface as ilAMDRecordFileRepositoryElementInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\HandlerInterface as ilAMDRecordFileRepositoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Key\HandlerInterface as ilAMDRecordFileRepositoryKeyInterface;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\CollectionInterface as ilAMDRecordFileRepositoryElementCollectionInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Values\HandlerInterface as ilAMDRecordFileRepositoryValuesInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Wrapper\DB\HandlerInterface as ilAMDRecordFileRepositoryDBWrapperInterface;
 
@@ -34,18 +35,27 @@ class Handler implements ilAMDRecordFileRepositoryInterface
         ilAMDRecordFileRepositoryKeyInterface $key,
         ilAMDRecordFileRepositoryValuesInterface $values
     ): void {
+        if (!$key->isCompositKeyOfAll()) {
+            return;
+        }
         $this->db_wrapper->insert($key, $values);
     }
 
     public function getElements(
         ilAMDRecordFileRepositoryKeyInterface $key
-    ): ilAMDRecordFileRepositoryElementInterface {
+    ): ilAMDRecordFileRepositoryElementCollectionInterface|null {
+        if (!$key->isValid()) {
+            return null;
+        }
         return $this->db_wrapper->select($key);
     }
 
     public function delete(
         ilAMDRecordFileRepositoryKeyInterface $key
     ): void {
+        if (!$key->isValid()) {
+            return;
+        }
         $this->db_wrapper->delete($key);
     }
 }

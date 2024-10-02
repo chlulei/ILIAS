@@ -20,6 +20,8 @@ declare(strict_types=1);
 
 namespace ILIAS\AdvancedMetaData\Record\File\Repository\Element;
 
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\CollectionInterface as ilAMDRecordFileRepositoryElementCollectionInterface;
+use ILIAS\AdvancedMetaData\Record\File\Repository\Element\Collection as ilAMDRecordFileRepositoryElementCollection;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\FactoryInterface as ilAMDRecordFileRepositoryElementFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\HandlerInterface as ilAMDRecordFileRepositoryElementInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\Wrapper\FactoryInterface as ilAMDRecordFileRepositoryElementWrapperFactoryInterface;
@@ -39,7 +41,14 @@ class Factory implements ilAMDRecordFileRepositoryElementFactoryInterface
 
     public function handler(): ilAMDRecordFileRepositoryElementInterface
     {
-        return new ilAMDRecordFileRepositoryElement();
+        return new ilAMDRecordFileRepositoryElement(
+            $this->wrapper()->irss()
+        );
+    }
+
+    public function collection(): ilAMDRecordFileRepositoryElementCollectionInterface
+    {
+        return new ilAMDRecordFileRepositoryElementCollection();
     }
 
     public function wrapper(): ilAMDRecordFileRepositoryElementWrapperFactoryInterface

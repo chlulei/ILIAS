@@ -25,6 +25,8 @@ use ILIAS\AdvancedMetaData\Record\File\I\Repository\Element\FactoryInterface as 
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\FactoryInterface as ilAMDRecordFileRepositoryFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\HandlerInterface as ilAMDRecordFileRepositoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Key\FactoryInterface as ilAMDRecordFileRepositoryKeyFactoryInterface;
+use ILIAS\AdvancedMetaData\Record\File\I\Repository\Stakeholder\FactoryInterface as ilAMDRecordFileRepositoryStakeholderFactoryInterface;
+use ILIAS\AdvancedMetaData\Record\File\Repository\Stakeholder\Factory as ilAMDRecordFileRepositoryStakeholderFactory;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Values\FactoryInterface as ilAMDRecordFileRepositoryValuesFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\I\Repository\Wrapper\FactoryInterface as ilAMDRecordFileRepositoryWrapperFactoryInterface;
 use ILIAS\AdvancedMetaData\Record\File\Repository\Element\Factory as ilAMDRecordFileRepositoryElementFactory;
@@ -64,6 +66,11 @@ class Factory implements ilAMDRecordFileRepositoryFactoryInterface
         return new ilAMDRecordFileRepositoryKeyFactory();
     }
 
+    public function stakeholder(): ilAMDRecordFileRepositoryStakeholderFactoryInterface
+    {
+        return new ilAMDRecordFileRepositoryStakeholderFactory();
+    }
+
     public function values(): ilAMDRecordFileRepositoryValuesFactoryInterface
     {
         return new ilAMDRecordFileRepositoryValuesFactory();
@@ -72,7 +79,10 @@ class Factory implements ilAMDRecordFileRepositoryFactoryInterface
     public function wrapper(): ilAMDRecordFileRepositoryWrapperFactoryInterface
     {
         return new ilAMDRecordFileRepositoryWrapperFactory(
-            $this->db
+            $this->db,
+            $this->element(),
+            $this->key(),
+            $this->values()
         );
     }
 }

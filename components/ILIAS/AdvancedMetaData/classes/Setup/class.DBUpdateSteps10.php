@@ -61,8 +61,14 @@ class DBUpdateSteps10 implements \ilDatabaseUpdateSteps
                 'length' => 64,
                 'default' => '',
                 'notnull' => true
+            ],
+            'is_global' => [
+                'type' => ilDBConstants::T_INTEGER,
+                'length' => 1,
+                'default' => 0,
+                'notnull' => true
             ]
         ]);
-        $this->db->addPrimaryKey($table_name, ["object_id", "rid"]);
+        $this->db->addPrimaryKey($table_name, ["object_id", "rid, is_global"]);
     }
 }
