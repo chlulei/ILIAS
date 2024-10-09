@@ -188,8 +188,6 @@ class ilObjFileBasedLMGUI extends ilObjectGUI
             case "ilexportgui":
                 $ilTabs->activateTab("export");
                 $exp_gui = new ilExportGUI($this);
-                $exp_gui->addFormat("xml");
-                $exp_gui->addFormat("html", "", $this, "exportHTML");
                 $ret = $this->ctrl->forwardCommand($exp_gui);
                 break;
 
