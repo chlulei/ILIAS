@@ -28,6 +28,7 @@ class ilExport
 {
     /**
      * @todo currently used in ilLeanringModuleExporter
+     * @depricated
      */
     public string $export_run_dir = '';
 
