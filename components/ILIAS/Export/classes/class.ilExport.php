@@ -26,10 +26,6 @@ use ILIAS\Export\ExportHandler\I\Consumer\ExportWriter\HandlerInterface as ilExp
  */
 class ilExport
 {
-    /**
-     * @todo currently used in ilLeanringModuleExporter
-     * @depricated
-     */
     public string $export_run_dir = '';
     protected string $dir_relative = "";
     protected string $dir_absolute = "";
